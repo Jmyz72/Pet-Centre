@@ -3,34 +3,24 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/E:/xampp/htdocs/pet-centre/resources/views/dashboard.blade.php</file>
-            <file>file:/E:/xampp/htdocs/pet-centre/resources/views/welcome.blade.php</file>
-            <file>file:/E:/xampp/htdocs/pet-centre/database/migrations/2025_07_14_194311_create_pets_table.php</file>
-            <file>file:/E:/xampp/htdocs/pet-centre/.env</file>
-            <file>file:/E:/xampp/htdocs/pet-centre/database/factories/UserFactory.php</file>
-            <file>file:/E:/xampp/htdocs/pet-centre/database/seeders/DatabaseSeeder.php</file>
-            <file>file:/E:/xampp/htdocs/pet-centre/app/View/Components/AppLayout.php</file>
-            <file>file:/E:/xampp/htdocs/pet-centre/app/Models/Booking.php</file>
-            <file>file:/E:/xampp/htdocs/pet-centre/app/Models/Pet.php</file>
-            <file>file:/E:/xampp/htdocs/pet-centre/app/Models/Pets.php</file>
-            <file>file:/E:/xampp/htdocs/pet-centre/resources/views/layouts/guest.blade.php</file>
-            <file>file:/E:/xampp/htdocs/pet-centre/resources/views/layouts/app.blade.php</file>
-            <file>file:/E:/xampp/htdocs/pet-centre/resources/views/layouts/footer.blade.php</file>
-            <file>file:/E:/xampp/htdocs/pet-centre/routes/web.php</file>
-            <file>file:/E:/xampp/htdocs/pet-centre/app/Http/Controllers/MerchantApplicationController.php</file>
-            <file>file:/E:/xampp/htdocs/pet-centre/resources/views/layouts/navigation.blade.php</file>
-            <file>file:/E:/xampp/htdocs/pet-centre/routes/auth.php</file>
-            <file>file:/E:/xampp/htdocs/pet-centre/resources/views/merchant/apply.blade.php</file>
-            <file>file:/E:/xampp/htdocs/pet-centre/resources/views/merchant/form.blade.php</file>
-            <file>file:/E:/xampp/htdocs/pet-centre/resources/views/profile/edit.blade.php</file>
-            <file>file:/E:/xampp/htdocs/pet-centre/resources/views/profile/partials/delete-user-form.blade.php</file>
-            <file>file:/E:/xampp/htdocs/pet-centre/resources/views/profile/partials/update-password-form.blade.php</file>
-            <file>file:/E:/xampp/htdocs/pet-centre/resources/views/profile/partials/update-profile-information-form.blade.php</file>
-            <file>file:/E:/xampp/htdocs/pet-centre/app/Http/Controllers/Controller.php</file>
-            <file>file:/E:/xampp/htdocs/pet-centre/app/Http/Controllers/ProfileController.php</file>
-            <file>file:/E:/xampp/htdocs/pet-centre/config/app.php</file>
-            <file>file:/E:/xampp/htdocs/pet-centre/config/auth.php</file>
-            <file>file:/E:/xampp/htdocs/pet-centre/config/cache.php</file>
+            <file>file:/Applications/XAMPP/htdocs/Jimmy/resources/views/layouts/guest.blade.php</file>
+            <file>file:/Applications/XAMPP/htdocs/Jimmy/resources/views/layouts/navigation.blade.php</file>
+            <file>file:/Applications/XAMPP/htdocs/Jimmy/database/migrations/2025_08_04_170758_create_notification_templates_table.php</file>
+            <file>file:/Applications/XAMPP/htdocs/Jimmy/database/migrations/2025_07_17_144003_create_merchant_applications_table.php</file>
+            <file>file:/Applications/XAMPP/htdocs/Jimmy/database/migrations/2025_08_05_034933_create_notifications_table.php</file>
+            <file>file:/Applications/XAMPP/htdocs/Jimmy/app/Models/Notification.php</file>
+            <file>file:/Applications/XAMPP/htdocs/Jimmy/app/Models/NotificationTemplate.php</file>
+            <file>file:/Applications/XAMPP/htdocs/Jimmy/app/Models/MerchantApplication.php</file>
+            <file>file:/Applications/XAMPP/htdocs/Jimmy/app/Http/Controllers/NotificationController.php</file>
+            <file>file:/Applications/XAMPP/htdocs/Jimmy/app/Http/Controllers/MerchantApplicationController.php</file>
+            <file>file:/Applications/XAMPP/htdocs/Jimmy/routes/web.php</file>
+            <file>file:/Applications/XAMPP/htdocs/Jimmy/routes/console.php</file>
+            <file>file:/Applications/XAMPP/htdocs/Jimmy/resources/views/notifications/index.blade.php</file>
+            <file>file:/Applications/XAMPP/htdocs/Jimmy/resources/views/layouts/footer.blade.php</file>
+            <file>file:/Applications/XAMPP/htdocs/Jimmy/resources/views/layouts/app.blade.php</file>
+            <file>file:/Applications/XAMPP/htdocs/Jimmy/resources/views/welcome.blade.php</file>
+            <file>file:/Applications/XAMPP/htdocs/Jimmy/resources/views/merchant/apply.blade.php</file>
+            <file>file:/Applications/XAMPP/htdocs/Jimmy/resources/views/merchant/form.blade.php</file>
         </group>
     </open-files>
 </project-private>

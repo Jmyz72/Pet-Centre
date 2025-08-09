@@ -14,8 +14,32 @@
     </div>
 </section>
 
+<section class="pt-6 pb-1 bg-white">
+    <div class="max-w-3xl mx-auto px-6">
+        @if($application->status === 'rejected' && $application->rejection_reason)
+            <div class="mb-6 p-4 rounded bg-red-100 text-red-800 border border-red-300">
+                <strong>Application Rejected:</strong> {{ $application->rejection_reason}}
+            </div>
+        @endif
+
+        @if($application->status === 'rejected')
+            @if($application->can_reapply)
+                <div class="mb-6 p-4 rounded bg-green-100 text-green-800 border border-green-300">
+                    You are allowed to reapply. Please update your details and submit again.
+                    <a href="{{ route('merchant.apply') }}" class="ml-2 text-blue-600 underline hover:text-blue-800">Go to Application Form</a>
+                </div>
+            @else
+                <div class="mb-6 p-4 rounded bg-gray-100 text-gray-800 border border-gray-300">
+                    You are not allowed to reapply for this role at the moment.
+                </div>
+            @endif
+        @endif
+    </div>
+</section>
+
 <section class="py-12 bg-white">
     <div class="max-w-3xl mx-auto bg-gray-50 rounded shadow px-6 py-8">
+
         <h2 class="text-2xl font-bold text-blue-600 mb-6 text-center">Your Application Summary</h2>
 
         <div class="space-y-4 text-gray-700 text-base">

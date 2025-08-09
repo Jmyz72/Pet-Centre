@@ -11,9 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('notification_templates', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+        Schema::table('merchant_applications', function (Blueprint $table) {
+            $table->text('rejection_reason')->nullable()->after('status');
         });
     }
 
@@ -22,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('notification_templates');
+        Schema::table('merchant_applications', function (Blueprint $table) {
+            //
+        });
     }
 };

@@ -75,5 +75,18 @@
             nextBtn.classList.remove('hidden');
         });
     });
+
+    // Auto-select card for reapply users (prefill from server)
+    const selectedType = @json($selectedType ?? null);
+    if (selectedType) {
+        const preselectedInput = document.querySelector(`input[name="merchant_type"][value="${selectedType}"]`);
+        if (preselectedInput) {
+            const parentLabel = preselectedInput.closest('label');
+            cards.forEach(c => c.classList.remove('border-blue-500', 'ring', 'ring-blue-200'));
+            parentLabel.classList.add('border-blue-500', 'ring', 'ring-blue-200');
+            preselectedInput.checked = true;
+            nextBtn.classList.remove('hidden');
+        }
+    }
 </script>
 @endsection

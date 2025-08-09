@@ -25,37 +25,59 @@
             <!-- Business Name -->
             <div class="mb-4">
                 <label class="block mb-1 font-semibold">Business/Organization Name</label>
-                <input type="text" name="name" class="w-full border p-2 rounded" required>
+                <input type="text" name="name" class="w-full border p-2 rounded" value="{{ old('name', $prefill['name'] ?? '') }}" required>
             </div>
 
             <!-- Phone -->
             <div class="mb-4">
                 <label class="block mb-1 font-semibold">Phone Number</label>
-                <input type="text" name="phone" class="w-full border p-2 rounded" required>
+                <input type="text" name="phone" class="w-full border p-2 rounded" value="{{ old('phone', $prefill['phone'] ?? '') }}" required>
             </div>
 
             <!-- Address -->
             <div class="mb-4">
                 <label class="block mb-1 font-semibold">Address</label>
-                <textarea name="address" class="w-full border p-2 rounded" rows="3"></textarea>
+                <textarea name="address" class="w-full border p-2 rounded" rows="3" required>{{ old('address', $prefill['address'] ?? '') }}</textarea>
             </div>
 
             <!-- Business Registration Number -->
             <div class="mb-4">
                 <label class="block mb-1 font-semibold">Business Registration Number</label>
-                <input type="text" name="registration_number" class="w-full border p-2 rounded">
+                <input type="text" name="registration_number" class="w-full border p-2 rounded" value="{{ old('registration_number', $prefill['registration_number'] ?? '') }}" required>
             </div>
 
             <!-- License Number -->
             <div class="mb-4">
                 <label class="block mb-1 font-semibold">License Number</label>
-                <input type="text" name="license_number" class="w-full border p-2 rounded">
+                <input type="text" name="license_number" class="w-full border p-2 rounded" value="{{ old('license_number', $prefill['license_number'] ?? '') }}" required>
             </div>
 
             <!-- Document Upload -->
             <div class="mb-6">
                 <label class="block mb-1 font-semibold">Upload License or Permit (PDF/Image)</label>
-                <input type="file" name="document" class="w-full border p-2 rounded" accept=".pdf,.jpg,.jpeg,.png">
+
+                @php
+                    $docUrl = $prefill['document_url'] ?? null;
+                    $hasExisting = !empty($docUrl);
+                    $isImage = $hasExisting && \Illuminate\Support\Str::contains(strtolower($docUrl), ['.jpg', '.jpeg', '.png', '.gif', '.webp']);
+                @endphp
+
+                <input type="file" name="document" class="w-full border p-2 rounded" accept=".pdf,.jpg,.jpeg,.png"
+                    @if(!$hasExisting) required @endif>
+
+                @if($hasExisting)
+                    <div class="mt-2">
+                        <p class="text-sm">Existing document:
+                            <a href="{{ $docUrl }}" target="_blank" class="text-blue-600 underline hover:text-blue-800">View uploaded file</a>
+                            <span class="text-gray-500">(leave this empty to keep the current file)</span>
+                        </p>
+                        @if($isImage)
+                            <img src="{{ $docUrl }}" alt="Existing document preview" class="mt-2 max-h-48 rounded border">
+                        @endif
+                    </div>
+                @endif
+
+                <p class="text-xs text-gray-500 mt-1">Accepted formats: PDF, JPG, JPEG, PNG. Max size: 5MB.</p>
             </div>
 
             <!-- Submit Button -->

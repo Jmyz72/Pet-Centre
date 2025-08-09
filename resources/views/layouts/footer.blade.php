@@ -1,4 +1,3 @@
-<!-- resources/views/layouts/footer.blade.php -->
 <footer class="bg-white shadow mt-12 dark:bg-gray-900">
     <div class="w-full max-w-screen-xl mx-auto p-4 md:py-6">
         <div class="sm:flex sm:items-center sm:justify-between">

@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class MerchantApplication extends Model
+class MerchantProfile extends Model
 {
     protected $fillable = [
         'user_id',
@@ -15,13 +15,17 @@ class MerchantApplication extends Model
         'registration_number',
         'license_number',
         'document_path',
-        'status',
-        'rejection_reason',
-        'can_reapply',
+        'photo',
+        'description',
     ];
 
-    public function user()
+    public function user(): BelongsTo
     {
-        return $this->belongsTo(\App\Models\User::class);
+        return $this->belongsTo(User::class);
+    }
+
+    public function pets(): HasMany
+    {
+        return $this->hasMany(Pet::class);
     }
 }
