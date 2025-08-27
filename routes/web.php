@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\MerchantApplicationController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PublicMerchantController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -56,5 +57,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/admin/merchant-applications/{id}/reject', [MerchantApplicationController::class, 'reject'])
         ->name('admin.merchant-applications.reject');
 });
+
+// Public merchant browsing and profile viewing
+Route::get('/merchants', [PublicMerchantController::class, 'index'])->name('merchants.index');
+Route::get('/merchants/{merchantProfile}', [PublicMerchantController::class, 'show'])->name('merchants.show');
 
 require __DIR__.'/auth.php';

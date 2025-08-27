@@ -28,4 +28,14 @@ class MerchantProfile extends Model
     {
         return $this->hasMany(Pet::class);
     }
+
+    public function services(): HasMany
+    {
+        return $this->hasMany(Service::class);
+    }
+
+    public function packages(): HasMany
+    {
+        return $this->hasMany(Package::class);
+    }
 }
