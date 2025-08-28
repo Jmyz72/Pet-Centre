@@ -3,6 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\User;
+use App\Models\Pet;
+use App\Models\Service;
+use App\Models\Package;
 
 class MerchantProfile extends Model
 {
@@ -26,16 +32,16 @@ class MerchantProfile extends Model
 
     public function pets(): HasMany
     {
-        return $this->hasMany(Pet::class);
+        return $this->hasMany(Pet::class, 'merchant_id');
     }
 
     public function services(): HasMany
     {
-        return $this->hasMany(Service::class);
+        return $this->hasMany(Service::class, 'merchant_id');
     }
 
     public function packages(): HasMany
     {
-        return $this->hasMany(Package::class);
+        return $this->hasMany(Package::class, 'merchant_id');
     }
 }
