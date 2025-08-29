@@ -45,4 +45,9 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function merchantProfile()
+    {
+        return $this->hasOne(\App\Models\MerchantProfile::class);
+    }
 }
