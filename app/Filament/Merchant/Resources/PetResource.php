@@ -3,6 +3,7 @@
 namespace App\Filament\Merchant\Resources;
 
 use App\Filament\Merchant\Resources\PetResource\Pages;
+use App\Models\MerchantProfile;
 use App\Models\Pet;
 use App\Models\PetType;
 use Filament\Forms;
@@ -10,6 +11,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\{TextInput, Select, Textarea, FileUpload, Hidden};
 
@@ -23,7 +25,21 @@ class PetResource extends Resource
     {
         return $form->schema([
             Hidden::make('merchant_id')
-                ->default(fn () => Auth::id()),
+                ->default(function () {
+                    $userId = Auth::id();
+                    if (!$userId) return null;
+
+                    // Prefer relationship if present on the User model
+                    $profileId = optional(Auth::user()->merchantProfile)->id;
+
+                    // Fallback query (in case relation isn't loaded)
+                    if (!$profileId) {
+                        $profileId = MerchantProfile::where('user_id', $userId)->value('id');
+                    }
+
+                    return $profileId;
+                })
+                ->required(),
 
             TextInput::make('name')
                 ->label('Pet Name')
@@ -32,7 +48,7 @@ class PetResource extends Resource
 
             Select::make('pet_type_id')
                 ->label('Pet Type')
-                ->relationship('petType', 'name') // assumes you have Pet::petType() relationship
+                ->relationship('petType', 'name') // requires Pet::petType()
                 ->searchable()
                 ->required(),
 
@@ -64,12 +80,14 @@ class PetResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->poll('3s') // auto refresh every 3 seconds
+            ->defaultSort('created_at', 'desc')
             ->columns([
                 Tables\Columns\ImageColumn::make('image')
-                ->label('Photo')
-                ->disk('public')
-                ->visibility('public')
-                ->circular(),
+                    ->label('Photo')
+                    ->disk('public')
+                    ->visibility('public')
+                    ->circular(),
                 Tables\Columns\TextColumn::make('name')->sortable()->searchable(),
                 Tables\Columns\TextColumn::make('petType.name')->label('Type'),
                 Tables\Columns\TextColumn::make('breed')->label('Breed'),
@@ -86,6 +104,49 @@ class PetResource extends Resource
             ]);
     }
 
+    /**
+     * Scope the resource to the logged-in merchant's pets only.
+     */
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+
+        $userId = Auth::id();
+        if ($userId) {
+            $merchantProfileId = optional(Auth::user()->merchantProfile)->id
+                ?? MerchantProfile::where('user_id', $userId)->value('id');
+
+            if ($merchantProfileId) {
+                $query->where('merchant_id', $merchantProfileId);
+            }
+        }
+
+        return $query;
+    }
+
+    /**
+     * Extra safety: enforce merchant_id server-side on create/update to avoid tampering.
+     */
+    public static function mutateFormDataBeforeCreate(array $data): array
+    {
+        $userId = Auth::id();
+        $merchantProfileId = $userId
+            ? (optional(Auth::user()->merchantProfile)->id
+                ?? MerchantProfile::where('user_id', $userId)->value('id'))
+            : null;
+
+        if ($merchantProfileId) {
+            $data['merchant_id'] = $merchantProfileId;
+        }
+
+        return $data;
+    }
+
+    public static function mutateFormDataBeforeSave(array $data): array
+    {
+        return static::mutateFormDataBeforeCreate($data);
+    }
+
     public static function getRelations(): array
     {
         return [];
@@ -94,9 +155,9 @@ class PetResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListPets::route('/'),
+            'index'  => Pages\ListPets::route('/'),
             'create' => Pages\CreatePet::route('/create'),
-            'edit' => Pages\EditPet::route('/{record}/edit'),
+            'edit'   => Pages\EditPet::route('/{record}/edit'),
         ];
     }
 }

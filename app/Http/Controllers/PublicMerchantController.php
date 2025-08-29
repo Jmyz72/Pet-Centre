@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\MerchantProfile;
 use Illuminate\Http\Request;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use App\Models\Pet;
 
 class PublicMerchantController extends Controller
 {
@@ -50,7 +48,7 @@ class PublicMerchantController extends Controller
             $data['pets'] = $merchantProfile->pets()
                 ->when(method_exists($merchantProfile->pets()->getModel(), 'scopeAvailable'),
                     fn ($q) => $q->available())
-                ->latest()
+                ->latest('created_at')
                 ->paginate(12)
                 ->withQueryString();
         }
@@ -59,7 +57,7 @@ class PublicMerchantController extends Controller
             $data['packages'] = $merchantProfile->packages()
                 ->when(method_exists($merchantProfile->packages()->getModel(), 'scopeActive'),
                     fn ($q) => $q->active())
-                ->orderBy('sort_order')
+                ->orderBy('name')
                 ->get();
         }
 

@@ -13,7 +13,9 @@ return new class extends Migration
     {
         Schema::create('pets', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('merchant_id')->constrained('users'); // or 'merchants'
+            $table->foreignId('merchant_id')->constrained('merchant_profiles')->cascadeOnDelete();
+            $table->foreignId('pet_type_id')->nullable()->constrained('pet_types');
+            $table->string('breed')->nullable();
             $table->string('name');
             $table->integer('age')->nullable();
             $table->string('image')->nullable();
