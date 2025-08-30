@@ -93,6 +93,93 @@ class OperatingHours extends Page implements HasForms
                             ->requiresConfirmation()
                             ->action('save')
                             ->visible(fn (): bool => $this->isEditing),
+                        FormAction::make('copyHours')
+                            ->label('Copy hours')
+                            ->icon('heroicon-o-clipboard-document')
+                            ->visible(fn (): bool => $this->isEditing)
+                            ->form([
+                                Select::make('source_day')
+                                    ->label('Copy from')
+                                    ->options([
+                                        0 => 'Sunday', 1 => 'Monday', 2 => 'Tuesday', 3 => 'Wednesday',
+                                        4 => 'Thursday', 5 => 'Friday', 6 => 'Saturday',
+                                    ])
+                                    ->required(),
+                                Select::make('target_days')
+                                    ->label('Copy to')
+                                    ->options([
+                                        0 => 'Sunday', 1 => 'Monday', 2 => 'Tuesday', 3 => 'Wednesday',
+                                        4 => 'Thursday', 5 => 'Friday', 6 => 'Saturday',
+                                    ])
+                                    ->required()
+                                    ->multiple(),
+                                Select::make('mode')
+                                    ->label('Mode')
+                                    ->options([
+                                        'replace' => 'Replace target day(s)',
+                                        'append'  => 'Append to target day(s)',
+                                    ])
+                                    ->default('replace')
+                                    ->required(),
+                            ])
+                            ->action(function (array $data): void {
+                                $state = $this->form->getState();
+                                $blocks = $state['blocks'] ?? [];
+
+                                $src = (int)($data['source_day'] ?? -1);
+                                $targets = array_map('intval', $data['target_days'] ?? []);
+                                $mode = $data['mode'] ?? 'replace';
+
+                                if ($src < 0 || empty($targets)) {
+                                    return;
+                                }
+
+                                // Extract source rows
+                                $sourceRows = array_values(array_filter($blocks, fn ($b) => (int)$b['day_of_week'] === $src));
+
+                                // If nothing to copy, just return
+                                if (count($sourceRows) === 0) {
+                                    return;
+                                }
+
+                                // If the source contains a 'closed' row, use only a single closed row as canonical
+                                $hasClosed = false;
+                                foreach ($sourceRows as $r) {
+                                    if (($r['block_type'] ?? null) === 'closed') {
+                                        $hasClosed = true;
+                                        break;
+                                    }
+                                }
+                                if ($hasClosed) {
+                                    $sourceRows = [[
+                                        'day_of_week' => $src,
+                                        'block_type'  => 'closed',
+                                        'label'       => null,
+                                        'start_time'  => null,
+                                        'end_time'    => null,
+                                    ]];
+                                }
+
+                                // Prepare a new blocks array based on mode
+                                $newBlocks = $blocks;
+
+                                foreach ($targets as $t) {
+                                    // Remove existing rows for target if mode = replace
+                                    if ($mode === 'replace') {
+                                        $newBlocks = array_values(array_filter($newBlocks, fn ($b) => (int)$b['day_of_week'] !== $t));
+                                    }
+
+                                    // Append mapped copies
+                                    foreach ($sourceRows as $row) {
+                                        $copy = $row;
+                                        $copy['day_of_week'] = $t;
+                                        $newBlocks[] = $copy;
+                                    }
+                                }
+
+                                // Fill back to the form
+                                $this->form->fill(['blocks' => array_values($newBlocks)]);
+                            }),
                         FormAction::make('cancelHours')
                             ->label('Cancel')
                             ->icon('heroicon-o-x-mark')
@@ -357,5 +444,12 @@ class OperatingHours extends Page implements HasForms
             ->success()
             ->body('Your weekly open and break blocks have been saved.')
             ->send();
+    }
+
+    protected function getViewData(): array
+    {
+        return [
+            'profile' => $this->profile,
+        ];
     }
 }
