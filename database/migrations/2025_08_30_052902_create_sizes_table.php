@@ -11,10 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('pets', function (Blueprint $table) {
-            $table->foreignId('pet_type_id')->nullable()->constrained('pet_types');
+        Schema::create('sizes', function (Blueprint $table) {
+            $table->id();
+            $table->string('label'); // XS, S, M, L, XL
+            $table->decimal('min_weight', 5, 2)->nullable();
+            $table->decimal('max_weight', 5, 2)->nullable();
+            $table->timestamps();
         });
-
     }
 
     /**
@@ -22,8 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('pets', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('sizes');
     }
 };
