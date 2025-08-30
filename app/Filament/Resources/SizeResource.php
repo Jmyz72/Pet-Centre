@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\PetTypeResource\Pages;
-use App\Filament\Resources\PetTypeResource\RelationManagers;
-use App\Models\PetType;
+use App\Filament\Resources\SizeResource\Pages;
+use App\Filament\Resources\SizeResource\RelationManagers;
+use App\Models\Size;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -13,9 +13,9 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class PetTypeResource extends Resource
+class SizeResource extends Resource
 {
-    protected static ?string $model = PetType::class;
+    protected static ?string $model = Size::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
@@ -23,9 +23,15 @@ class PetTypeResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('name')
+                Forms\Components\TextInput::make('label')
                     ->required()
                     ->maxLength(255),
+                Forms\Components\TextInput::make('min_weight')
+                    ->numeric()
+                    ->default(null),
+                Forms\Components\TextInput::make('max_weight')
+                    ->numeric()
+                    ->default(null),
             ]);
     }
 
@@ -33,8 +39,14 @@ class PetTypeResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')
+                Tables\Columns\TextColumn::make('label')
                     ->searchable(),
+                Tables\Columns\TextColumn::make('min_weight')
+                    ->numeric()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('max_weight')
+                    ->numeric()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -67,9 +79,9 @@ class PetTypeResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListPetTypes::route('/'),
-            'create' => Pages\CreatePetType::route('/create'),
-            'edit' => Pages\EditPetType::route('/{record}/edit'),
+            'index' => Pages\ListSizes::route('/'),
+            'create' => Pages\CreateSize::route('/create'),
+            'edit' => Pages\EditSize::route('/{record}/edit'),
         ];
     }
 }

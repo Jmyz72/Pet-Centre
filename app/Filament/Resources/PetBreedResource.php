@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\PetTypeResource\Pages;
-use App\Filament\Resources\PetTypeResource\RelationManagers;
-use App\Models\PetType;
+use App\Filament\Resources\PetBreedResource\Pages;
+use App\Filament\Resources\PetBreedResource\RelationManagers;
+use App\Models\PetBreed;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -13,9 +13,9 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class PetTypeResource extends Resource
+class PetBreedResource extends Resource
 {
-    protected static ?string $model = PetType::class;
+    protected static ?string $model = PetBreed::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
@@ -23,6 +23,9 @@ class PetTypeResource extends Resource
     {
         return $form
             ->schema([
+                Forms\Components\TextInput::make('pet_type_id')
+                    ->required()
+                    ->numeric(),
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(255),
@@ -33,6 +36,9 @@ class PetTypeResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('pet_type_id')
+                    ->numeric()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
@@ -67,9 +73,9 @@ class PetTypeResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListPetTypes::route('/'),
-            'create' => Pages\CreatePetType::route('/create'),
-            'edit' => Pages\EditPetType::route('/{record}/edit'),
+            'index' => Pages\ListPetBreeds::route('/'),
+            'create' => Pages\CreatePetBreed::route('/create'),
+            'edit' => Pages\EditPetBreed::route('/{record}/edit'),
         ];
     }
 }
