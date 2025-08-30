@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('packages', function (Blueprint $table) {
             $table->id();
             $table->foreignId('merchant_id')->constrained('merchant_profiles')->cascadeOnDelete();
-            $table->foreignId('package_type_id')->constrained()->cascadeOnDelete();
             $table->string('name');
             $table->text('description')->nullable();
             $table->decimal('price', 10, 2)->default(0);

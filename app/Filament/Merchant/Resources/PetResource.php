@@ -5,13 +5,11 @@ namespace App\Filament\Merchant\Resources;
 use App\Filament\Merchant\Resources\PetResource\Pages;
 use App\Models\MerchantProfile;
 use App\Models\Pet;
-use App\Models\PetType;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
@@ -22,9 +20,12 @@ use App\Models\PetBreed;
 use Carbon\Carbon;
 use Filament\Tables\Columns\IconColumn;
 use App\Models\Size;
+use App\Filament\Traits\MerchantScopedResource;
 
 class PetResource extends Resource
 {
+    use MerchantScopedResource;
+
     protected static ?string $model = Pet::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
@@ -62,8 +63,7 @@ class PetResource extends Resource
                 ->maxValue(200)
                 ->suffix('kg')
                 ->reactive()
-                ->nullable()
-                ->rule('regex:/^\d+(\.\d{1,2})?$/'),
+                ->nullable(),
 
             Select::make('sex')
                 ->label('Sex')
@@ -103,10 +103,6 @@ class PetResource extends Resource
                 ->searchable()
                 ->preload()
                 ->reactive()
-                ->getOptionLabelUsing(function ($value) {
-                    if (!$value) return null;
-                    return \App\Models\PetBreed::find($value)?->name;
-                })
                 ->rule(function (Get $get) {
                     $typeId = $get('pet_type_id');
                     return function (string $attribute, $value, \Closure $fail) use ($typeId) {
@@ -139,8 +135,7 @@ class PetResource extends Resource
                 ->numeric()
                 ->step('0.01')
                 ->minValue(0)
-                ->nullable()
-                ->rule('regex:/^\d+(\.\d{1,2})?$/'),
+                ->nullable(),
 
             DateTimePicker::make('adopted_at')
                 ->label('Adopted At')
@@ -212,7 +207,6 @@ class PetResource extends Resource
                 Tables\Columns\ImageColumn::make('image')
                     ->label('Photo')
                     ->disk('public')
-                    ->visibility('public')
                     ->circular(),
                 Tables\Columns\TextColumn::make('name')
                     ->sortable()
@@ -261,13 +255,21 @@ class PetResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('adoption_fee')
                     ->label('Fee')
-                    ->formatStateUsing(fn ($state) => $state !== null ? number_format($state, 2) : null)
                     ->money('MYR')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label('Added')
+                    ->label('Created')
                     ->dateTime('Y-m-d H:i')
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->label('Updated')
+                    ->dateTime('Y-m-d H:i')
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('adopted_at')
+                    ->label('Adopted At')
+                    ->dateTime('Y-m-d H:i')
+                    ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
@@ -311,62 +313,12 @@ class PetResource extends Resource
             ]);
     }
 
-    /**
-     * Scope the resource to the logged-in merchant's pets only.
-     */
-    public static function getEloquentQuery(): Builder
-    {
-        $query = parent::getEloquentQuery();
-
-        $userId = Auth::id();
-        if ($userId) {
-            $merchantProfileId = optional(Auth::user()->merchantProfile)->id
-                ?? MerchantProfile::where('user_id', $userId)->value('id');
-
-            if ($merchantProfileId) {
-                $query->where('merchant_id', $merchantProfileId);
-            }
-        }
-
-        return $query;
-    }
-
-    /**
-     * Extra safety: enforce merchant_id server-side on create/update to avoid tampering.
-     */
-    public static function mutateFormDataBeforeCreate(array $data): array
-    {
-        $userId = Auth::id();
-        $merchantProfileId = $userId
-            ? (optional(Auth::user()->merchantProfile)->id
-                ?? MerchantProfile::where('user_id', $userId)->value('id'))
-            : null;
-
-        if ($merchantProfileId) {
-            $data['merchant_id'] = $merchantProfileId;
-        }
-
-        return $data;
-    }
-
     public static function mutateFormDataBeforeSave(array $data): array
     {
+        // Preserve merchant scoping
         $data = static::mutateFormDataBeforeCreate($data);
 
-        if (!empty($data['weight_kg'])) {
-            $size = \App\Models\Size::where(function($q) use ($data) {
-                    $q->whereNull('min_weight')->orWhere('min_weight', '<=', $data['weight_kg']);
-                })
-                ->where(function($q) use ($data) {
-                    $q->whereNull('max_weight')->orWhere('max_weight', '>=', $data['weight_kg']);
-                })
-                ->first();
-
-            $data['size_id'] = $size?->id;
-        } else {
-            $data['size_id'] = null;
-        }
-
+        // Validate breed belongs to selected type; if not, null it to prevent mismatch
         if (!empty($data['pet_breed_id']) && !empty($data['pet_type_id'])) {
             $valid = \App\Models\PetBreed::where('id', $data['pet_breed_id'])
                 ->where('pet_type_id', $data['pet_type_id'])
@@ -375,7 +327,6 @@ class PetResource extends Resource
                 $data['pet_breed_id'] = null;
             }
         }
-
         return $data;
     }
 
