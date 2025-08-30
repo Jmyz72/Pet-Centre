@@ -30,6 +30,11 @@ class MerchantProfile extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function operatingHours()
+    {
+        return $this->hasMany(\App\Models\OperatingHour::class);
+    }
+
     public function pets(): HasMany
     {
         return $this->hasMany(Pet::class, 'merchant_id');

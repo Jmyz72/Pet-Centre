@@ -10,11 +10,13 @@ use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\Actions\Action as FormAction;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Illuminate\Support\Arr;
 
 class MyProfile extends Page implements HasForms
 {
@@ -39,6 +41,9 @@ class MyProfile extends Page implements HasForms
 
     /** @var MerchantProfile */
     public MerchantProfile $profile;
+
+    /** Toggle to enable/disable editing mode */
+    public bool $isEditing = false;
 
     public function mount(): void
     {
@@ -76,6 +81,7 @@ class MyProfile extends Page implements HasForms
             'photo'               => $this->profile->photo,
             'description'         => $this->profile->description,
         ]);
+        $this->isEditing = false;
     }
 
     public function form(Form $form): Form
@@ -86,38 +92,57 @@ class MyProfile extends Page implements HasForms
             ->schema([
                 Section::make('Profile')
                     ->columns(2)
+                    ->headerActions([
+                        FormAction::make('editProfile')
+                            ->label('Edit')
+                            ->icon('heroicon-o-pencil-square')
+                            ->action('startEdit')
+                            ->visible(fn (): bool => ! $this->isEditing),
+                        FormAction::make('saveProfile')
+                            ->label('Save changes')
+                            ->icon('heroicon-o-check')
+                            ->color('success')
+                            ->action('save')
+                            ->requiresConfirmation()
+                            ->visible(fn (): bool => $this->isEditing),
+                        FormAction::make('cancelProfile')
+                            ->label('Cancel')
+                            ->icon('heroicon-o-x-mark')
+                            ->color('gray')
+                            ->action('cancelEdit')
+                            ->visible(fn (): bool => $this->isEditing),
+                    ])
                     ->schema([
                         TextInput::make('name')
                             ->label('Merchant Name')
-                            ->disabled()
-                            ->dehydrated(false),
+                            ->disabled(fn () => ! $this->isEditing)
+                            ->required()
+                            ->maxLength(255),
 
                         TextInput::make('phone')
                             ->tel()
-                            ->disabled()
-                            ->dehydrated(false),
+                            ->disabled(fn () => ! $this->isEditing)
+                            ->maxLength(30),
 
                         Textarea::make('address')
                             ->rows(3)
-                            ->disabled()
-                            ->dehydrated(false)
+                            ->disabled(fn () => ! $this->isEditing)
                             ->columnSpanFull(),
                         
                         Textarea::make('description')
                             ->label('Description')
                             ->rows(3)
-                            ->disabled()
-                            ->dehydrated(false)
+                            ->disabled(fn () => ! $this->isEditing)
                             ->columnSpanFull(),
 
                         FileUpload::make('photo')
                             ->label('Photo')
                             ->image()
-                            ->directory('merchant-photos')
+                            ->disk('public')
+                            ->directory('merchant_photos')
                             ->downloadable()
                             ->openable()
-                            ->disabled()
-                            ->dehydrated(false)
+                            ->disabled(fn () => ! $this->isEditing)
                             ->columnSpanFull(),
                     ]),
 
@@ -126,13 +151,11 @@ class MyProfile extends Page implements HasForms
                     ->schema([
                         TextInput::make('registration_number')
                             ->label('Registration Number')
-                            ->disabled()
-                            ->dehydrated(false),
+                            ->disabled(),
 
                         TextInput::make('license_number')
                             ->label('License Number')
-                            ->disabled()
-                            ->dehydrated(false),
+                            ->disabled(),
 
                         FileUpload::make('document_path')
                             ->label('Document')
@@ -141,7 +164,6 @@ class MyProfile extends Page implements HasForms
                             ->downloadable()
                             ->openable()
                             ->disabled()
-                            ->dehydrated(false)
                             ->columnSpanFull()
                             ->acceptedFileTypes(['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'])
                             ->maxSize(5120)
@@ -151,6 +173,57 @@ class MyProfile extends Page implements HasForms
 
     /** Single Save button under the form */
     protected function getFormActions(): array
+    {
+        return [];
+    }
+
+    /** Enable edit mode */
+    public function startEdit(): void
+    {
+        $this->isEditing = true;
+    }
+
+    /** Cancel edit mode and reset the form back to model values */
+    public function cancelEdit(): void
+    {
+        $this->isEditing = false;
+        $this->form->fill([
+            'name'                => $this->profile->name,
+            'phone'               => $this->profile->phone,
+            'address'             => $this->profile->address,
+            'registration_number' => $this->profile->registration_number,
+            'license_number'      => $this->profile->license_number,
+            'document_path'       => $this->profile->document_path,
+            'photo'               => $this->profile->photo,
+            'description'         => $this->profile->description,
+        ]);
+    }
+
+    /** Validate and persist changes */
+    public function save(): void
+    {
+        $data = Arr::only($this->form->getState(), [
+            'name', 'phone', 'address', 'description', 'photo',
+        ]);
+
+        // Extra guard: ensure the profile belongs to the logged-in user
+        if (auth()->id() !== $this->profile->user_id) {
+            Notification::make()->title('Unauthorized')->danger()->body('You cannot edit this profile.')->send();
+            return;
+        }
+
+        $this->profile->update($data);
+
+        $this->isEditing = false;
+
+        Notification::make()
+            ->title('Profile updated')
+            ->success()
+            ->body('Your merchant profile has been saved successfully.')
+            ->send();
+    }
+
+    protected function getHeaderActions(): array
     {
         return [];
     }
