@@ -39,4 +39,9 @@ class Package extends Model
     {
         return $this->belongsToMany(Size::class, 'package_size');
     }
+
+    public function variations()
+    {
+        return $this->hasMany(PackageVariation::class);
+    }
 }

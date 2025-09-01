@@ -260,7 +260,7 @@ class PackageResource extends Resource
     public static function getRelations(): array
     {
         return [
-            // no relation managers yet
+            \App\Filament\Merchant\Resources\PackageResource\RelationManagers\VariationsRelationManager::class,
         ];
     }
 
@@ -270,6 +270,7 @@ class PackageResource extends Resource
             'index'  => Pages\ListPackages::route('/'),
             'create' => Pages\CreatePackage::route('/create'),
             'edit'   => Pages\EditPackage::route('/{record}/edit'),
+            'view'   => Pages\ViewPackage::route('/{record}'),
         ];
     }
 

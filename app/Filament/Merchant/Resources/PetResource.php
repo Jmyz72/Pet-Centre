@@ -135,6 +135,7 @@ class PetResource extends Resource
                 ->numeric()
                 ->step('0.01')
                 ->minValue(0)
+                ->suffix('MYR')
                 ->nullable(),
 
             DateTimePicker::make('adopted_at')
