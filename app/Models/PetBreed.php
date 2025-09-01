@@ -8,11 +8,6 @@ class PetBreed extends Model
 {
     protected $fillable = ['pet_type_id', 'name'];
 
-    public function packages()
-    {
-        return $this->belongsToMany(Package::class, 'package_breed');
-    }
-
     public function petType()
     {
         return $this->belongsTo(PetType::class);

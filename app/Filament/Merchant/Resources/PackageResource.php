@@ -45,6 +45,15 @@ class PackageResource extends Resource
                 ->searchable()
                 ->columnSpanFull(),
 
+            Forms\Components\Select::make('packageSizes')
+                ->label('Sizes')
+                ->relationship('packageSizes', 'label')
+                ->multiple()
+                ->required()
+                ->preload()
+                ->searchable()
+                ->columnSpanFull(),
+
             Forms\Components\TextInput::make('name')
                 ->label('Package Name')
                 ->required()
@@ -89,6 +98,9 @@ class PackageResource extends Resource
                 Tables\Columns\TagsColumn::make('packageTypes.name')
                     ->label('Types'),
 
+                Tables\Columns\TagsColumn::make('packageSizes.label')
+                    ->label('Sizes'),
+
                 Tables\Columns\TextColumn::make('price')
                     ->label('Price')
                     ->money('MYR')
@@ -117,6 +129,12 @@ class PackageResource extends Resource
                     ->label('Type')
                     ->relationship('packageTypes', 'name')
                     ->multiple(),
+
+                SelectFilter::make('packageSizes')
+                    ->label('Size')
+                    ->relationship('packageSizes', 'label')
+                    ->multiple(),
+
                 Tables\Filters\TernaryFilter::make('is_active')
                     ->label('Active'),
             ])
@@ -153,7 +171,8 @@ class PackageResource extends Resource
      */
     public static function mutateFormDataBeforeSave(array $data): array
     {
-        // Leverage trait's create-time stamping
         $data = static::mutateFormDataBeforeCreate($data);
+
+        return $data;
     }
 }

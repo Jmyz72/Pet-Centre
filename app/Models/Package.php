@@ -29,13 +29,13 @@ class Package extends Model
     {
         return $this->belongsToMany(PetType::class, 'package_pet_type');
     }
-
+    
     public function petBreeds()
     {
         return $this->belongsToMany(PetBreed::class, 'package_breed');
     }
     
-    public function sizes()
+    public function packageSizes()
     {
         return $this->belongsToMany(Size::class, 'package_size');
     }
