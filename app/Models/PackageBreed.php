@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class PackageBreed extends Model
 {
     public $timestamps = false;
+
     protected $fillable = ['package_id', 'pet_breed_id'];
 
     public function package()

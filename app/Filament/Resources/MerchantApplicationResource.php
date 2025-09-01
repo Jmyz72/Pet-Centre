@@ -3,18 +3,13 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\MerchantApplicationResource\Pages;
-use App\Filament\Resources\MerchantApplicationResource\RelationManagers;
 use App\Models\MerchantApplication;
+use App\Notifications\MerchantApplicationStatusNotification;
 use Filament\Forms;
-use App\Models\MerchantProfile;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Notifications\MerchantApplicationStatusNotification;
-use Illuminate\Support\Facades\DB;
 
 class MerchantApplicationResource extends Resource
 {
@@ -105,7 +100,7 @@ class MerchantApplicationResource extends Resource
 
                         $record->status = 'rejected';
                         $record->rejection_reason = $data['rejection_reason'] ?? null;
-                        $record->can_reapply = !empty($data['can_reapply']); // true if checked
+                        $record->can_reapply = ! empty($data['can_reapply']); // true if checked
                         $record->save();
 
                         // Notify the user (email + database)

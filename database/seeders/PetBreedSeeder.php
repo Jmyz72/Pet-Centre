@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use App\Models\PetType;
 use App\Models\PetBreed;
+use App\Models\PetType;
+use Illuminate\Database\Seeder;
 
 class PetBreedSeeder extends Seeder
 {
@@ -294,8 +294,8 @@ class PetBreedSeeder extends Seeder
             if ($petType) {
                 // Append a generic "Other {Type}" breed to each type (except the global 'Other' type)
                 if (strtolower($typeName) !== 'other') {
-                    $otherBreed = 'Other ' . $typeName;
-                    if (!in_array($otherBreed, $breedList, true)) {
+                    $otherBreed = 'Other '.$typeName;
+                    if (! in_array($otherBreed, $breedList, true)) {
                         $breedList[] = $otherBreed;
                     }
                 }
@@ -306,7 +306,7 @@ class PetBreedSeeder extends Seeder
                 foreach ($breedList as $breedName) {
                     PetBreed::firstOrCreate([
                         'pet_type_id' => $petType->id,
-                        'name'        => $breedName,
+                        'name' => $breedName,
                     ]);
                 }
             }

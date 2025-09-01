@@ -2,24 +2,20 @@
 
 namespace App\Filament\Merchant\Resources\PackageResource\RelationManagers;
 
-use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Tables;
-use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Models\PackageBreed;
 use App\Models\PackagePetType;
 use App\Models\PackageSize;
-use App\Models\PackageBreed;
-use Filament\Forms\Get;
-use App\Models\PetType;
-use App\Models\Size;
 use App\Models\PetBreed;
+use Filament\Forms;
+use Filament\Forms\Get;
+use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Tables;
+use Illuminate\Database\Eloquent\Builder;
 
 class VariationsRelationManager extends RelationManager
 {
     protected static string $relationship = 'variations'; // MUST match Package::variations()
+
     protected static ?string $title = 'Variations';
 
     public function form(Forms\Form $form): Forms\Form
@@ -29,13 +25,14 @@ class VariationsRelationManager extends RelationManager
                 ->label('Pet Type')
                 ->options(function ($livewire) {
                     $packageId = $livewire->getOwnerRecord()->id;
+
                     return PackagePetType::with('petType')
                         ->where('package_id', $packageId)
                         ->get()
                         ->mapWithKeys(fn ($ppt) => [
                             $ppt->id => optional($ppt->petType)->name,
                         ])
-                        ->filter(fn ($label) => !is_null($label))
+                        ->filter(fn ($label) => ! is_null($label))
                         ->toArray();
                 })
                 ->reactive()
@@ -45,13 +42,14 @@ class VariationsRelationManager extends RelationManager
                 ->label('Size')
                 ->options(function ($livewire) {
                     $packageId = $livewire->getOwnerRecord()->id;
+
                     return PackageSize::with('size')
                         ->where('package_id', $packageId)
                         ->get()
                         ->mapWithKeys(fn ($ps) => [
                             $ps->id => optional($ps->size)->label,
                         ])
-                        ->filter(fn ($label) => !is_null($label))
+                        ->filter(fn ($label) => ! is_null($label))
                         ->toArray();
                 })
                 ->nullable(),
@@ -76,7 +74,7 @@ class VariationsRelationManager extends RelationManager
                         ->mapWithKeys(fn ($pb) => [
                             $pb->id => optional($pb->breed)->name,
                         ])
-                        ->filter(fn ($label) => !is_null($label))
+                        ->filter(fn ($label) => ! is_null($label))
                         ->toArray();
                 })
                 ->reactive()

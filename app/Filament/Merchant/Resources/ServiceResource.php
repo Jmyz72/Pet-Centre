@@ -3,20 +3,15 @@
 namespace App\Filament\Merchant\Resources;
 
 use App\Filament\Merchant\Resources\ServiceResource\Pages;
-use App\Filament\Merchant\Resources\ServiceResource\RelationManagers;
+use App\Filament\Traits\MerchantScopedResource;
 use App\Models\Service;
-use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Traits\MerchantScopedResource;
 
 class ServiceResource extends Resource
 {
-
     use MerchantScopedResource;
 
     protected static ?string $model = Service::class;

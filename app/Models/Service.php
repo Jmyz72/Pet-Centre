@@ -15,5 +15,4 @@ class Service extends Model
         'duration_minutes',
         'is_active',
     ];
-
 }

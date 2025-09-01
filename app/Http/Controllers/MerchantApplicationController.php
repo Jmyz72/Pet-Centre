@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\MerchantApplication;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use App\Models\MerchantApplication;
 
 class MerchantApplicationController extends Controller
 {
@@ -21,12 +21,13 @@ class MerchantApplicationController extends Controller
             if ($application->status === 'approved') {
                 return redirect()->route('merchant.application.submitted');
             }
-            if ($application->status === 'rejected' && !$application->can_reapply) {
+            if ($application->status === 'rejected' && ! $application->can_reapply) {
                 return redirect()->route('merchant.application.submitted');
             }
         }
+
         return view('merchant.apply', [
-            'selectedType' => $application ? $application->role : null
+            'selectedType' => $application ? $application->role : null,
         ]); // step 1
     }
 
@@ -43,7 +44,7 @@ class MerchantApplicationController extends Controller
             ->first();
 
         // If role missing or invalid, try to fall back to the last application's role
-        if (!in_array($role, $allowedRoles)) {
+        if (! in_array($role, $allowedRoles)) {
             if ($application && in_array($application->role, $allowedRoles)) {
                 $role = $application->role; // fallback for reapply flow
             } else {
@@ -74,7 +75,7 @@ class MerchantApplicationController extends Controller
     {
         // Find latest application to determine if a document already exists
         $latest = MerchantApplication::where('user_id', Auth::id())->latest()->first();
-        $hasExisting = $latest && !empty($latest->document_path);
+        $hasExisting = $latest && ! empty($latest->document_path);
 
         $validated = $request->validate([
             'role' => 'required|in:clinic,shelter,groomer',
@@ -84,7 +85,7 @@ class MerchantApplicationController extends Controller
             'registration_number' => 'required|string|max:100',
             'license_number' => 'required|string|max:100',
             // Required only if no previous document exists; otherwise optional
-            'document' => ($hasExisting ? 'nullable' : 'required') . '|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'document' => ($hasExisting ? 'nullable' : 'required').'|file|mimes:jpg,jpeg,png,pdf|max:5120',
         ], [
             'name.required' => 'Please enter your business or organization name.',
             'phone.required' => 'Phone number is required.',
@@ -122,7 +123,7 @@ class MerchantApplicationController extends Controller
             ->latest()
             ->first();
 
-        if (!$application) {
+        if (! $application) {
             return redirect()->route('merchant.apply')->withErrors('No application found.');
         }
 

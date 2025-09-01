@@ -20,7 +20,7 @@ class Pet extends Model
         'image',
         'description',
         'size_id',
-        'vaccinated'
+        'vaccinated',
     ];
 
     public function petType()

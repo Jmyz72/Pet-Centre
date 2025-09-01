@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class PackageSize extends Model
 {
     public $timestamps = false;
+
     protected $fillable = ['package_id', 'size_id'];
 
     public function package()
@@ -16,6 +17,6 @@ class PackageSize extends Model
 
     public function size()
     {
-        return $this->belongsTo(Size::class , 'size_id');
+        return $this->belongsTo(Size::class, 'size_id');
     }
 }

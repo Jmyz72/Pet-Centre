@@ -4,7 +4,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     public function up(): void
     {
         Schema::create('package_variations', function (Blueprint $table) {
@@ -12,24 +13,24 @@ return new class extends Migration {
 
             // Parent package
             $table->foreignId('package_id')
-                  ->constrained('packages')
-                  ->cascadeOnDelete();
+                ->constrained('packages')
+                ->cascadeOnDelete();
 
             // Link to your pivot rows (now each has its own id)
             $table->foreignId('package_pet_type_id')
-                  ->constrained('package_pet_types')
-                  ->cascadeOnDelete();
+                ->constrained('package_pet_types')
+                ->cascadeOnDelete();
 
             $table->foreignId('package_size_id')
-                  ->nullable()
-                  ->constrained('package_sizes')
-                  ->cascadeOnDelete();
+                ->nullable()
+                ->constrained('package_sizes')
+                ->cascadeOnDelete();
 
             // Optional breed override: nullable
             $table->foreignId('package_breed_id')
-                  ->nullable()
-                  ->constrained('package_breeds')
-                  ->cascadeOnDelete();
+                ->nullable()
+                ->constrained('package_breeds')
+                ->cascadeOnDelete();
 
             // The variation price (overrides package base price when shown)
             $table->decimal('price', 10, 2);
