@@ -19,10 +19,10 @@ return new class extends Migration
             $table->date('date_of_birth')->nullable();
             $table->string('name');
             $table->decimal('weight_kg', 5, 2)->nullable();
-            $table->enum('sex', ['male','female','unknown'])->default('unknown');
+            $table->enum('sex', ['male', 'female', 'unknown'])->default('unknown');
             $table->foreignId('size_id')->nullable()->constrained('sizes')->nullOnDelete();
             $table->boolean('vaccinated')->default(false);
-            $table->enum('status', ['draft','available','reserved','adopted','inactive'])->default('draft')->index();
+            $table->enum('status', ['draft', 'available', 'reserved', 'adopted', 'inactive'])->default('draft')->index();
             $table->decimal('adoption_fee', 8, 2)->nullable();
             $table->dateTime('adopted_at')->nullable();
             $table->string('image')->nullable();

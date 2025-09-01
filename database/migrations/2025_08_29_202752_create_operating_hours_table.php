@@ -27,7 +27,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->unique(
-                ['merchant_profile_id','day_of_week','block_index'],
+                ['merchant_profile_id', 'day_of_week', 'block_index'],
                 'oh_profile_day_block_unique'
             );
         });

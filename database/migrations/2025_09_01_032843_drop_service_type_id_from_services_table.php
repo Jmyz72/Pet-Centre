@@ -18,8 +18,8 @@ return new class extends Migration
     {
         Schema::table('services', function (Blueprint $table) {
             $table->foreignId('service_type_id')
-                  ->constrained()
-                  ->cascadeOnDelete();
+                ->constrained()
+                ->cascadeOnDelete();
         });
     }
 };

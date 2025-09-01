@@ -3,24 +3,30 @@
 namespace App\Filament\Merchant\Resources;
 
 use App\Filament\Merchant\Resources\PetResource\Pages;
+use App\Filament\Traits\MerchantScopedResource;
 use App\Models\MerchantProfile;
 use App\Models\Pet;
-use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Table;
-use Filament\Tables\Filters\SelectFilter;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Auth;
-use Filament\Forms\Components\{TextInput, Select, Textarea, FileUpload, Hidden, DatePicker, DateTimePicker, Toggle, Placeholder, Grid};
-use Filament\Forms\Get;
-use Filament\Forms\Set;
 use App\Models\PetBreed;
 use Carbon\Carbon;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Form;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
+use Filament\Resources\Resource;
+use Filament\Tables;
 use Filament\Tables\Columns\IconColumn;
-use App\Models\Size;
-use App\Filament\Traits\MerchantScopedResource;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 
 class PetResource extends Resource
 {
@@ -36,9 +42,12 @@ class PetResource extends Resource
             Hidden::make('merchant_id')
                 ->default(function () {
                     $userId = Auth::id();
-                    if (!$userId) return null;
+                    if (! $userId) {
+                        return null;
+                    }
                     $profileId = optional(Auth::user()->merchantProfile)->id
                         ?? MerchantProfile::where('user_id', $userId)->value('id');
+
                     return $profileId;
                 })
                 ->required(),
@@ -105,10 +114,13 @@ class PetResource extends Resource
                 ->reactive()
                 ->rule(function (Get $get) {
                     $typeId = $get('pet_type_id');
+
                     return function (string $attribute, $value, \Closure $fail) use ($typeId) {
-                        if (!$value) return;
+                        if (! $value) {
+                            return;
+                        }
                         $ok = \App\Models\PetBreed::where('id', $value)
-                            ->when($typeId, fn($q) => $q->where('pet_type_id', $typeId))
+                            ->when($typeId, fn ($q) => $q->where('pet_type_id', $typeId))
                             ->exists();
                         if (! $ok) {
                             $fail('Selected breed does not belong to the selected pet type.');
@@ -151,7 +163,7 @@ class PetResource extends Resource
                 ->image()
                 ->imagePreviewHeight('200')
                 ->maxSize(2048)
-                ->acceptedFileTypes(['image/jpeg','image/png','image/webp'])
+                ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
                 ->nullable(),
 
             Textarea::make('description')
@@ -172,8 +184,9 @@ class PetResource extends Resource
                         $totalMonths = $dob->diffInMonths($now); // integer months difference
                         $years = intdiv($totalMonths, 12);
                         $months = $totalMonths % 12;
+
                         return $years > 0
-                            ? "{$years} yr " . ($months > 0 ? "{$months} mo" : "")
+                            ? "{$years} yr ".($months > 0 ? "{$months} mo" : '')
                             : "{$months} mo";
                     }),
                 Placeholder::make('computed_size')
@@ -183,13 +196,14 @@ class PetResource extends Resource
                         if (empty($weight)) {
                             return '—';
                         }
-                        $size = \App\Models\Size::where(function($q) use ($weight) {
-                                $q->whereNull('min_weight')->orWhere('min_weight', '<=', $weight);
-                            })
-                            ->where(function($q) use ($weight) {
+                        $size = \App\Models\Size::where(function ($q) use ($weight) {
+                            $q->whereNull('min_weight')->orWhere('min_weight', '<=', $weight);
+                        })
+                            ->where(function ($q) use ($weight) {
                                 $q->whereNull('max_weight')->orWhere('max_weight', '>=', $weight);
                             })
                             ->first();
+
                         return $size?->label ?? '—';
                     }),
                 Toggle::make('vaccinated')
@@ -229,14 +243,17 @@ class PetResource extends Resource
                     ->label('Age')
                     ->sortable()
                     ->formatStateUsing(function ($state) {
-                        if (!$state) return '—';
+                        if (! $state) {
+                            return '—';
+                        }
                         $dob = Carbon::parse($state);
                         $now = Carbon::now();
                         $totalMonths = $dob->diffInMonths($now);
                         $years = intdiv($totalMonths, 12);
                         $months = $totalMonths % 12;
+
                         return $years > 0
-                            ? "{$years} yr " . ($months > 0 ? "{$months} mo" : "")
+                            ? "{$years} yr ".($months > 0 ? "{$months} mo" : '')
                             : "{$months} mo";
                     }),
                 IconColumn::make('vaccinated')
@@ -247,11 +264,11 @@ class PetResource extends Resource
                     ->badge()
                     ->color(fn (string $state) => match ($state) {
                         'available' => 'success',
-                        'reserved'  => 'warning',
-                        'adopted'   => 'primary',
-                        'inactive'  => 'danger',
-                        'draft'     => 'gray',
-                        default     => 'secondary',
+                        'reserved' => 'warning',
+                        'adopted' => 'primary',
+                        'inactive' => 'danger',
+                        'draft' => 'gray',
+                        default => 'secondary',
                     })
                     ->sortable(),
                 Tables\Columns\TextColumn::make('adoption_fee')
@@ -320,7 +337,7 @@ class PetResource extends Resource
         $data = static::mutateFormDataBeforeCreate($data);
 
         // Validate breed belongs to selected type; if not, null it to prevent mismatch
-        if (!empty($data['pet_breed_id']) && !empty($data['pet_type_id'])) {
+        if (! empty($data['pet_breed_id']) && ! empty($data['pet_type_id'])) {
             $valid = \App\Models\PetBreed::where('id', $data['pet_breed_id'])
                 ->where('pet_type_id', $data['pet_type_id'])
                 ->exists();
@@ -328,6 +345,7 @@ class PetResource extends Resource
                 $data['pet_breed_id'] = null;
             }
         }
+
         return $data;
     }
 
@@ -339,9 +357,9 @@ class PetResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListPets::route('/'),
+            'index' => Pages\ListPets::route('/'),
             'create' => Pages\CreatePet::route('/create'),
-            'edit'   => Pages\EditPet::route('/{record}/edit'),
+            'edit' => Pages\EditPet::route('/{record}/edit'),
         ];
     }
 }

@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('name'); // e.g. Golden Retriever, Persian
             $table->timestamps();
 
-            $table->unique(['pet_type_id','name']);
+            $table->unique(['pet_type_id', 'name']);
         });
     }
 

@@ -17,5 +17,4 @@ class PetBreed extends Model
     {
         return $this->hasMany(Pet::class);
     }
-    
 }

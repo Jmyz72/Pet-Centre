@@ -3,21 +3,21 @@
 namespace App\Filament\Merchant\Resources;
 
 use App\Filament\Merchant\Resources\PackageResource\Pages;
-use App\Models\Package;
 use App\Filament\Traits\MerchantScopedResource;
-use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Table;
-use Filament\Tables\Filters\SelectFilter;
-use Illuminate\Support\Facades\Auth;
 use App\Models\MerchantProfile;
+use App\Models\Package;
+use App\Models\PetBreed;
+use Filament\Forms;
 use Filament\Forms\Components\Hidden;
-use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
-use App\Models\PetBreed;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class PackageResource extends Resource
 {
@@ -33,9 +33,12 @@ class PackageResource extends Resource
             Hidden::make('merchant_id')
                 ->default(function () {
                     $userId = Auth::id();
-                    if (!$userId) return null;
+                    if (! $userId) {
+                        return null;
+                    }
                     $profileId = optional(Auth::user()->merchantProfile)->id
                         ?? MerchantProfile::where('user_id', $userId)->value('id');
+
                     return $profileId;
                 })
                 ->required(),
@@ -117,6 +120,7 @@ class PackageResource extends Resource
                         )
                         ->getOptionLabelFromRecordUsing(function (PetBreed $record) {
                             $type = optional($record->petType)->name ?? 'Unknown';
+
                             return "{$record->name}  —  [{$type}]";
                         })
                         ->multiple()
@@ -140,7 +144,7 @@ class PackageResource extends Resource
                                     if ($valid !== count($ids)) {
                                         $fail('One or more selected breeds do not belong to the selected pet types.');
                                     }
-                                }
+                                },
                             ];
                         }),
                 ]),
@@ -196,6 +200,7 @@ class PackageResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->tooltip(function ($record) {
                         $names = $record->petBreeds->pluck('name')->all();
+
                         return empty($names) ? null : implode(', ', $names);
                     }),
 
@@ -216,7 +221,7 @@ class PackageResource extends Resource
                     ->label('Created')
                     ->dateTime('Y-m-d H:i')
                     ->toggleable(isToggledHiddenByDefault: true),
-                
+
                 Tables\Columns\TextColumn::make('updated_at')
                     ->label('Updated')
                     ->dateTime('Y-m-d H:i')
@@ -267,10 +272,10 @@ class PackageResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListPackages::route('/'),
+            'index' => Pages\ListPackages::route('/'),
             'create' => Pages\CreatePackage::route('/create'),
-            'edit'   => Pages\EditPackage::route('/{record}/edit'),
-            'view'   => Pages\ViewPackage::route('/{record}'),
+            'edit' => Pages\EditPackage::route('/{record}/edit'),
+            'view' => Pages\ViewPackage::route('/{record}'),
         ];
     }
 

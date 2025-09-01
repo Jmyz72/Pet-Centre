@@ -34,29 +34,29 @@ class Package extends Model
     {
         return $this->belongsToMany(
             PetType::class,
-            'package_pet_types', // pivot table
-            'package_id',        // this model's FK on pivot
-            'pet_type_id'        // related model's FK on pivot
+            'package_pet_type', // pivot table
+            'package_id',       // this model's FK on pivot
+            'pet_type_id'       // related model's FK on pivot
         );
     }
-    
+
     public function petBreeds()
     {
         return $this->belongsToMany(
             PetBreed::class,
-            'package_breeds', // pivot table
-            'package_id',     // this model's FK on pivot
-            'pet_breed_id'    // related model's FK on pivot
+            'package_breed', // pivot table
+            'package_id',    // this model's FK on pivot
+            'pet_breed_id'   // related model's FK on pivot
         );
     }
-    
+
     public function packageSizes()
     {
         return $this->belongsToMany(
             Size::class,
-            'package_sizes', // pivot table
-            'package_id',    // this model's FK on pivot
-            'size_id'        // related model's FK on pivot
+            'package_size', // pivot table
+            'package_id',   // this model's FK on pivot
+            'size_id'       // related model's FK on pivot
         );
     }
 

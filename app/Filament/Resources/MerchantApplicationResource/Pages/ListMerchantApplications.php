@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\MerchantApplicationResource\Pages;
 
 use App\Filament\Resources\MerchantApplicationResource;
-use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 
 class ListMerchantApplications extends ListRecords
@@ -13,7 +12,7 @@ class ListMerchantApplications extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            
+
         ];
     }
 }

@@ -3,14 +3,11 @@
 namespace App\Filament\Merchant\Pages;
 
 use App\Models\MerchantProfile;
-use Filament\Actions;
-use Filament\Forms;
+use Filament\Forms\Components\Actions\Action as FormAction;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\Actions\Action as FormAction;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
@@ -23,8 +20,11 @@ class MyProfile extends Page implements HasForms
     use InteractsWithForms;
 
     protected static ?string $navigationIcon = 'heroicon-o-user';
+
     protected static ?string $navigationLabel = 'My Profile';
+
     protected static ?string $title = 'My Merchant Profile';
+
     protected static ?string $navigationGroup = 'Account';
 
     /**
@@ -35,11 +35,11 @@ class MyProfile extends Page implements HasForms
 
     /**
      * Form state container.
+     *
      * @var array<string, mixed>|null
      */
     public ?array $data = [];
 
-    /** @var MerchantProfile */
     public MerchantProfile $profile;
 
     /** Toggle to enable/disable editing mode */
@@ -52,6 +52,7 @@ class MyProfile extends Page implements HasForms
         if (! $user) {
             // Let Filament handle auth redirection
             $this->redirect(route('filament.merchant.auth.login'));
+
             return;
         }
 
@@ -67,19 +68,20 @@ class MyProfile extends Page implements HasForms
                 ->send();
 
             $this->redirect(route('filament.merchant.pages.dashboard'));
+
             return;
         }
 
         // Pre-fill form with current values
         $this->form->fill([
-            'name'                => $this->profile->name,
-            'phone'               => $this->profile->phone,
-            'address'             => $this->profile->address,
+            'name' => $this->profile->name,
+            'phone' => $this->profile->phone,
+            'address' => $this->profile->address,
             'registration_number' => $this->profile->registration_number,
-            'license_number'      => $this->profile->license_number,
-            'document_path'       => $this->profile->document_path,
-            'photo'               => $this->profile->photo,
-            'description'         => $this->profile->description,
+            'license_number' => $this->profile->license_number,
+            'document_path' => $this->profile->document_path,
+            'photo' => $this->profile->photo,
+            'description' => $this->profile->description,
         ]);
         $this->isEditing = false;
     }
@@ -128,7 +130,7 @@ class MyProfile extends Page implements HasForms
                             ->rows(3)
                             ->disabled(fn () => ! $this->isEditing)
                             ->columnSpanFull(),
-                        
+
                         Textarea::make('description')
                             ->label('Description')
                             ->rows(3)
@@ -166,7 +168,7 @@ class MyProfile extends Page implements HasForms
                             ->disabled()
                             ->columnSpanFull()
                             ->acceptedFileTypes(['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'])
-                            ->maxSize(5120)
+                            ->maxSize(5120),
                     ]),
             ]);
     }
@@ -188,14 +190,14 @@ class MyProfile extends Page implements HasForms
     {
         $this->isEditing = false;
         $this->form->fill([
-            'name'                => $this->profile->name,
-            'phone'               => $this->profile->phone,
-            'address'             => $this->profile->address,
+            'name' => $this->profile->name,
+            'phone' => $this->profile->phone,
+            'address' => $this->profile->address,
             'registration_number' => $this->profile->registration_number,
-            'license_number'      => $this->profile->license_number,
-            'document_path'       => $this->profile->document_path,
-            'photo'               => $this->profile->photo,
-            'description'         => $this->profile->description,
+            'license_number' => $this->profile->license_number,
+            'document_path' => $this->profile->document_path,
+            'photo' => $this->profile->photo,
+            'description' => $this->profile->description,
         ]);
     }
 
@@ -209,6 +211,7 @@ class MyProfile extends Page implements HasForms
         // Extra guard: ensure the profile belongs to the logged-in user
         if (auth()->id() !== $this->profile->user_id) {
             Notification::make()->title('Unauthorized')->danger()->body('You cannot edit this profile.')->send();
+
             return;
         }
 

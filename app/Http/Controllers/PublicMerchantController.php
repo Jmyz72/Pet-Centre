@@ -21,7 +21,7 @@ class PublicMerchantController extends Controller
                 $term = $request->string('search');
                 $q->where(function ($w) use ($term) {
                     $w->where('name', 'like', "%{$term}%")
-                      ->orWhere('address', 'like', "%{$term}%");
+                        ->orWhere('address', 'like', "%{$term}%");
                 });
             })
             ->when($request->filled('role'), fn ($q) => $q->where('role', $request->string('role')))
@@ -70,7 +70,7 @@ class PublicMerchantController extends Controller
     }
 }
 
-if (!function_exists('schema_has_column')) {
+if (! function_exists('schema_has_column')) {
     /**
      * Lightweight helper to safely check a column's existence without failing in prod.
      */
