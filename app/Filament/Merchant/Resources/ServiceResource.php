@@ -15,6 +15,9 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ServiceResource extends Resource
 {
+
+    use MerchantScopedResource;
+
     protected static ?string $model = Service::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
@@ -60,5 +63,12 @@ class ServiceResource extends Resource
             'create' => Pages\CreateService::route('/create'),
             'edit' => Pages\EditService::route('/{record}/edit'),
         ];
+    }
+
+    public static function mutateFormDataBeforeSave(array $data): array
+    {
+        $data = static::mutateFormDataBeforeCreate($data);
+
+        return $data;
     }
 }

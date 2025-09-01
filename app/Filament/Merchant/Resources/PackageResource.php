@@ -14,6 +14,10 @@ use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Support\Facades\Auth;
 use App\Models\MerchantProfile;
 use Filament\Forms\Components\Hidden;
+use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
+use App\Models\PetBreed;
 
 class PackageResource extends Resource
 {
@@ -36,45 +40,123 @@ class PackageResource extends Resource
                 })
                 ->required(),
 
-            Forms\Components\Select::make('packageTypes')
-                ->label('Types')
-                ->relationship('packageTypes', 'name')
-                ->multiple()
-                ->required()
-                ->preload()
-                ->searchable()
-                ->columnSpanFull(),
+            Forms\Components\Grid::make(2)
+                ->schema([
+                    Forms\Components\TextInput::make('name')
+                        ->label('Package Name')
+                        ->required()
+                        ->maxLength(255),
 
-            Forms\Components\Select::make('packageSizes')
-                ->label('Sizes')
-                ->relationship('packageSizes', 'label')
-                ->multiple()
-                ->required()
-                ->preload()
-                ->searchable()
-                ->columnSpanFull(),
+                    Forms\Components\TextInput::make('price')
+                        ->label('Price (MYR)')
+                        ->numeric()
+                        ->step('0.01')
+                        ->minValue(0)
+                        ->required(),
+                ]),
 
-            Forms\Components\TextInput::make('name')
-                ->label('Package Name')
-                ->required()
-                ->maxLength(255),
+            Forms\Components\Grid::make(2)
+                ->schema([
+                    Forms\Components\Select::make('packageTypes')
+                        ->label('Types')
+                        ->relationship('packageTypes', 'name')
+                        ->multiple()
+                        ->required()
+                        ->preload()
+                        ->optionsLimit(1000)
+                        ->searchable(),
 
-            Forms\Components\Textarea::make('description')
-                ->label('Description')
-                ->rows(3)
-                ->nullable(),
+                    Forms\Components\Select::make('packageSizes')
+                        ->label('Sizes')
+                        ->relationship('packageSizes', 'label')
+                        ->multiple()
+                        ->required()
+                        ->preload()
+                        ->searchable(),
+                ]),
 
-            Forms\Components\TextInput::make('price')
-                ->label('Price (MYR)')
-                ->numeric()
-                ->step('0.01')
-                ->minValue(0)
-                ->required(),
+            Forms\Components\Grid::make(2)
+                ->schema([
+                    Forms\Components\Select::make('petTypes')
+                        ->label('Pet Types')
+                        ->relationship('petTypes', 'name')
+                        ->multiple()
+                        ->required()
+                        ->preload()
+                        ->searchable()
+                        ->optionsLimit(1000)
+                        ->reactive()
+                        ->afterStateUpdated(function ($state, Set $set, Get $get) {
+                            $currentBreeds = $get('petBreeds') ?? [];
+                            if (! empty($currentBreeds) && ! empty($state)) {
+                                $validBreedIds = PetBreed::whereIn('id', $currentBreeds)
+                                    ->whereIn('pet_type_id', $state)
+                                    ->pluck('id')
+                                    ->toArray();
+                                $set('petBreeds', $validBreedIds);
+                            } else {
+                                $set('petBreeds', []);
+                            }
+                        }),
+
+                    Forms\Components\Select::make('petBreeds')
+                        ->label('Breeds')
+                        ->relationship(
+                            'petBreeds',
+                            'name',
+                            function (Builder $query, Get $get) {
+                                $typeIds = $get('petTypes') ?? [];
+                                if (! empty($typeIds)) {
+                                    $query->whereIn('pet_type_id', $typeIds);
+                                } else {
+                                    // Return no options until a pet type is selected
+                                    $query->whereRaw('1 = 0');
+                                }
+                            }
+                        )
+                        ->getOptionLabelFromRecordUsing(function (PetBreed $record) {
+                            $type = optional($record->petType)->name ?? 'Unknown';
+                            return "{$record->name}  —  [{$type}]";
+                        })
+                        ->multiple()
+                        ->preload()
+                        ->searchable()
+                        ->optionsLimit(1000)
+                        ->reactive()
+                        ->disabled(fn (Get $get) => empty($get('petTypes')))
+                        ->hint(fn (Get $get) => empty($get('petTypes')) ? 'Select Pet Types first' : null)
+                        ->rules(function (Get $get) {
+                            return [
+                                function (string $attribute, $value, \Closure $fail) use ($get) {
+                                    $ids = is_array($value) ? $value : (array) $value;
+                                    $typeIds = $get('petTypes') ?? [];
+                                    if (empty($ids) || empty($typeIds)) {
+                                        return;
+                                    }
+                                    $valid = PetBreed::whereIn('id', $ids)
+                                        ->whereIn('pet_type_id', $typeIds)
+                                        ->count();
+                                    if ($valid !== count($ids)) {
+                                        $fail('One or more selected breeds do not belong to the selected pet types.');
+                                    }
+                                }
+                            ];
+                        }),
+                ]),
 
             Forms\Components\TextInput::make('duration_minutes')
                 ->label('Duration (minutes)')
                 ->numeric()
                 ->minValue(0)
+                ->placeholder('e.g. 30')
+                ->suffix('min')
+                ->datalist([10, 15, 30, 60, 90, 120])
+                ->helperText('Pick a common duration or type any number of minutes')
+                ->nullable(),
+
+            Forms\Components\Textarea::make('description')
+                ->label('Description')
+                ->rows(3)
                 ->nullable(),
 
             // Active toggle at the end
@@ -96,10 +178,25 @@ class PackageResource extends Resource
                     ->sortable(),
 
                 Tables\Columns\TagsColumn::make('packageTypes.name')
-                    ->label('Types'),
+                    ->label('Types')
+                    ->limit(3),
 
                 Tables\Columns\TagsColumn::make('packageSizes.label')
-                    ->label('Sizes'),
+                    ->label('Sizes')
+                    ->limit(4),
+
+                Tables\Columns\TagsColumn::make('petTypes.name')
+                    ->label('Pet Types')
+                    ->limit(3),
+
+                Tables\Columns\TagsColumn::make('petBreeds.name')
+                    ->label('Breeds')
+                    ->limit(4)
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->tooltip(function ($record) {
+                        $names = $record->petBreeds->pluck('name')->all();
+                        return empty($names) ? null : implode(', ', $names);
+                    }),
 
                 Tables\Columns\TextColumn::make('price')
                     ->label('Price')
@@ -133,6 +230,16 @@ class PackageResource extends Resource
                 SelectFilter::make('packageSizes')
                     ->label('Size')
                     ->relationship('packageSizes', 'label')
+                    ->multiple(),
+
+                SelectFilter::make('petTypes')
+                    ->label('Pet Type')
+                    ->relationship('petTypes', 'name')
+                    ->multiple(),
+
+                SelectFilter::make('petBreeds')
+                    ->label('Breed')
+                    ->relationship('petBreeds', 'name')
                     ->multiple(),
 
                 Tables\Filters\TernaryFilter::make('is_active')
