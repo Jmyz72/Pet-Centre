@@ -17,18 +17,18 @@ return new class extends Migration {
 
             // Link to your pivot rows (now each has its own id)
             $table->foreignId('package_pet_type_id')
-                  ->constrained('package_pet_type')
+                  ->constrained('package_pet_types')
                   ->cascadeOnDelete();
 
             $table->foreignId('package_size_id')
                   ->nullable()
-                  ->constrained('package_size')
+                  ->constrained('package_sizes')
                   ->cascadeOnDelete();
 
             // Optional breed override: nullable
             $table->foreignId('package_breed_id')
                   ->nullable()
-                  ->constrained('package_breed')
+                  ->constrained('package_breeds')
                   ->cascadeOnDelete();
 
             // The variation price (overrides package base price when shown)

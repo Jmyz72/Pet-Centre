@@ -22,22 +22,42 @@ class Package extends Model
 
     public function packageTypes()
     {
-        return $this->belongsToMany(PackageType::class, 'package_package_type');
+        return $this->belongsToMany(
+            PackageType::class,
+            'package_package_types', // pivot table
+            'package_id',            // this model's FK on pivot
+            'package_type_id'        // related model's FK on pivot
+        );
     }
 
     public function petTypes()
     {
-        return $this->belongsToMany(PetType::class, 'package_pet_type');
+        return $this->belongsToMany(
+            PetType::class,
+            'package_pet_types', // pivot table
+            'package_id',        // this model's FK on pivot
+            'pet_type_id'        // related model's FK on pivot
+        );
     }
     
     public function petBreeds()
     {
-        return $this->belongsToMany(PetBreed::class, 'package_breed');
+        return $this->belongsToMany(
+            PetBreed::class,
+            'package_breeds', // pivot table
+            'package_id',     // this model's FK on pivot
+            'pet_breed_id'    // related model's FK on pivot
+        );
     }
     
     public function packageSizes()
     {
-        return $this->belongsToMany(Size::class, 'package_size');
+        return $this->belongsToMany(
+            Size::class,
+            'package_sizes', // pivot table
+            'package_id',    // this model's FK on pivot
+            'size_id'        // related model's FK on pivot
+        );
     }
 
     public function variations()

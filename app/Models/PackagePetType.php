@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class PackagePetType extends Model
 {
-    protected $table = 'package_pet_type';
     public $timestamps = false;
     protected $fillable = ['package_id', 'pet_type_id'];
 

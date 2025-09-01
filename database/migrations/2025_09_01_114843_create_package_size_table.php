@@ -11,10 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('package_pet_type', function (Blueprint $table) {
+        Schema::create('package_sizes', function (Blueprint $table) {
+            $table->id();
             $table->foreignId('package_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('pet_type_id')->constrained('pet_types')->cascadeOnDelete();
-            $table->primary(['package_id','pet_type_id']);
+            $table->foreignId('size_id')->constrained('sizes')->cascadeOnDelete();
+
+            $table->unique(['package_id', 'size_id'], 'ps_unique');
         });
     }
 
@@ -23,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('package_pet_type');
+        Schema::dropIfExists('package_sizes');
     }
 };

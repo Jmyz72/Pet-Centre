@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class PackageSize extends Model
 {
-    protected $table = 'package_size';
     public $timestamps = false;
     protected $fillable = ['package_id', 'size_id'];
 

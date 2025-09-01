@@ -6,9 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class PackageBreed extends Model
 {
-    protected $table = 'package_breed';
     public $timestamps = false;
-    protected $fillable = ['package_id', 'breed_id'];
+    protected $fillable = ['package_id', 'pet_breed_id'];
 
     public function package()
     {
@@ -17,6 +16,6 @@ class PackageBreed extends Model
 
     public function breed()
     {
-        return $this->belongsTo(PetBreed::class, 'breed_id');
+        return $this->belongsTo(PetBreed::class, 'pet_breed_id');
     }
 }

@@ -49,7 +49,7 @@ class VariationsRelationManager extends RelationManager
                         ->where('package_id', $packageId)
                         ->get()
                         ->mapWithKeys(fn ($ps) => [
-                            $ps->id => optional($ps->size)->name,
+                            $ps->id => optional($ps->size)->label,
                         ])
                         ->filter(fn ($label) => !is_null($label))
                         ->toArray();
@@ -79,6 +79,29 @@ class VariationsRelationManager extends RelationManager
                         ->filter(fn ($label) => !is_null($label))
                         ->toArray();
                 })
+                ->reactive()
+                ->afterStateUpdated(function ($state, \Filament\Forms\Set $set) {
+                    if (empty($state)) {
+                        return;
+                    }
+
+                    // Get the chosen PackageBreed (pivot) with its PetBreed to access pet_type_id
+                    $pb = \App\Models\PackageBreed::with(['breed:id,pet_type_id'])->find($state);
+
+                    if (! $pb || ! $pb->breed || empty($pb->breed->pet_type_id)) {
+                        return;
+                    }
+
+                    // Find the corresponding PackagePetType row for the same package & pet_type
+                    $ppt = \App\Models\PackagePetType::where('package_id', $pb->package_id)
+                        ->where('pet_type_id', $pb->breed->pet_type_id)
+                        ->first();
+
+                    if ($ppt) {
+                        // Auto-select Pet Type to match the selected Breed
+                        $set('package_pet_type_id', $ppt->id);
+                    }
+                })
                 ->nullable(),
 
             Forms\Components\TextInput::make('price')
@@ -95,11 +118,56 @@ class VariationsRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('id')
             ->columns([
-                Tables\Columns\TextColumn::make('petTypePivot.petType.name')->label('Pet Type'),
-                Tables\Columns\TextColumn::make('sizePivot.size.name')->label('Size')->toggleable(),
-                Tables\Columns\TextColumn::make('breedPivot.breed.name')->label('Breed')->toggleable(),
+                Tables\Columns\TextColumn::make('petTypePivot.petType.name')->label('Pet Type')->searchable(),
+                Tables\Columns\TextColumn::make('sizePivot.size.label')->label('Size')->toggleable()->searchable(),
+                Tables\Columns\TextColumn::make('breedPivot.breed.name')->label('Breed')->toggleable()->searchable(),
                 Tables\Columns\TextColumn::make('price')->money('MYR'),
                 Tables\Columns\IconColumn::make('is_active')->boolean(),
+            ])
+            ->filters([
+                Tables\Filters\SelectFilter::make('pet_type')
+                    ->label('Pet Type')
+                    ->options(fn () => \App\Models\PetType::query()->orderBy('name')->pluck('name', 'id')->toArray())
+                    ->query(function (Builder $query, array $data) {
+                        $value = $data['value'] ?? null;
+                        if ($value) {
+                            $query->whereHas('petTypePivot.petType', fn (Builder $q) => $q->where('id', $value));
+                        }
+                    }),
+                Tables\Filters\SelectFilter::make('size')
+                    ->label('Size')
+                    ->options(fn () => \App\Models\Size::query()->orderBy('label')->pluck('label', 'id')->toArray())
+                    ->query(function (Builder $query, array $data) {
+                        $value = $data['value'] ?? null;
+                        if ($value) {
+                            $query->whereHas('sizePivot.size', fn (Builder $q) => $q->where('id', $value));
+                        }
+                    }),
+                Tables\Filters\SelectFilter::make('breed')
+                    ->label('Breed')
+                    ->options(fn () => \App\Models\PetBreed::query()->orderBy('name')->pluck('name', 'id')->toArray())
+                    ->query(function (Builder $query, array $data) {
+                        $value = $data['value'] ?? null;
+                        if ($value) {
+                            $query->whereHas('breedPivot.breed', fn (Builder $q) => $q->where('id', $value));
+                        }
+                    }),
+                Tables\Filters\TernaryFilter::make('is_active')->label('Active'),
+                Tables\Filters\Filter::make('price_range')
+                    ->form([
+                        Forms\Components\TextInput::make('min')->label('Min Price')->numeric(),
+                        Forms\Components\TextInput::make('max')->label('Max Price')->numeric(),
+                    ])
+                    ->query(function (Builder $query, array $data) {
+                        $min = $data['min'] ?? null;
+                        $max = $data['max'] ?? null;
+                        if ($min !== null && $min !== '') {
+                            $query->where('price', '>=', $min);
+                        }
+                        if ($max !== null && $max !== '') {
+                            $query->where('price', '<=', $max);
+                        }
+                    }),
             ])
             ->headerActions([
                 Tables\Actions\CreateAction::make(),
