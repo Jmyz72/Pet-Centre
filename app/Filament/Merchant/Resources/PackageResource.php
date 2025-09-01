@@ -52,6 +52,7 @@ class PackageResource extends Resource
                         ->numeric()
                         ->step('0.01')
                         ->minValue(0)
+                        ->suffix('MYR')
                         ->required(),
                 ]),
 
