@@ -116,6 +116,7 @@ class VariationsRelationManager extends RelationManager
     public function table(Tables\Table $table): Tables\Table
     {
         return $table
+            ->poll('3s')
             ->recordTitleAttribute('id')
             ->columns([
                 Tables\Columns\TextColumn::make('petTypePivot.petType.name')->label('Pet Type')->searchable(),
