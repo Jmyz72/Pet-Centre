@@ -14,10 +14,22 @@ class ClinicRole implements StaffRole
         return $data;
     }
 
+    /**
+     * Clinic staff manage SERVICES only.
+     * Ensure services are synced and packages are cleared.
+     */
     public function afterCreate(Staff $staff, array $data): void
     {
-        // Attach services or packages here if needed
-        // $staff->services()->sync($data['services'] ?? []);
-        // $staff->packages()->sync($data['packages'] ?? []);
+        $staff->services()->sync($data['services'] ?? []);
+        $staff->packages()->sync([]);
+    }
+
+    /**
+     * Keep behavior consistent on update as well.
+     */
+    public function afterSave(Staff $staff, array $data): void
+    {
+        $staff->services()->sync($data['services'] ?? []);
+        $staff->packages()->sync([]);
     }
 }

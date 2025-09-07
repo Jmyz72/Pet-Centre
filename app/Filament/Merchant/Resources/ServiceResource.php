@@ -91,6 +91,7 @@ class ServiceResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->poll('3s')
             ->columns([
                 TextColumn::make('name')
                     ->label('Service')

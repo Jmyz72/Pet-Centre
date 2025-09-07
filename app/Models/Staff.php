@@ -33,7 +33,7 @@ class Staff extends Model
     // Each staff belongs to a merchant profile
     public function merchant()
     {
-        return $this->belongsTo(MerchantProfile::class);
+        return $this->belongsTo(MerchantProfile::class, 'merchant_id');
     }
 
     // Many-to-many: staff can perform many services
