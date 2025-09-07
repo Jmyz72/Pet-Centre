@@ -14,6 +14,8 @@ class Service extends Model
         'price',
         'duration_minutes',
         'is_active',
+        'created_at',
+        'updated_at',
     ];
 
     public function serviceType()

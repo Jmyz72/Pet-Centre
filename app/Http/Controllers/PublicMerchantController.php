@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\MerchantProfile;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class PublicMerchantController extends Controller
 {
@@ -12,21 +13,34 @@ class PublicMerchantController extends Controller
      */
     public function index(Request $request)
     {
+        // Normalize & validate inputs
+        $validated = $request->validate([
+            'search' => ['nullable', 'string', 'max:100'],
+            'role'   => ['nullable', 'string', Rule::in(['clinic', 'shelter', 'groomer'])],
+            'page'   => ['nullable', 'integer', 'min:1'],
+        ]);
+        
+        $search = trim((string) ($validated['search'] ?? ''));
+        $role   = $validated['role'] ?? null;
+
         $profiles = MerchantProfile::query()
-            // Optional: only show public profiles if the column exists in your schema
-            ->when(schema_has_column('merchant_profiles', 'is_public') ?? false, function ($q) {
-                $q->where('is_public', true);
-            })
-            ->when($request->filled('search'), function ($q) use ($request) {
-                $term = $request->string('search');
-                $q->where(function ($w) use ($term) {
-                    $w->where('name', 'like', "%{$term}%")
-                      ->orWhere('address', 'like', "%{$term}%");
+            // Lightweight projection for list view
+            ->select(['id', 'name', 'role', 'phone', 'address', 'photo', 'created_at'])
+            // Optional counts shown on cards if you later want them (kept cheap)
+            ->when(method_exists(MerchantProfile::class, 'packages'), fn ($q) => $q->withCount('packages'))
+            ->when(method_exists(MerchantProfile::class, 'services'), fn ($q) => $q->withCount('services'))
+            ->when(method_exists(MerchantProfile::class, 'pets'),     fn ($q) => $q->withCount('pets'))
+            // Filters
+            ->when($search !== '', function ($q) use ($search) {
+                $q->where(function ($w) use ($search) {
+                    $w->where('name', 'like', "%{$search}%")
+                      ->orWhere('address', 'like', "%{$search}%");
                 });
             })
-            ->when($request->filled('role'), fn ($q) => $q->where('role', $request->string('role')))
-            ->latest()
-            ->paginate(9)
+            ->when($role, fn ($q) => $q->where('role', $role))
+            // Sorting: name asc for stable list; newest first if searching
+            ->when($search !== '', fn ($q) => $q->latest(), fn ($q) => $q->orderBy('name'))
+            ->paginate(10)
             ->withQueryString();
 
         // Render your browse/listing view (create this if you haven't yet)
@@ -38,34 +52,11 @@ class PublicMerchantController extends Controller
      */
     public function show(MerchantProfile $merchantProfile)
     {
-        // Eager-load relations conditionally to reduce queries
-        $merchantProfile->loadMissing(['pets', 'services', 'packages']);
+        // Delegate role-specific data preparation to the Strategy layer
+        $resolver = app(\App\Domain\MerchantProfile\RoleStrategyResolver::class);
+        $strategy = $resolver->for($merchantProfile);
+        $data = $strategy->handle($merchantProfile);
 
-        $data = ['profile' => $merchantProfile];
-
-        // Provide role-specific datasets if the relations/methods exist
-        if ($merchantProfile->role === 'shelter' && method_exists($merchantProfile, 'pets')) {
-            $data['pets'] = $merchantProfile->pets()
-                ->when(method_exists($merchantProfile->pets()->getModel(), 'scopeAvailable'),
-                    fn ($q) => $q->available())
-                ->latest('created_at')
-                ->paginate(12)
-                ->withQueryString();
-        }
-
-        if ($merchantProfile->role === 'groomer' && method_exists($merchantProfile, 'packages')) {
-            $data['packages'] = $merchantProfile->packages()
-                ->when(method_exists($merchantProfile->packages()->getModel(), 'scopeActive'),
-                    fn ($q) => $q->active())
-                ->orderBy('name')
-                ->get();
-        }
-
-        if ($merchantProfile->role === 'clinic' && method_exists($merchantProfile, 'services')) {
-            $data['services'] = $merchantProfile->services()->orderBy('name')->get();
-        }
-
-        // Render the full content page (header + role section)
         return view('merchant.profile.index', $data);
     }
 }

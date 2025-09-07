@@ -62,6 +62,6 @@ class Package extends Model
 
     public function variations()
     {
-        return $this->hasMany(PackageVariation::class);
+        return $this->hasMany(PackageVariation::class, 'package_id');
     }
 }
