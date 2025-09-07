@@ -16,9 +16,12 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Domain\Staff\StaffFactory;
 use Illuminate\Validation\ValidationException;
+use App\Filament\Traits\MerchantScopedResource;
 
 class StaffResource extends Resource
 {
+    use MerchantScopedResource;
+
     protected static ?string $model = Staff::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-users';
@@ -150,6 +153,7 @@ class StaffResource extends Resource
 
     public static function mutateFormDataBeforeSave(array $data): array
     {
+
         // Enforce strict role based on user + merchant profile; no defaults allowed.
         $data['role'] = static::resolveMerchantRoleStrict();
         return $data;
@@ -172,9 +176,6 @@ class StaffResource extends Resource
         return $table
             ->poll('3s')
             ->columns([
-                Tables\Columns\TextColumn::make('merchant_id')
-                    ->numeric()
-                    ->sortable(),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('email')
@@ -222,4 +223,5 @@ class StaffResource extends Resource
             'edit' => Pages\EditStaff::route('/{record}/edit'),
         ];
     }
+
 }
