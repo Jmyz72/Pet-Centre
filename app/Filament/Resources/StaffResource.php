@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\PackageTypeResource\Pages;
-use App\Filament\Resources\PackageTypeResource\RelationManagers;
-use App\Models\PackageType;
+use App\Filament\Resources\StaffResource\Pages;
+use App\Filament\Resources\StaffResource\RelationManagers;
+use App\Models\Staff;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -13,9 +13,9 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class PackageTypeResource extends Resource
+class StaffResource extends Resource
 {
-    protected static ?string $model = PackageType::class;
+    protected static ?string $model = Staff::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
@@ -23,11 +23,27 @@ class PackageTypeResource extends Resource
     {
         return $form
             ->schema([
+                Forms\Components\TextInput::make('merchant_id')
+                    ->required()
+                    ->numeric(),
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\Textarea::make('description')
-                    ->columnSpanFull(),
+                Forms\Components\TextInput::make('email')
+                    ->email()
+                    ->maxLength(255)
+                    ->default(null),
+                Forms\Components\TextInput::make('phone')
+                    ->tel()
+                    ->maxLength(255)
+                    ->default(null),
+                Forms\Components\TextInput::make('role')
+                    ->required()
+                    ->maxLength(255),
+                Forms\Components\TextInput::make('status')
+                    ->required()
+                    ->maxLength(255)
+                    ->default('active'),
             ]);
     }
 
@@ -35,7 +51,18 @@ class PackageTypeResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('merchant_id')
+                    ->numeric()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('name')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('email')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('phone')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('role')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('status')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
@@ -69,9 +96,9 @@ class PackageTypeResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListPackageTypes::route('/'),
-            'create' => Pages\CreatePackageType::route('/create'),
-            'edit' => Pages\EditPackageType::route('/{record}/edit'),
+            'index' => Pages\ListStaff::route('/'),
+            'create' => Pages\CreateStaff::route('/create'),
+            'edit' => Pages\EditStaff::route('/{record}/edit'),
         ];
     }
 }
