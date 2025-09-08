@@ -52,10 +52,20 @@ class PublicMerchantController extends Controller
      */
     public function show(MerchantProfile $merchantProfile)
     {
+        // Eager-load operating hours for the view (ordered for stable rendering)
+        $merchantProfile->load([
+            'operatingHours' => function ($q) {
+                $q->orderBy('day_of_week')->orderBy('block_index');
+            },
+        ]);
+
         // Delegate role-specific data preparation to the Strategy layer
         $resolver = app(\App\Domain\MerchantProfile\RoleStrategyResolver::class);
         $strategy = $resolver->for($merchantProfile);
         $data = $strategy->handle($merchantProfile);
+
+        // Ensure the base profile (with hours) is always available to the Blade
+        $data['profile'] = $merchantProfile;
 
         return view('merchant.profile.index', $data);
     }

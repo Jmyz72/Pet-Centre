@@ -3,6 +3,7 @@
 @section('content')
 <div class="max-w-5xl mx-auto px-4 py-8">
     @include('merchant.profile.partials.header', ['profile' => $profile])
+    @includeIf('merchant.profile.partials.operating-hours', ['profile' => $profile])
     @includeIf('merchant.profile.roles.' . $profile->role, ['profile' => $profile])
 
     <div class="mt-8">
