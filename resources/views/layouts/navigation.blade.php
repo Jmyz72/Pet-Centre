@@ -97,9 +97,9 @@
         <div class="hidden w-full lg:flex lg:w-auto lg:order-1" id="navbar-default">
             <ul class="flex flex-col p-4 lg:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 lg:flex-row lg:space-x-8 lg:mt-0 lg:border-0 lg:bg-white dark:bg-gray-800 lg:dark:bg-gray-900">
                 <li><a href="/" class="block py-2 px-3 text-gray-700 hover:bg-gray-100 lg:hover:bg-transparent lg:hover:text-blue-700">Home</a></li>
-                <li><a href="/pets" class="block py-2 px-3 text-gray-700 hover:bg-gray-100 lg:hover:bg-transparent lg:hover:text-blue-700">Pets</a></li>
-                <li><a href="/services" class="block py-2 px-3 text-gray-700 hover:bg-gray-100 lg:hover:bg-transparent lg:hover:text-blue-700">Services</a></li>
-                <li><a href="/contact" class="block py-2 px-3 text-gray-700 hover:bg-gray-100 lg:hover:bg-transparent lg:hover:text-blue-700">Contact</a></li>
+                <li><a href="{{ route('merchants.index') }}" class="block py-2 px-3 text-gray-700 hover:bg-gray-100 lg:hover:bg-transparent lg:hover:text-blue-700">Shelter</a></li>
+                <li><a href="{{ route('merchants.index') }}" class="block py-2 px-3 text-gray-700 hover:bg-gray-100 lg:hover:bg-transparent lg:hover:text-blue-700">Clinic</a></li>
+                <li><a href="{{ route('merchants.index') }}" class="block py-2 px-3 text-gray-700 hover:bg-gray-100 lg:hover:bg-transparent lg:hover:text-blue-700">Groomer</a></li>
             </ul>
         </div>
     </div>
