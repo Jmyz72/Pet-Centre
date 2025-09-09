@@ -4,6 +4,9 @@ use App\Http\Controllers\MerchantApplicationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicMerchantController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\GroomerController;
+use App\Http\Controllers\ClinicController;
+use App\Http\Controllers\ShelterController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -12,6 +15,11 @@ Route::get('/', function () {
 Route::get('/dashboard', function () {
     return redirect('/');
 })->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::get('/billing', function () {
+    return view('billing');
+});
+
 
 
 Route::middleware('auth')->group(function () {
@@ -61,5 +69,10 @@ Route::middleware('auth')->group(function () {
 // Public merchant browsing and profile viewing
 Route::get('/merchants', [PublicMerchantController::class, 'index'])->name('merchants.index');
 Route::get('/merchants/{merchantProfile}', [PublicMerchantController::class, 'show'])->name('merchants.show');
+
+// Routes for Groomer page
+Route::get('/groomer', [GroomerController::class, 'index'])->name('groomer.index');
+Route::get('/groomer/{merchantId}', [ServiceController::class, 'showGroomer'])->name('groomer.show');
+
 
 require __DIR__.'/auth.php';
