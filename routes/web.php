@@ -4,6 +4,7 @@ use App\Http\Controllers\MerchantApplicationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicMerchantController;
 use App\Http\Controllers\PublicBookingController;
+use App\Http\Controllers\CustomerPetController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -52,11 +53,14 @@ Route::middleware('auth')->group(function () {
         return back();
     })->name('notifications.readAll');
 
-    // Admin merchant application approval/rejection
-    Route::post('/admin/merchant-applications/{id}/approve', [MerchantApplicationController::class, 'approve'])
-        ->name('admin.merchant-applications.approve');
-    Route::post('/admin/merchant-applications/{id}/reject', [MerchantApplicationController::class, 'reject'])
-        ->name('admin.merchant-applications.reject');
+    // Customer Pets CRUD
+    Route::get('/my-pets',            [CustomerPetController::class,'index'])->name('customer.pets.index');
+    Route::get('/my-pets/create',     [CustomerPetController::class,'create'])->name('customer.pets.create');
+    Route::post('/my-pets',           [CustomerPetController::class,'store'])->name('customer.pets.store');
+    Route::get('/my-pets/{pet}/edit', [CustomerPetController::class,'edit'])->name('customer.pets.edit');
+    Route::put('/my-pets/{pet}',      [CustomerPetController::class,'update'])->name('customer.pets.update');
+    Route::delete('/my-pets/{pet}',   [CustomerPetController::class,'destroy'])->name('customer.pets.destroy');
+
 });
 
 // Public merchant browsing and profile viewing
