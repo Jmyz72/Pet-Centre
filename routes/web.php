@@ -22,6 +22,16 @@ Route::get('/privacy', function () {
     return view('privacy');
 })->name('privacy');
 
+Route::get('/licensing', function () {
+    return view('licensing');
+})->name('licensing');
+
+Route::get('/faq', function () {
+    return view('faq');
+})->name('faq');
+
+Route::post('/contact', [ContactController::class, 'submit'])->name('contact.submit');
+
 // Add contact routes (publicly accessible)
 Route::get('/contact', [ContactController::class, 'index'])->name('contact');
 Route::post('/contact', [ContactController::class, 'submit'])->name('contact.submit');

@@ -128,7 +128,7 @@
                             </div>
                             <div>
                                 <h3 class="text-lg font-semibold text-gray-800 mb-1">Our Location</h3>
-                                <p class="text-gray-600">123 Pet Street, Animal City, AC 12345</p>
+                                <p class="text-gray-600">Jalan Genting Kelang, 53300 Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur, Malaysia</p>
                             </div>
                         </div>
                         
@@ -138,8 +138,7 @@
                             </div>
                             <div>
                                 <h3 class="text-lg font-semibold text-gray-800 mb-1">Phone Number</h3>
-                                <p class="text-gray-600">+1 (555) 123-PETS</p>
-                                <p class="text-sm text-gray-500">Mon-Fri: 8:00 AM - 6:00 PM</p>
+                                <p class="text-gray-600">+6012-345 6789</p>
                             </div>
                         </div>
                         
@@ -156,13 +155,25 @@
                         
                         <div class="contact-card bg-white p-6 rounded-xl shadow-md flex items-start">
                             <div class="contact-icon mr-5 text-blue-600">
-                                <i class="fas fa-clock text-xl"></i>
+                                <i class="fas fa-share-alt text-xl"></i>
                             </div>
                             <div>
-                                <h3 class="text-lg font-semibold text-gray-800 mb-1">Business Hours</h3>
-                                <p class="text-gray-600">Monday - Friday: 8:00 AM - 6:00 PM</p>
-                                <p class="text-gray-600">Saturday: 9:00 AM - 4:00 PM</p>
-                                <p class="text-gray-600">Sunday: 10:00 AM - 2:00 PM</p>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-3">Follow Us</h3>
+                                <div class="flex space-x-4">
+                                    <a href="#" class="text-blue-600 hover:text-blue-800">
+                                        <i class="fab fa-facebook text-2xl"></i>
+                                    </a>
+                                    <a href="#" class="text-pink-600 hover:text-pink-800">
+                                        <i class="fab fa-instagram text-2xl"></i>
+                                    </a>
+                                    <a href="#" class="text-blue-400 hover:text-blue-600">
+                                        <i class="fab fa-twitter text-2xl"></i>
+                                    </a>
+                                    <a href="#" class="text-red-600 hover:text-red-800">
+                                        <i class="fab fa-youtube text-2xl"></i>
+                                    </a>
+                                </div>
+                                <p class="text-sm text-gray-500 mt-2">Stay updated with our latest news</p>
                             </div>
                         </div>
                     </div>
@@ -172,37 +183,75 @@
                 <div>
                     <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6 section-title">Send Us a Message</h2>
                     
-                    <form class="bg-white p-6 md:p-8 rounded-xl shadow-md">
+                    <!-- Success/Error Messages -->
+                    @if(session('success'))
+                        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg mb-6">
+                            <i class="fas fa-check-circle mr-2"></i>
+                            {{ session('success') }}
+                        </div>
+                    @endif
+
+                    @if(session('error'))
+                        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6">
+                            <i class="fas fa-exclamation-circle mr-2"></i>
+                            {{ session('error') }}
+                        </div>
+                    @endif
+
+                    @if($errors->any())
+                        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6">
+                            <i class="fas fa-exclamation-circle mr-2"></i>
+                            Please fix the following errors:
+                            <ul class="mt-1 ml-4 list-disc">
+                                @foreach($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+                    
+                    <form action="{{ route('contact.submit') }}" method="POST" class="bg-white p-6 md:p-8 rounded-xl shadow-md">
+                        @csrf
+                        
                         <div class="mb-5">
-                            <label for="name" class="block text-gray-700 font-medium mb-2">Your Name</label>
-                            <input type="text" id="name" class="form-input w-full" placeholder="John Doe">
+                            <label for="name" class="block text-gray-700 font-medium mb-2">Your Name *</label>
+                            <input type="text" id="name" name="name" class="form-input w-full" placeholder="Alex" 
+                                value="{{ session('clear') ? '' : old('name') }}" required>
+                            @error('name') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                         </div>
                         
                         <div class="mb-5">
-                            <label for="email" class="block text-gray-700 font-medium mb-2">Email Address</label>
-                            <input type="email" id="email" class="form-input w-full" placeholder="john@example.com">
+                            <label for="email" class="block text-gray-700 font-medium mb-2">Email Address *</label>
+                            <input type="email" id="email" name="email" class="form-input w-full" placeholder="alex@example.com" 
+                                value="{{ session('clear') ? '' : old('email') }}" required>
+                            @error('email') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                         </div>
                         
                         <div class="mb-5">
                             <label for="phone" class="block text-gray-700 font-medium mb-2">Phone Number</label>
-                            <input type="tel" id="phone" class="form-input w-full" placeholder="(555) 123-4567">
+                            <input type="tel" id="phone" name="phone" class="form-input w-full" 
+                                placeholder="e.g., +6012-3456789 or 012-3456789" 
+                                value="{{ session('clear') ? '' : old('phone') }}">
+                            @error('phone') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                         </div>
                         
                         <div class="mb-5">
-                            <label for="subject" class="block text-gray-700 font-medium mb-2">Subject</label>
-                            <select id="subject" class="form-input w-full">
+                            <label for="subject" class="block text-gray-700 font-medium mb-2">Subject *</label>
+                            <select id="subject" name="subject" class="form-input w-full" required>
                                 <option value="">Select a subject</option>
-                                <option value="adoption">Pet Adoption</option>
-                                <option value="veterinary">Veterinary Services</option>
-                                <option value="grooming">Grooming Services</option>
-                                <option value="general">General Inquiry</option>
-                                <option value="other">Other</option>
+                                <option value="adoption" {{ old('subject') == 'adoption' ? 'selected' : '' }}>Pet Adoption</option>
+                                <option value="veterinary" {{ old('subject') == 'veterinary' ? 'selected' : '' }}>Veterinary Services</option>
+                                <option value="grooming" {{ old('subject') == 'grooming' ? 'selected' : '' }}>Grooming Services</option>
+                                <option value="general" {{ old('subject') == 'general' ? 'selected' : '' }}>General Inquiry</option>
+                                <option value="other" {{ old('subject') == 'other' ? 'selected' : '' }}>Other</option>
                             </select>
+                            @error('subject') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                         </div>
                         
                         <div class="mb-5">
-                            <label for="message" class="block text-gray-700 font-medium mb-2">Your Message</label>
-                            <textarea id="message" rows="5" class="form-input w-full" placeholder="How can we help you?"></textarea>
+                            <label for="message" class="block text-gray-700 font-medium mb-2">Your Message *</label>
+                            <textarea id="message" name="message" rows="5" class="form-input w-full" placeholder="How can we help you? (Minimun 10 characters)" required>{{ session('clear') ? '' : old('message') }}</textarea>
+                            @error('message') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                         </div>
                         
                         <button type="submit" class="btn-primary w-full py-3 rounded-lg text-white font-semibold">
@@ -210,26 +259,6 @@
                         </button>
                     </form>
                 </div>
-            </div>
-        </div>
-    </section>
-    
-    <!-- Map Section -->
-    <section class="py-12 md:py-16 bg-white">
-        <div class="max-w-6xl mx-auto px-4">
-            <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6 text-center section-title">Our Location</h2>
-            
-            <div class="map-container">
-                <div id="map"></div>
-            </div>
-            
-            <div class="mt-6 text-center">
-                <p class="text-gray-600">123 Pet Street, Animal City, AC 12345</p>
-                <a href="https://www.google.com/maps/dir//123+Pet+Street,+Animal+City,+AC+12345" 
-                   target="_blank" 
-                   class="inline-block mt-3 text-blue-600 hover:text-blue-800 font-medium">
-                    Get Directions <i class="fas fa-arrow-right ml-1 text-sm"></i>
-                </a>
             </div>
         </div>
     </section>
@@ -253,7 +282,7 @@
                         <i class="fas fa-stethoscope text-blue-600 mr-3"></i>
                         Do you offer emergency veterinary services?
                     </h3>
-                    <p class="text-gray-600">Yes, we have an on-call veterinarian for emergencies during business hours. After hours, we recommend contacting Animal Emergency Hospital at (555) 123-HELP.</p>
+                    <p class="text-gray-600">Yes, we have an on-call veterinarian for emergencies during business hours. After hours, we recommend contacting Animal Emergency Hospital at +6012-345 6789.</p>
                 </div>
                 
                 <div class="bg-white p-5 rounded-xl shadow-md">
@@ -266,7 +295,7 @@
             </div>
             
             <div class="text-center mt-8">
-                <a href="#" class="text-blue-600 font-medium hover:text-blue-800">
+                <a href="{{ route('faq') }}" class="text-blue-600 font-medium hover:text-blue-800">
                     View all FAQs <i class="fas fa-arrow-right ml-1 text-sm"></i>
                 </a>
             </div>
