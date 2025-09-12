@@ -102,13 +102,12 @@
                             {{-- Footer button --}}
                             <div class="mt-4">
                                 @if(strtolower($pet->status ?? '') === 'available')
-                                    <a href="{{ route('booking.create', ['merchantProfile' => $profile->id, 'pet' => $pet->id]) }}" class="w-full inline-flex justify-center items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-colors">Adopt</a>
+                                    <a href="{{ route('bookings.create', ['merchant_id' => $profile->id, 'pet_id' => $pet->id]) }}" class="w-full inline-flex justify-center items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-colors">Adopt</a>
                                 @else
                                     <span class="w-full inline-flex justify-center items-center rounded-md bg-gray-200 px-3 py-2 text-sm font-semibold text-gray-500 cursor-not-allowed">Adopt</span>
                                 @endif
                             </div>
                         </div>
-
                 </div>
             @endforeach
         </div>

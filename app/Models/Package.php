@@ -64,4 +64,14 @@ class Package extends Model
     {
         return $this->hasMany(PackageVariation::class, 'package_id');
     }
+
+    public function staff()
+    {
+        return $this->belongsToMany(
+            Staff::class,
+            'staff_package', // pivot table
+            'package_id',    // this model's FK on pivot
+            'staff_id'       // related model's FK on pivot
+        );
+    }
 }
