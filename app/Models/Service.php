@@ -23,4 +23,19 @@ class Service extends Model
         return $this->belongsTo(ServiceType::class);
     }
 
+    public function merchantProfile()
+    {
+        return $this->belongsTo(MerchantProfile::class, 'merchant_id');
+    }
+
+    public function staff()
+    {
+        return $this->belongsToMany(
+            Staff::class,
+            'staff_service', // pivot table
+            'service_id',    // this model's FK on pivot
+            'staff_id'       // related model's FK on pivot
+        );
+    }
+
 }

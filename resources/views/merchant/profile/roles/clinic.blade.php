@@ -49,7 +49,7 @@
                         {{-- Footer button --}}
                         <div class="mt-4">
                             @if($svc->is_active)
-                                <a href="{{ route('booking.create', ['merchantProfile' => $profile->id, 'service' => $svc->id]) }}" class="w-full inline-flex justify-center items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-colors">
+                                <a href="{{ route('bookings.create', ['merchant_id' => $profile->id, 'service_id' => $svc->id]) }}" class="w-full inline-flex justify-center items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-colors">
                                     Book
                                 </a>
                             @else

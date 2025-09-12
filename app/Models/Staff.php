@@ -39,18 +39,22 @@ class Staff extends Model
     // Many-to-many: staff can perform many services
     public function services()
     {
-        return $this->belongsToMany(Service::class, 'staff_service');
+        return $this->belongsToMany(Service::class, 'staff_service', 'staff_id', 'service_id');
     }
 
     // Many-to-many: staff can be assigned to many packages
     public function packages()
     {
-        return $this->belongsToMany(Package::class, 'staff_package');
-    }
+        return $this->belongsToMany(Package::class, 'staff_package', 'staff_id', 'package_id');    }
 
     // One-to-many: per-staff operating hours
     public function operatingHours()
     {
         return $this->hasMany(StaffOperatingHour::class);
+    }
+
+    public function schedules()
+    {
+        return $this->hasMany(Schedule::class);
     }
 }

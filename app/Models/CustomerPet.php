@@ -37,4 +37,5 @@ class CustomerPet extends Model
             }
         });
     }
+
 }

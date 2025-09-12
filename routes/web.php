@@ -5,6 +5,8 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicMerchantController;
 use App\Http\Controllers\PublicBookingController;
 use App\Http\Controllers\CustomerPetController;
+use App\Http\Controllers\BookingController;
+use App\Http\Controllers\ApiTestController; 
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -60,6 +62,30 @@ Route::middleware('auth')->group(function () {
     Route::get('/my-pets/{pet}/edit', [CustomerPetController::class,'edit'])->name('customer.pets.edit');
     Route::put('/my-pets/{pet}',      [CustomerPetController::class,'update'])->name('customer.pets.update');
     Route::delete('/my-pets/{pet}',   [CustomerPetController::class,'destroy'])->name('customer.pets.destroy');
+
+    // Booking (web) presentation routes
+    Route::get('/bookings/create', [BookingController::class, 'create'])->name('bookings.create');
+    Route::get('/bookings/available-slots', [BookingController::class, 'availableSlots'])
+    ->name('bookings.available-slots');
+    Route::get('/bookings/available-staff', [BookingController::class, 'availableStaff'])->name('bookings.available-staff'); // AJAX from the form
+    Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
+    Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
+
+    Route::get('/bookings/quote-price', [BookingController::class, 'quotePrice'])
+        ->name('bookings.quote-price');
+    // routes/web.php
+    Route::post('/bookings', [\App\Http\Controllers\BookingController::class, 'store'])->name('bookings.store');
+
+    Route::get('/payments/{payment}/redirect', [\App\Http\Controllers\PaymentController::class, 'redirect'])
+        ->name('payments.redirect');
+
+    Route::get('/payments/callback', [\App\Http\Controllers\PaymentController::class, 'callback'])
+        ->name('payments.callback');
+
+    Route::post('/payments/webhook', [\App\Http\Controllers\PaymentController::class, 'webhook'])
+        ->name('payments.webhook');
+
+    Route::get('/apitest', [ApiTestController::class, 'index'])->name('apitest.index');
 
 });
 
