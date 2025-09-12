@@ -3,10 +3,14 @@
 use App\Http\Controllers\MerchantApplicationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicMerchantController;
+
+use App\Http\Controllers\ContactController; // Add this line
+
 use App\Http\Controllers\PublicBookingController;
 use App\Http\Controllers\CustomerPetController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ApiTestController; 
+
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -17,6 +21,27 @@ Route::get('/dashboard', function () {
     return redirect('/');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+Route::get('/about', function () {
+    return view('about');
+})->name('about');
+
+Route::get('/privacy', function () {
+    return view('privacy');
+})->name('privacy');
+
+Route::get('/licensing', function () {
+    return view('licensing');
+})->name('licensing');
+
+Route::get('/faq', function () {
+    return view('faq');
+})->name('faq');
+
+Route::post('/contact', [ContactController::class, 'submit'])->name('contact.submit');
+
+// Add contact routes (publicly accessible)
+Route::get('/contact', [ContactController::class, 'index'])->name('contact');
+Route::post('/contact', [ContactController::class, 'submit'])->name('contact.submit');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -93,7 +118,9 @@ Route::middleware('auth')->group(function () {
 Route::get('/merchants', [PublicMerchantController::class, 'index'])->name('merchants.index');
 Route::get('/merchants/{merchantProfile}', [PublicMerchantController::class, 'show'])->name('merchants.show');
 
+
 Route::get('/merchants/{merchantProfile}/book', [PublicBookingController::class, 'create'])
     ->name('booking.create');
 
 require __DIR__.'/auth.php';
+

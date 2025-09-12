@@ -17,7 +17,11 @@ class SizeResource extends Resource
 {
     protected static ?string $model = Size::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-heart';
+
+    protected static ?string $navigationGroup = 'Pet Management';
+
+    protected static ?int $navigationSort = 20;
 
     public static function form(Form $form): Form
     {
