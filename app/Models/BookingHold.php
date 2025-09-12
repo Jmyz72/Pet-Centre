@@ -6,6 +6,21 @@ use Illuminate\Database\Eloquent\Model;
 
 class BookingHold extends Model
 {
+    /**
+     * Status constants for booking holds.
+     */
+    public const STATUS_HELD      = 'held';        // freshly created hold
+    public const STATUS_CONVERTED = 'converted';   // turned into a booking
+    public const STATUS_RELEASED  = 'released';    // manually released/cancelled
+    public const STATUS_EXPIRED   = 'expired';     // auto-expired
+
+    /**
+     * Default attributes.
+     */
+    protected $attributes = [
+        'status' => self::STATUS_HELD,
+    ];
+
     protected $fillable = [
         'merchant_id','staff_id','customer_pet_id','pet_id',
         'service_id','package_id','start_at','end_at',

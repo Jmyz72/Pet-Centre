@@ -153,6 +153,12 @@ class BookingController extends Controller
                     }
                 }
             ],
+            'payment_method' => 'required|in:fpx,card',
+            'bank'           => 'nullable|string',
+            'card_name'      => 'nullable|string',
+            'card_number'    => 'nullable|string',
+            'card_expiry'    => 'nullable|string',
+            'card_ccv'       => 'nullable|string',
         ];
         $rulesByType = match ($type) {
             'service' => [
@@ -184,14 +190,25 @@ class BookingController extends Controller
             default => abort(422, 'Unknown booking type'),
         };
 
+        // Extra conditional rules when the chosen method is card
+        if ($request->input('payment_method') === 'card') {
+            $request->validate([
+                'card_name'   => 'required|string',
+                'card_number' => 'required|string',
+                'card_expiry' => 'required|string',
+                'card_ccv'    => 'required|string',
+            ]);
+        }
+
         $data = $request->validate($rulesCommon + $rulesByType);
         $data['booking_type'] = $type;
         $data['customer_id']  = auth()->id();
+        $data['idempotency_key'] = bin2hex(random_bytes(16));
 
         // ---------- Use Template Method via BookingFactory ----------
         $booking = \App\Bookings\BookingFactory::make($data['booking_type'])->process($data);
 
-        return redirect()->route('bookings.index')->with('success', 'Booking confirmed.');
+        return view('bookings.sucess', compact('booking'));
     }
     /**
      * AJAX: Quote live price for service/package/adoption without writing to DB.

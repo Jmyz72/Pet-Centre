@@ -34,7 +34,7 @@
         </div>
     @endif
 
-    <form method="POST" action="{{ route('bookings.store') }}" class="space-y-8">
+    <form method="POST" action="{{ route('bookings.success') }}" class="space-y-8">
         @csrf
 
         {{-- Hidden enforced context (user cannot change) --}}

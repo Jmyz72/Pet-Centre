@@ -68,13 +68,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/bookings/available-slots', [BookingController::class, 'availableSlots'])
     ->name('bookings.available-slots');
     Route::get('/bookings/available-staff', [BookingController::class, 'availableStaff'])->name('bookings.available-staff'); // AJAX from the form
-    Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
+    Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.success');
     Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
 
     Route::get('/bookings/quote-price', [BookingController::class, 'quotePrice'])
         ->name('bookings.quote-price');
     // routes/web.php
-    Route::post('/bookings', [\App\Http\Controllers\BookingController::class, 'store'])->name('bookings.store');
 
     Route::get('/payments/{payment}/redirect', [\App\Http\Controllers\PaymentController::class, 'redirect'])
         ->name('payments.redirect');
