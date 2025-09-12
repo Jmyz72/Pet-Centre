@@ -3,5 +3,11 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\MerchantPackageController;
+use App\Http\Controllers\Api\StaffController;
+use App\Http\Controllers\Api\CustomerPetController;
 
-Route::get('/v1/merchants/{merchant}/packages', [MerchantPackageController::class, 'index']);
+// Eligible staff for a merchant's service or package
+Route::get('/merchants/{merchant}/eligible-staff', [StaffController::class, 'index']);
+
+// Customer pets
+Route::get('/customers/{customer}/pets', [CustomerPetController::class, 'index']);

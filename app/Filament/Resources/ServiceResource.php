@@ -27,7 +27,27 @@ class ServiceResource extends Resource
     {
         return $form
             ->schema([
-                //
+                Forms\Components\TextInput::make('merchant_id')
+                    ->required()
+                    ->numeric(),
+                Forms\Components\TextInput::make('service_type_id')
+                    ->required()
+                    ->numeric(),
+                Forms\Components\TextInput::make('name')
+                    ->required()
+                    ->maxLength(255),
+                Forms\Components\Textarea::make('description')
+                    ->columnSpanFull(),
+                Forms\Components\TextInput::make('price')
+                    ->required()
+                    ->numeric()
+                    ->default(0.00)
+                    ->prefix('$'),
+                Forms\Components\TextInput::make('duration_minutes')
+                    ->numeric()
+                    ->default(null),
+                Forms\Components\Toggle::make('is_active')
+                    ->required(),
             ]);
     }
 
@@ -35,7 +55,30 @@ class ServiceResource extends Resource
     {
         return $table
             ->columns([
-                //
+                Tables\Columns\TextColumn::make('merchant_id')
+                    ->numeric()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('service_type_id')
+                    ->numeric()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('name')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('price')
+                    ->money()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('duration_minutes')
+                    ->numeric()
+                    ->sortable(),
+                Tables\Columns\IconColumn::make('is_active')
+                    ->boolean(),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //

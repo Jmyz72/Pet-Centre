@@ -53,7 +53,7 @@ class PetResource extends Resource
                 ->closeOnDateSelection()
                 ->maxDate(now())
                 ->reactive()
-                ->nullable(),
+                ->required(),
 
             TextInput::make('weight_kg')
                 ->label('Weight (kg)')
@@ -63,7 +63,7 @@ class PetResource extends Resource
                 ->maxValue(200)
                 ->suffix('kg')
                 ->reactive()
-                ->nullable(),
+                ->required(),
 
             Select::make('sex')
                 ->label('Sex')
@@ -93,7 +93,7 @@ class PetResource extends Resource
                         }
                     }
                 })
-                ->nullable(),
+                ->required(),
 
             Select::make('pet_breed_id')
                 ->label('Breed')
@@ -103,6 +103,7 @@ class PetResource extends Resource
                 ->searchable()
                 ->preload()
                 ->reactive()
+                ->required()
                 ->rule(function (Get $get) {
                     $typeId = $get('pet_type_id');
                     return function (string $attribute, $value, \Closure $fail) use ($typeId) {
@@ -115,7 +116,6 @@ class PetResource extends Resource
                         }
                     };
                 })
-                ->nullable()
                 ->helperText('Filtered by selected Pet Type, if any.'),
 
             Select::make('status')
@@ -136,7 +136,7 @@ class PetResource extends Resource
                 ->step('0.01')
                 ->minValue(0)
                 ->suffix('MYR')
-                ->nullable(),
+                ->required(),
 
             DateTimePicker::make('adopted_at')
                 ->label('Adopted At')
@@ -152,7 +152,7 @@ class PetResource extends Resource
                 ->imagePreviewHeight('200')
                 ->maxSize(2048)
                 ->acceptedFileTypes(['image/jpeg','image/png','image/webp'])
-                ->nullable(),
+                ->required(),
 
             Textarea::make('description')
                 ->label('Description')

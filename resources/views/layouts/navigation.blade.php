@@ -86,23 +86,30 @@
                         </svg>
                     </button>
 
-                    <!-- User Dropdown Menu -->
-                    <div id="user-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
-                        <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-                            <p class="text-sm font-medium text-gray-900 dark:text-white">{{ Auth::user()->name }}</p>
-                            <p class="text-sm text-gray-500 dark:text-gray-400 truncate">{{ Auth::user()->email }}</p>
-                        </div>
-                        <div class="py-1">
-                            <a href="/profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700">Profile</a>
-                            <a href="{{ route('merchant.become') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700">Become Merchant</a>
-                        </div>
-                        <div class="py-1 border-t border-gray-200 dark:border-gray-700">
-                            <form method="POST" action="{{ route('logout') }}">
-                                @csrf
-                                <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700">
-                                    Logout
-                                </button>
-                            </form>
+                        <!-- Dropdown menu -->
+                        <div id="dropdownUser" class="hidden z-50 my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700 dark:divide-gray-600">
+                            <div class="px-4 py-3">
+                                <span class="block text-sm text-gray-900 dark:text-white">{{ Auth::user()->name }}</span>
+                                <span class="block text-sm text-gray-500 truncate dark:text-gray-400">{{ Auth::user()->email }}</span>
+                            </div>
+                            <ul class="py-2" aria-labelledby="dropdownUserAvatarButton">
+                                <li>
+                                    <a href="/profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600">Profile</a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('merchant.become') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600">Become a Merchant</a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('customer.pets.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600">My Pets</a>
+                                </li>
+                                <li>
+                                    <form method="POST" action="{{ route('logout') }}">
+                                        @csrf
+                                        <button type="submit" class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600">Logout</button>
+                                    </form>
+                                </li>
+                            </ul>
+
                         </div>
                     </div>
                 </div>
@@ -110,21 +117,21 @@
         </div>
     </div>
 
-    <!-- Mobile Navigation Menu -->
-    <div id="mobile-menu" class="hidden lg:hidden bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
-        <div class="px-4 py-3 space-y-2">
-            <a href="/" class="block py-2 px-3 text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 rounded-lg">Home</a>
-            <a href="/pets" class="block py-2 px-3 text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 rounded-lg">Pets</a>
-            <a href="/services" class="block py-2 px-3 text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 rounded-lg">Services</a>
-            <a href="/about" class="block py-2 px-3 text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 rounded-lg">About</a>
-            <a href="/contact" class="block py-2 px-3 text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 rounded-lg">Contact</a>
-            
-            @guest
-                <div class="pt-4 border-t border-gray-200 dark:border-gray-700 space-y-2">
-                    <a href="{{ route('login') }}" class="block py-2 px-3 text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 rounded-lg">Login</a>
-                    <a href="{{ route('register') }}" class="block py-2 px-3 bg-blue-600 text-white hover:bg-blue-700 rounded-lg">Register</a>
-                </div>
-            @endguest
+        {{-- Mobile menu toggle button --}}
+        <button data-collapse-toggle="navbar-default" type="button" class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg lg:hidden hover:bg-gray-100 focus:outline-none" aria-controls="navbar-default" aria-expanded="false">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+        </button>
+
+        {{-- Navigation Links --}}
+        <div class="hidden w-full lg:flex lg:w-auto lg:order-1" id="navbar-default">
+            <ul class="flex flex-col p-4 lg:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 lg:flex-row lg:space-x-8 lg:mt-0 lg:border-0 lg:bg-white dark:bg-gray-800 lg:dark:bg-gray-900">
+                <li><a href="/" class="block py-2 px-3 text-gray-700 hover:bg-gray-100 lg:hover:bg-transparent lg:hover:text-blue-700">Home</a></li>
+                <li><a href="{{ route('merchants.index') }}" class="block py-2 px-3 text-gray-700 hover:bg-gray-100 lg:hover:bg-transparent lg:hover:text-blue-700">Shelter</a></li>
+                <li><a href="{{ route('merchants.index') }}" class="block py-2 px-3 text-gray-700 hover:bg-gray-100 lg:hover:bg-transparent lg:hover:text-blue-700">Clinic</a></li>
+                <li><a href="{{ route('merchants.index') }}" class="block py-2 px-3 text-gray-700 hover:bg-gray-100 lg:hover:bg-transparent lg:hover:text-blue-700">Groomer</a></li>
+            </ul>
         </div>
     </div>
 </nav>

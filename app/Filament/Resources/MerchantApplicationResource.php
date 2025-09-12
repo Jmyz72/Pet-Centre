@@ -63,36 +63,42 @@ class MerchantApplicationResource extends Resource
                             return;
                         }
 
-                        // Approve the application & prevent reapply
-                        $record->status = 'approved';
-                        $record->can_reapply = 0;
-                        $record->save();
+                        DB::transaction(function () use ($record) {
+                            // 1) Approve the application & prevent reapply
+                            $record->update([
+                                'status' => 'approved',
+                                'can_reapply' => 0,
+                            ]);
 
-                        // Sync key data to merchant_profiles (create if missing)
-                        \App\Models\MerchantProfile::firstOrCreate(
-                            ['user_id' => $record->user_id],
-                            [
-                                'role' => $record->role,
-                                'name' => $record->name,
-                                'phone' => $record->phone,
-                                'address' => $record->address,
-                                'registration_number' => $record->registration_number,
-                                'license_number' => $record->license_number,
-                                'document_path' => $record->document_path,
-                            ]
-                        );
+                            // 2) Sync key data to merchant_profiles (create or update)
+                            \App\Models\MerchantProfile::updateOrCreate(
+                                ['user_id' => $record->user_id],
+                                [
+                                    'role' => $record->role,
+                                    'name' => $record->name,
+                                    'phone' => $record->phone,
+                                    'address' => $record->address,
+                                    'registration_number' => $record->registration_number,
+                                    'license_number' => $record->license_number,
+                                    'document_path' => $record->document_path,
+                                ]
+                            );
 
-                        // Notify the user (email + database)
-                        $user = \App\Models\User::find($record->user_id);
-                        if ($user) {
-                            $user->notify(new MerchantApplicationStatusNotification(
-                                status: 'approved',
-                                reason: null,
-                                applicationId: $record->id,
-                                applicationName: $record->name,
-                                role: $record->role,
-                            ));
-                        }
+                            // 3) Assign Spatie role to user (writes to model_has_roles)
+                            if ($user = \App\Models\User::find($record->user_id)) {
+                                // Ensure the role name matches your Spatie role seeding, e.g. 'clinic' | 'shelter' | 'groomer' | 'merchant'
+                                $user->assignRole($record->role);
+
+                                // 4) Notify the user (email + database)
+                                $user->notify(new MerchantApplicationStatusNotification(
+                                    status: 'approved',
+                                    reason: null,
+                                    applicationId: $record->id,
+                                    applicationName: $record->name,
+                                    role: $record->role,
+                                ));
+                            }
+                        });
                     })
                     ->requiresConfirmation()
                     ->color('success')

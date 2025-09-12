@@ -1,3 +1,4 @@
+
 <footer class="bg-white border-t border-gray-200">
     <div class="max-w-screen-xl mx-auto px-6 py-12">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -85,6 +86,8 @@
                     <a href="/contact" class="text-gray-500 hover:text-blue-600 text-sm transition-colors">Contact</a>
                 </div>
             </div>
+
+
         </div>
     </div>
 </button>

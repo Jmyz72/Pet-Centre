@@ -27,6 +27,7 @@ class UserResource extends Resource
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(255),
+
                     
                 Forms\Components\TextInput::make('email')
                     ->email()
@@ -49,6 +50,7 @@ class UserResource extends Resource
                     ->maxLength(100)
                     ->hidden()
                     ->dehydrated(false),
+
             ]);
     }
 
@@ -56,6 +58,7 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
+
                 Tables\Columns\TextColumn::make('id')
                     ->sortable()
                     ->searchable()
@@ -85,6 +88,7 @@ class UserResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: false),
                     
+
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
