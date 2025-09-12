@@ -49,4 +49,5 @@ class MerchantProfile extends Model
     {
         return $this->hasMany(Package::class, 'merchant_id');
     }
+    
 }

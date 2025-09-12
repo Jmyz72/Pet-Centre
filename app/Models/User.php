@@ -48,6 +48,6 @@ class User extends Authenticatable
 
     public function merchantProfile()
     {
-        return $this->hasOne(\App\Models\MerchantProfile::class);
+        return $this->hasOne(MerchantProfile::class, 'user_id');
     }
 }

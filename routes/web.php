@@ -4,6 +4,7 @@ use App\Http\Controllers\MerchantApplicationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicMerchantController;
 use App\Http\Controllers\PublicBookingController;
+use App\Http\Controllers\ChatController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -16,9 +17,10 @@ Route::get('/dashboard', function () {
 
 
 Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/profile',[ProfileController::class, 'show'])->name('profile.show');
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile/edit', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile/edit', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::get('/become-merchant', [MerchantApplicationController::class, 'becomeMerchant'])->name('merchant.become');
     Route::get('/apply-merchant', [MerchantApplicationController::class, 'chooseType'])->name('merchant.apply');
@@ -26,6 +28,16 @@ Route::middleware('auth')->group(function () {
     Route::post('/apply-merchant/store', [MerchantApplicationController::class, 'submit'])->name('merchant.apply.submit');
     Route::get('/apply-merchant/submitted', [MerchantApplicationController::class, 'showSubmitted'])->name('merchant.application.submitted');
 
+    /* Chat Route Method */
+    Route::get('/chat/{receiverId}', [ChatController::class, 'index'])->name('chat.index');
+    Route::delete('/chat/{partnerId}', [ChatController::class, 'deleteChat'])->name('chat.delete');
+    Route::post('/chat/send', [ChatController::class, 'send'])->name('chat.send');
+    Route::put('/chat/message/{id}', [ChatController::class, 'update'])->name('chat.update');
+    Route::delete('/chat/message/{id}', [ChatController::class, 'destroy'])->name('chat.destroy');
+
+    
+    /* Merchant Chat Route */
+ 
     Route::get('/notifications', function () {
         $user = auth()->user();
         return view('notification.index', [
@@ -52,6 +64,8 @@ Route::middleware('auth')->group(function () {
         return back();
     })->name('notifications.readAll');
 
+
+    
     // Admin merchant application approval/rejection
     Route::post('/admin/merchant-applications/{id}/approve', [MerchantApplicationController::class, 'approve'])
         ->name('admin.merchant-applications.approve');
