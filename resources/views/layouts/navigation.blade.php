@@ -74,6 +74,12 @@
                                     <a href="{{ route('merchant.become') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600">Become a Merchant</a>
                                 </li>
                                 <li>
+                                    <a href="{{ route('customer.pets.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600">My Pets</a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('bookings.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600">My Bookings</a>
+                                </li>
+                                <li>
 
                                     <form method="POST" action="{{ route('logout') }}">
                                         @csrf

@@ -35,7 +35,7 @@ class MerchantStaffController extends Controller
         }
 
         $staff = $q->orderBy('name')
-                  ->select(['id','name','email','phone','specialization','status','merchant_id'])
+                  ->select(['id','name','email','phone','role','status','merchant_id'])
                   ->get();
 
         return response()->json([

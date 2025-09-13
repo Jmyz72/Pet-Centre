@@ -13,21 +13,35 @@ use Carbon\Carbon;
 
 class PlatformOverviewWidget extends BaseWidget
 {
+    protected int | string | array $columnSpan = 'full';
+
     protected function getStats(): array
     {
         $totalMerchants = MerchantProfile::count();
         $activeMerchants = MerchantProfile::whereHas('bookings')->count();
-        $totalCustomers = User::whereDoesntHave('merchantProfile')->count();
+        $totalCustomers = Booking::distinct('customer_id')->count('customer_id');
         $totalBookings = Booking::count();
         $completedBookings = Booking::where('status', 'completed')->count();
-        $totalRevenue = Payment::where('status', 'completed')->sum('amount');
-        $monthlyRevenue = Payment::where('status', 'completed')
+        $totalRevenue = Payment::where('status', 'succeeded')->sum('amount');
+        $monthlyRevenue = Payment::where('status', 'succeeded')
             ->whereMonth('created_at', now()->month)
             ->whereYear('created_at', now()->year)
             ->sum('amount');
 
         $conversionRate = $totalBookings > 0 ? ($completedBookings / $totalBookings * 100) : 0;
         $totalWalletBalance = MerchantWallet::sum('balance');
+
+        $thisWeekStart = Carbon::now()->startOfWeek();
+        $thisWeekEnd = Carbon::now()->endOfWeek();
+        $lastWeekStart = Carbon::now()->subWeek()->startOfWeek();
+        $lastWeekEnd = Carbon::now()->subWeek()->endOfWeek();
+
+        $thisWeekCount = User::whereBetween('created_at', [$thisWeekStart, $thisWeekEnd])->count();
+        $lastWeekCount = User::whereBetween('created_at', [$lastWeekStart, $lastWeekEnd])->count();
+
+        $percentageChange = $lastWeekCount > 0
+            ? (($thisWeekCount - $lastWeekCount) / $lastWeekCount) * 100
+            : ($thisWeekCount > 0 ? 100 : 0);
 
         return [
             Stat::make('Total Merchants', $totalMerchants)
@@ -69,6 +83,14 @@ class PlatformOverviewWidget extends BaseWidget
                 ->description('Merchants with bookings')
                 ->descriptionIcon('heroicon-m-check-badge')
                 ->color('success'),
+            Stat::make('New Users This Week', $thisWeekCount)
+                ->description(sprintf(
+                    '%s%s from last week',
+                    $percentageChange >= 0 ? '+' : '',
+                    number_format($percentageChange, 1) . '%'
+                ))
+                ->descriptionIcon($percentageChange >= 0 ? 'heroicon-m-arrow-trending-up' : 'heroicon-m-arrow-trending-down')
+                ->color($percentageChange >= 0 ? 'success' : 'danger'),
         ];
     }
 }

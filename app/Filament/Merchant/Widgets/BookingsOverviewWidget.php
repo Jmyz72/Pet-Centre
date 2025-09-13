@@ -8,14 +8,14 @@ use Illuminate\Support\Facades\Http;
 class BookingsOverviewWidget extends Widget
 {
     protected static string $view = 'filament.merchant.widgets.bookings-overview-widget';
-    
+
     protected int | string | array $columnSpan = 2;
 
     public function getBookingsData(): array
     {
         try {
             $merchantId = auth()->user()->merchantProfile?->id;
-            
+
             if (!$merchantId) {
                 return [];
             }
@@ -39,7 +39,7 @@ class BookingsOverviewWidget extends Widget
     {
         try {
             $merchantId = auth()->user()->merchantProfile?->id;
-            
+
             if (!$merchantId) {
                 return 0;
             }
@@ -63,7 +63,7 @@ class BookingsOverviewWidget extends Widget
     {
         try {
             $merchantId = auth()->user()->merchantProfile?->id;
-            
+
             if (!$merchantId) {
                 return 0;
             }

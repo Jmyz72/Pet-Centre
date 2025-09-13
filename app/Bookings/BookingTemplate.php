@@ -29,6 +29,11 @@ use Illuminate\Validation\ValidationException;
 abstract class BookingTemplate
 {
     /**
+     * Stores the payment ID created during processing for later linking
+     */
+    protected ?int $paymentId = null;
+
+    /**
      * Create a hold for the booking without finalising it.
      *
      * Runs steps 1–4: normalise, compute duration, compute amount, calc window,
@@ -100,17 +105,12 @@ abstract class BookingTemplate
             // 7) Create schedule block (staff may be null for adoption) with non-null booking_id
             $schedule = $this->createSchedule($data, $start, $end, $booking->id);
 
-            // 8) Attach any payment created during this transaction using the same idempotency key
-            if (!empty($data['idempotency_key'])) {
-                $payment = Payment::query()
-                    ->whereNull('booking_id')
-                    ->where('idempotency_key', $data['idempotency_key'])
-                    ->latest('id')
-                    ->first();
-                    
+            // 8) Attach any payment created during this transaction
+            if (isset($this->paymentId)) {
+                $payment = Payment::find($this->paymentId);
                 if ($payment) {
                     $payment->update(['booking_id' => $booking->id]);
-                    
+
                     // Also update the booking with the payment reference
                     $booking->update(['payment_ref' => $payment->payment_ref]);
                 }
@@ -343,17 +343,23 @@ abstract class BookingTemplate
             $provider = 'fpx';
         }
 
+        // Generate a unique idempotency key for the payment (different from booking hold key)
+        $paymentIdempotencyKey = 'payment_' . bin2hex(random_bytes(16));
+
         // Persist payment now (mocked as succeeded). We'll link to booking after it is created.
-        Payment::query()->create([
+        $payment = Payment::query()->create([
             'booking_id'      => null,
             'payment_ref'     => $ref,
             'amount'          => $amount,
             'currency'        => 'MYR',
             'status'          => 'succeeded', // mock success; change if you implement redirects
             'provider'        => $provider,
-            'idempotency_key' => $data['idempotency_key'] ?? bin2hex(random_bytes(16)),
+            'idempotency_key' => $paymentIdempotencyKey,
             'meta'            => $meta,
         ]);
+
+        // Store payment ID for later linking
+        $this->paymentId = $payment->id;
     }
 
     /**

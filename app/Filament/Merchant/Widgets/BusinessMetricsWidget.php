@@ -51,14 +51,14 @@ class BusinessMetricsWidget extends BaseWidget
     {
         try {
             $merchantId = auth()->user()->merchantProfile?->id;
-            
+
             if (!$merchantId) {
                 return $this->getDefaultMetrics();
             }
 
             // Get all bookings
             $bookingsResponse = Http::get("http://localhost:8001/api/merchants/{$merchantId}/bookings", [
-                'limit' => 1000
+                'limit' => 100
             ]);
 
             // Get staff data
@@ -93,17 +93,17 @@ class BusinessMetricsWidget extends BaseWidget
         $totalBookings = count($bookings);
 
         foreach ($bookings as $booking) {
-            $bookingDate = \Carbon\Carbon::parse($booking['start_at']);
+            $bookingCreatedDate = \Carbon\Carbon::parse($booking['created_at']);
             $amount = $booking['price_amount'];
 
             if ($booking['status'] === 'completed') {
                 $totalRevenue += $amount;
 
-                if ($bookingDate->isSameDay($today)) {
+                if ($bookingCreatedDate->isSameDay($today)) {
                     $todayRevenue += $amount;
                 }
 
-                if ($bookingDate->gte($monthStart)) {
+                if ($bookingCreatedDate->gte($monthStart)) {
                     $monthRevenue += $amount;
                 }
             }

@@ -16,17 +16,75 @@ class Dashboard extends BaseDashboard
     public function getWidgets(): array
     {
         return [
+            // Key metrics overview - full width
             PlatformOverviewWidget::class,
+
+            // Charts section - 2 columns
             BookingsChartWidget::class,
-            RevenueDistributionWidget::class,
+
+            // Performance metrics - 2 columns
             TopMerchantsWidget::class,
+
+            // Activity feed - full width
             RecentActivitiesWidget::class,
         ];
     }
 
     public function getColumns(): int | string | array
     {
-        return 4;
+        return [
+            'default' => 1,
+            'md' => 2,
+            'xl' => 4,
+        ];
+    }
+
+    public function getWidgetData(): array
+    {
+        return [
+            'PlatformOverviewWidget' => [
+                'columnSpan' => [
+                    'default' => 1,
+                    'md' => 2,
+                    'xl' => 4,
+                ],
+            ],
+            'BookingsChartWidget' => [
+                'columnSpan' => [
+                    'default' => 1,
+                    'md' => 1,
+                    'xl' => 2,
+                ],
+            ],
+            'RevenueDistributionWidget' => [
+                'columnSpan' => [
+                    'default' => 1,
+                    'md' => 1,
+                    'xl' => 2,
+                ],
+            ],
+            'TopMerchantsWidget' => [
+                'columnSpan' => [
+                    'default' => 1,
+                    'md' => 1,
+                    'xl' => 2,
+                ],
+            ],
+            'NewUsersThisWeek' => [
+                'columnSpan' => [
+                    'default' => 1,
+                    'md' => 1,
+                    'xl' => 2,
+                ],
+            ],
+            'RecentActivitiesWidget' => [
+                'columnSpan' => [
+                    'default' => 1,
+                    'md' => 2,
+                    'xl' => 4,
+                ],
+            ],
+        ];
     }
 
     public function getTitle(): string

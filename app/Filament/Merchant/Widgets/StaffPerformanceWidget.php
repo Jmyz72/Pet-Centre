@@ -8,14 +8,14 @@ use Illuminate\Support\Facades\Http;
 class StaffPerformanceWidget extends Widget
 {
     protected static string $view = 'filament.merchant.widgets.staff-performance-widget';
-    
+
     protected int | string | array $columnSpan = 2;
 
     public function getStaffData(): array
     {
         try {
             $merchantId = auth()->user()->merchantProfile?->id;
-            
+
             if (!$merchantId) {
                 return [];
             }

@@ -8,14 +8,14 @@ use Illuminate\Support\Facades\Http;
 class WalletSummaryWidget extends Widget
 {
     protected static string $view = 'filament.merchant.widgets.wallet-summary-widget';
-    
+
     protected int | string | array $columnSpan = 2;
 
     public function getWalletData(): array
     {
         try {
             $merchantId = auth()->user()->merchantProfile?->id;
-            
+
             if (!$merchantId) {
                 return [];
             }

@@ -45,7 +45,7 @@ class MerchantBookingController extends Controller
         }
 
         $bookings = $q->orderBy('start_at', 'desc')
-                     ->select(['id','customer_id','merchant_id','staff_id','service_id','package_id','customer_pet_id','merchant_pet_id','booking_type','status','start_at','end_at','price_amount','payment_ref','created_at'])
+                     ->select(['id','customer_id','merchant_id','staff_id','service_id','package_id','customer_pet_id','pet_id','booking_type','status','start_at','end_at','price_amount','payment_ref','created_at'])
                      ->get();
 
         return response()->json([
