@@ -5,6 +5,7 @@ namespace App\Bookings;
 use App\Models\Booking;
 use App\Models\BookingHold;
 use App\Models\Schedule;
+use App\Models\Payment;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -22,6 +23,171 @@ use Illuminate\Validation\ValidationException;
  */
 abstract class BookingTemplate
 {
+    /**
+     * Create a hold for the booking without finalising it.
+     *
+     * Runs steps 1–4: normalise, compute duration, compute amount, calc window,
+     * guard availability, then create and return the hold.
+     *
+     * @param array $data
+     * @return BookingHold
+     */
+    public function holdOnly(array $data): BookingHold
+    {
+        return DB::transaction(function () use ($data) {
+            // 1) Normalise & enrich context common to all bookings
+            $data = $this->normalise($data);
+
+            // 2) Let subclass provide duration (minutes) and price (amount)
+            $duration = $this->getDurationMinutes($data);
+            $amount   = $this->computeAmount($data);
+
+            [$start, $end] = $this->calcWindow($data['start_at'], $duration);
+
+            // 3) Guard rails: availability checks (subclasses can extend via hook)
+            $this->guardAvailability($data, $start, $end);
+            $this->afterGuardAvailability($data, $start, $end);
+
+            // 4) Create a hold to prevent race conditions
+            $hold = $this->createHold($data, $start, $end);
+
+            return $hold;
+        });
+    }
+
+    /**
+     * Complete a booking from an existing BookingHold object.
+     * 
+     * @param BookingHold $hold
+     * @return Booking
+     */
+    public function completeFromHold(BookingHold $hold): Booking
+    {
+        return DB::transaction(function () use ($hold) {
+            // Convert hold data back to array format for processing
+            $data = [
+                'merchant_id' => $hold->merchant_id,
+                'customer_id' => $hold->customer_id,
+                'staff_id' => $hold->staff_id,
+                'customer_pet_id' => $hold->customer_pet_id,
+                'pet_id' => $hold->pet_id,
+                'service_id' => $hold->service_id,
+                'package_id' => $hold->package_id,
+                'booking_type' => $hold->booking_type,
+                'start_at' => $hold->start_at->format('Y-m-d H:i:s'),
+                'idempotency_key' => $hold->idempotency_key,
+                'meta' => $hold->meta,
+            ];
+
+            // Get duration and amount
+            $duration = $this->getDurationMinutes($data);
+            $amount = $hold->calculateAmount();
+
+            // Use the Carbon object directly from the hold
+            [$start, $end] = $this->calcWindow($hold->start_at, $duration);
+
+            // 5) Take payment (default: COD/no-op). Subclass may override.
+            $this->processPayment($hold, $amount, $data);
+
+            // 6) Persist final booking row (before schedule so booking_id is available)
+            $booking = $this->finaliseBooking($data, $start, $end, $amount);
+
+            // 7) Create schedule block (staff may be null for adoption) with non-null booking_id
+            $schedule = $this->createSchedule($data, $start, $end, $booking->id);
+
+            // 8) Attach any payment created during this transaction using the same idempotency key
+            if (!empty($data['idempotency_key'])) {
+                $payment = Payment::query()
+                    ->whereNull('booking_id')
+                    ->where('idempotency_key', $data['idempotency_key'])
+                    ->latest('id')
+                    ->first();
+                    
+                if ($payment) {
+                    $payment->update(['booking_id' => $booking->id]);
+                    
+                    // Also update the booking with the payment reference
+                    $booking->update(['payment_ref' => $payment->payment_ref]);
+                }
+            }
+
+            // 9) Mark hold as converted
+            $hold->update(['status' => BookingHold::STATUS_CONVERTED]);
+
+            // 10) Add payment to merchant's pending wallet
+            $this->addToMerchantWallet($booking, $amount);
+
+            // 11) Run post-finalisation logic (optional hook)
+            $this->afterFinalised($booking, $data);
+
+            return $booking->fresh();
+        });
+    }
+
+    /**
+     * Finalise a booking from an existing hold.
+     *
+     * Runs steps 5–9: process payment, create booking, create schedule,
+     * attach payment via idempotency_key, update hold status to converted,
+     * run afterFinalised(), and return fresh booking.
+     *
+     * @param array $data
+     * @return Booking
+     */
+    public function finaliseFromHold(array $data): Booking
+    {
+        return DB::transaction(function () use ($data) {
+            // 1) Normalise & enrich context common to all bookings
+            $data = $this->normalise($data);
+
+            // 2) Let subclass provide duration (minutes) and price (amount)
+            $duration = $this->getDurationMinutes($data);
+            $amount   = $this->computeAmount($data);
+
+            [$start, $end] = $this->calcWindow($data['start_at'], $duration);
+
+            // Retrieve existing hold by idempotency_key or other identifier
+            $hold = BookingHold::query()
+                ->where('idempotency_key', $data['idempotency_key'])
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            // 5) Take payment (default: COD/no-op). Subclass may override.
+            $this->processPayment($hold, $amount, $data);
+
+            // 6) Persist final booking row (before schedule so booking_id is available)
+            $booking = $this->finaliseBooking($data, $start, $end, $amount);
+
+            // 7) Create schedule block (staff may be null for adoption) with non-null booking_id
+            $schedule = $this->createSchedule($data, $start, $end, $booking->id);
+
+            // Attach any payment created during this transaction using the same idempotency key
+            if (!empty($data['idempotency_key'])) {
+                $payment = Payment::query()
+                    ->whereNull('booking_id')
+                    ->where('idempotency_key', $data['idempotency_key'])
+                    ->latest('id')
+                    ->first();
+                    
+                if ($payment) {
+                    $payment->update(['booking_id' => $booking->id]);
+                    
+                    // Also update the booking with the payment reference
+                    $booking->update(['payment_ref' => $payment->payment_ref]);
+                }
+            }
+
+            // 8) Link schedule→booking & flip hold status
+            // booking_id is already set on schedule, so no update here
+            $hold->update(['status' => \App\Models\BookingHold::STATUS_CONVERTED]);
+
+            // 9) Optional post-processing hook
+            $this->afterFinalised($booking, $data);
+
+            return $booking->fresh();
+        });
+    }
+
     /**
      * Orchestrate the end‑to‑end booking transaction.
      *
@@ -56,17 +222,31 @@ abstract class BookingTemplate
             // 5) Take payment (default: COD/no-op). Subclass may override.
             $this->processPayment($hold, $amount, $data);
 
-            // 6) Create schedule block (staff may be null for adoption)
-            $schedule = $this->createSchedule($data, $start, $end);
-
-            // 7) Persist final booking row
+            // 6) Persist final booking row (before schedule so booking_id is available)
             $booking = $this->finaliseBooking($data, $start, $end, $amount);
 
-            // 8) Link schedule→booking & flip hold status
-            if ($schedule) {
-                $schedule->update(['booking_id' => $booking->id]);
+            // 7) Create schedule block (staff may be null for adoption) with non-null booking_id
+            $schedule = $this->createSchedule($data, $start, $end, $booking->id);
+
+            // Attach any payment created during this transaction using the same idempotency key
+            if (!empty($data['idempotency_key'])) {
+                $payment = Payment::query()
+                    ->whereNull('booking_id')
+                    ->where('idempotency_key', $data['idempotency_key'])
+                    ->latest('id')
+                    ->first();
+                    
+                if ($payment) {
+                    $payment->update(['booking_id' => $booking->id]);
+                    
+                    // Also update the booking with the payment reference
+                    $booking->update(['payment_ref' => $payment->payment_ref]);
+                }
             }
-            $hold->update(['status' => 'converted']);
+
+            // 8) Link schedule→booking & flip hold status
+            // booking_id is already set on schedule, so no update here
+            $hold->update(['status' => \App\Models\BookingHold::STATUS_CONVERTED]);
 
             // 9) Optional post-processing hook
             $this->afterFinalised($booking, $data);
@@ -115,7 +295,65 @@ abstract class BookingTemplate
      */
     protected function processPayment(BookingHold $hold, float $amount, array $data): void
     {
-        // default: accept without charging
+        // Basic Strategy-less mock implementation that persists a payment row.
+        // You can later swap this for a real gateway via a Strategy/Factory.
+        $method = $data['payment_method'] ?? 'fpx'; // 'fpx' | 'card'
+
+        // Create a provider reference + meta depending on method
+        if ($method === 'card') {
+            $digits = preg_replace('/\D+/', '', (string)($data['card_number'] ?? ''));
+            $last4  = $digits ? substr($digits, -4) : null;
+            $ref    = 'card_'.bin2hex(random_bytes(6));
+            $meta   = [
+                'card_name'   => $data['card_name']   ?? null,
+                'card_brand'  => $data['card_brand']  ?? null,
+                'card_expiry' => $data['card_expiry'] ?? null,
+                'last4'       => $last4,
+            ];
+            $provider = 'card';
+        } else {
+            // default to FPX
+            $ref      = 'fpx_'.bin2hex(random_bytes(6));
+            $meta     = [ 'bank' => $data['bank'] ?? null ];
+            $provider = 'fpx';
+        }
+
+        // Persist payment now (mocked as succeeded). We'll link to booking after it is created.
+        Payment::query()->create([
+            'booking_id'      => null,
+            'payment_ref'     => $ref,
+            'amount'          => $amount,
+            'currency'        => 'MYR',
+            'status'          => 'succeeded', // mock success; change if you implement redirects
+            'provider'        => $provider,
+            'idempotency_key' => $data['idempotency_key'] ?? bin2hex(random_bytes(16)),
+            'meta'            => $meta,
+        ]);
+    }
+
+    /**
+     * Add booking payment to merchant's pending wallet balance
+     */
+    protected function addToMerchantWallet(Booking $booking, float $amount): void
+    {
+        $merchant = \App\Models\MerchantProfile::find($booking->merchant_id);
+        if (!$merchant) {
+            return;
+        }
+
+        $wallet = $merchant->getWallet();
+        $transaction = $wallet->addPendingFunds(
+            $amount,
+            "Payment for booking #{$booking->id}",
+            $booking->id
+        );
+
+        // Store the release code in booking metadata for easy access
+        $booking->update([
+            'meta' => array_merge($booking->meta ?? [], [
+                'release_code' => $transaction->release_code
+            ])
+        ]);
     }
 
     // ─────────────────────────────────────────────────────────────────────────────
@@ -132,6 +370,7 @@ abstract class BookingTemplate
         $data['merchant_id'] = (int) ($data['merchant_id'] ?? 0);
         $data['customer_id'] = (int) ($data['customer_id'] ?? 0);
         $data['staff_id']    = Arr::has($data, 'staff_id') ? (int) $data['staff_id'] : null;
+        $data['idempotency_key'] = $data['idempotency_key'] ?? bin2hex(random_bytes(16));
 
         return $data;
     }
@@ -180,13 +419,15 @@ abstract class BookingTemplate
 
         return BookingHold::query()->create([
             'merchant_id'     => $data['merchant_id'],
+            'customer_id'     => $data['customer_id'],
             'staff_id'        => $data['staff_id'] ?? null,
             'customer_pet_id' => $data['customer_pet_id'] ?? null,
             'pet_id'          => $data['pet_id'] ?? null,
             'service_id'      => $data['service_id'] ?? null,
             'package_id'      => $data['package_id'] ?? null,
+            'booking_type'    => $data['booking_type'],
             'start_at'        => $start,
-            'status'          => 'held',
+            'status'          => \App\Models\BookingHold::STATUS_HELD,
             'expires_at'      => $expiresAt,
             'idempotency_key' => $data['idempotency_key'] ?? bin2hex(random_bytes(16)),
             'meta'            => $data['meta'] ?? null,
@@ -196,7 +437,7 @@ abstract class BookingTemplate
     /**
      * Create a schedule block for this booking.
      */
-    protected function createSchedule(array $data, Carbon $start, Carbon $end): ?Schedule
+    protected function createSchedule(array $data, Carbon $start, Carbon $end, ?int $bookingId = null): ?Schedule
     {
         // Adoption might not have staff
         return Schedule::query()->create([
@@ -205,7 +446,7 @@ abstract class BookingTemplate
             'start_at'    => $start,
             'end_at'      => $end,
             'block_type'  => 'booking',
-            'booking_id'  => null,
+            'booking_id'  => $bookingId,
         ]);
     }
 
@@ -225,8 +466,12 @@ abstract class BookingTemplate
             'booking_type'    => $data['booking_type'], // 'adoption' | 'service' | 'package'
             'start_at'        => $start,
             'end_at'          => $end,
-            'amount'          => $amount,
+
+            // Write to both keys; whichever column exists/ is fillable will be persisted.
+            'price_amount'    => $amount,
+
             'status'          => 'confirmed',
+            'idempotency_key' => $data['idempotency_key'],
             'meta'            => $data['meta'] ?? null,
         ];
 

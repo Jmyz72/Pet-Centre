@@ -1,13 +1,18 @@
 <?php
 
 use App\Http\Controllers\MerchantApplicationController;
+use App\Http\Controllers\BookingPageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicMerchantController;
+
+use App\Http\Controllers\ContactController; // Add this line
+
 use App\Http\Controllers\PublicBookingController;
 use App\Http\Controllers\CustomerPetController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ApiTestController; 
 use App\Http\Controllers\ChatController;
+
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -18,6 +23,27 @@ Route::get('/dashboard', function () {
     return redirect('/');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+Route::get('/about', function () {
+    return view('about');
+})->name('about');
+
+Route::get('/privacy', function () {
+    return view('privacy');
+})->name('privacy');
+
+Route::get('/licensing', function () {
+    return view('licensing');
+})->name('licensing');
+
+Route::get('/faq', function () {
+    return view('faq');
+})->name('faq');
+
+Route::post('/contact', [ContactController::class, 'submit'])->name('contact.submit');
+
+// Add contact routes (publicly accessible)
+Route::get('/contact', [ContactController::class, 'index'])->name('contact');
+Route::post('/contact', [ContactController::class, 'submit'])->name('contact.submit');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile',[ProfileController::class, 'show'])->name('profile.show');
@@ -67,6 +93,10 @@ Route::middleware('auth')->group(function () {
         return back();
     })->name('notifications.readAll');
 
+    Route::get('/debug-time', function () {
+    return now()->toDateTimeString();
+});
+
     // Customer Pets CRUD
     Route::get('/my-pets',            [CustomerPetController::class,'index'])->name('customer.pets.index');
     Route::get('/my-pets/create',     [CustomerPetController::class,'create'])->name('customer.pets.create');
@@ -76,17 +106,25 @@ Route::middleware('auth')->group(function () {
     Route::delete('/my-pets/{pet}',   [CustomerPetController::class,'destroy'])->name('customer.pets.destroy');
 
     // Booking (web) presentation routes
+    Route::get('/bookings/select-pet', [BookingController::class, 'selectPet'])->name('bookings.select-pet');
     Route::get('/bookings/create', [BookingController::class, 'create'])->name('bookings.create');
     Route::get('/bookings/available-slots', [BookingController::class, 'availableSlots'])
     ->name('bookings.available-slots');
     Route::get('/bookings/available-staff', [BookingController::class, 'availableStaff'])->name('bookings.available-staff'); // AJAX from the form
     Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
-    Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
+    Route::get('/bookings/bank-auth', [BookingController::class, 'bankAuth'])->name('bookings.bank-auth');
+    Route::post('/bookings/complete', [BookingController::class, 'complete'])->name('bookings.complete');
+    Route::get('/bookings/{booking}/success', [BookingController::class, 'success'])->name('bookings.success');
+
+    Route::get('/bookings', [BookingPageController::class, 'index'])
+        ->name('bookings.index');
+
+    Route::get('/bookings/{booking}', [BookingPageController::class, 'show'])
+    ->name('bookings.show');
 
     Route::get('/bookings/quote-price', [BookingController::class, 'quotePrice'])
-        ->name('bookings.quote-price');
+    ->name('bookings.quote-price');
     // routes/web.php
-    Route::post('/bookings', [\App\Http\Controllers\BookingController::class, 'store'])->name('bookings.store');
 
     Route::get('/payments/{payment}/redirect', [\App\Http\Controllers\PaymentController::class, 'redirect'])
         ->name('payments.redirect');
@@ -105,7 +143,9 @@ Route::middleware('auth')->group(function () {
 Route::get('/merchants', [PublicMerchantController::class, 'index'])->name('merchants.index');
 Route::get('/merchants/{merchantProfile}', [PublicMerchantController::class, 'show'])->name('merchants.show');
 
+
 Route::get('/merchants/{merchantProfile}/book', [PublicBookingController::class, 'create'])
     ->name('booking.create');
 
 require __DIR__.'/auth.php';
+

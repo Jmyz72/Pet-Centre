@@ -1,15 +1,18 @@
-<footer class="bg-white shadow mt-2 dark:bg-gray-900">
-    <div class="w-full max-w-screen-xl mx-auto p-4 md:py-6">
-        <div class="sm:flex sm:items-center sm:justify-between">
-            <span class="text-sm text-gray-500 sm:text-center dark:text-gray-400">
-                © {{ date('Y') }} <a href="/" class="hover:underline">PetCentre</a>. All Rights Reserved.
-            </span>
-            <ul class="flex flex-wrap items-center mt-3 text-sm font-medium text-gray-500 dark:text-gray-400 sm:mt-0">
-                <li><a href="#" class="hover:underline me-4 md:me-6">About</a></li>
-                <li><a href="#" class="hover:underline me-4 md:me-6">Privacy Policy</a></li>
-                <li><a href="#" class="hover:underline me-4 md:me-6">Licensing</a></li>
-                <li><a href="#" class="hover:underline">Contact</a></li>
-            </ul>
+<footer class="bg-white border-t border-gray-100 py-6">
+    <div class="max-w-screen-xl mx-auto px-6">
+        <div class="flex flex-col md:flex-row justify-between items-center space-y-3 md:space-y-0">
+            <!-- Copyright -->
+            <p class="text-gray-500 text-sm">
+                © {{ date('Y') }} PetCentre. All rights reserved.
+            </p>
+            
+            <!-- Links -->
+            <div class="flex items-center space-x-6">
+                <a href="/about" class="text-gray-500 hover:text-blue-600 text-sm transition-colors">About Us</a>
+                <a href="/privacy" class="text-gray-500 hover:text-blue-600 text-sm transition-colors">Policy</a>
+                <a href="/licensing" class="text-gray-500 hover:text-blue-600 text-sm transition-colors">Licensing</a>
+                <a href="/contact" class="text-gray-500 hover:text-blue-600 text-sm transition-colors">Contact Us</a>
+            </div>
         </div>
     </div>
 </footer>

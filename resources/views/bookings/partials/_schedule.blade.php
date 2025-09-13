@@ -15,19 +15,20 @@
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         {{-- Date --}}
         <div>
-            <label for="booking_date" class="block text-sm font-medium text-gray-700 mb-1">Choose Date</label>
+            <label for="booking_date" class="block text-sm font-medium text-gray-700 mb-1">Choose Date <span class="text-red-500">*</span></label>
             <input
                 type="date"
                 id="booking_date"
                 min="{{ now()->toDateString() }}"
                 class="mt-1 block w-full rounded-xl border-gray-300 focus:border-pink-400 focus:ring-pink-400"
+                required
             />
             <p class="text-xs text-gray-500 mt-2">Slots are generated from merchant operating hours (breaks removed).</p>
 
             {{-- Staff selector only for service/package (adoption has no staff) --}}
             @if(in_array($bookingType, ['service','package'], true))
                 <div class="mt-6">
-                    <label for="staff_id" class="block text-sm font-medium text-gray-700 mb-1">Assign Staff</label>
+                    <label for="staff_id" class="block text-sm font-medium text-gray-700 mb-1">Assign Staff <span class="text-red-500">*</span></label>
                     <select name="staff_id" id="staff_id"
                             class="mt-1 block w-full rounded-xl border-gray-300 pr-8 focus:border-pink-400 focus:ring-pink-400 disabled:bg-gray-50"
                             disabled required>
@@ -40,7 +41,7 @@
 
         {{-- Time grid --}}
         <div class="md:col-span-2">
-            <label class="block text-sm font-medium text-gray-700 mb-2">Choose Time</label>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Choose Time <span class="text-red-500">*</span></label>
             <div class="rounded-2xl bg-gray-50 p-4">
                 <div id="timeGrid" class="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-6"></div>
                 <p class="mt-3 text-xs text-gray-500">

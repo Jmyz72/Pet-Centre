@@ -1,118 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PetCentre - Home</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .hero-bg {
+            background: linear-gradient(to right, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0.95)), 
+                        url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23fafafa"/><path d="M0 0L100 100" stroke="%23f0f0f0" stroke-width="1.5"/><path d="M100 0L0 100" stroke="%23f0f0f0" stroke-width="1.5"/></svg>');
+            background-size: cover;
+        }
+        
+        .pet-card {
+            transition: all 0.3s ease;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+        }
+        
+        .pet-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+        }
+        
+        .feature-icon {
+            background-color: #f8fafc;
+            width: 80px;
+            height: 80px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.03);
+            border: 1px solid #f1f5f9;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(to right, #3b82f6, #2563eb);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.15);
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(to right, #2563eb, #1d4ed8);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
+        }
+        
+        .btn-secondary {
+            background: white;
+            transition: all 0.3s ease;
+            border: 2px solid #e5e7eb;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.03);
+        }
+        
+        .btn-secondary:hover {
+            background: #f8fafc;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+            border-color: #3b82f6;
+        }
+        
+        .modal-content {
+            border-radius: 20px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .section-title {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 2rem;
+        }
+        
+        .section-title:after {
+            content: '';
+            position: absolute;
+            bottom: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 70px;
+            height: 4px;
+            background: linear-gradient(to right, #3b82f6, #2563eb);
+            border-radius: 2px;
+        }
+        
+        .service-card {
+            transition: all 0.3s ease;
+            border-radius: 20px;
+            overflow: hidden;
+            background: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+            border: 1px solid #f8fafc;
+        }
+        
+        .service-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 30px -10px rgba(0, 0, 0, 0.08);
+            border-color: #e0e7ff;
+        }
+        
+        .service-icon {
+            width: 90px;
+            height: 90px;
+            border-radius: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
+        }
+        
+        .shelter-icon {
+            background: linear-gradient(135deg, #e0f2fe, #bae6fd);
+            color: #0369a1;
+        }
+        
+        .clinic-icon {
+            background: linear-gradient(135deg, #fce7f3, #fbcfe8);
+            color: #9d174d;
+        }
+        
+        .groomer-icon {
+            background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+            color: #166534;
+        }
+        
+        .service-link {
+            transition: all 0.3s ease;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .service-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .shelter-link {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .shelter-link:hover {
+            background-color: #bfdbfe;
+        }
+        
+        .clinic-link {
+            background-color: #fce7f3;
+            color: #9d174d;
+        }
+        
+        .clinic-link:hover {
+            background-color: #fbcfe8;
+        }
+        
+        .groomer-link {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        
+        .groomer-link:hover {
+            background-color: #bbf7d0;
+        }
+        
+        .pet-tag {
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            padding: 0.35rem 0.75rem;
+        }
+    </style>
+</head>
+<body class="bg-white text-gray-800">
+
 @extends('layouts.app')
 
 @section('content')
 
-    {{-- Hero Section --}}
-    <section class="bg-white py-24 px-4 text-center">
-        <div class="max-w-4xl mx-auto">
-            <h1 class="text-5xl font-extrabold text-blue-600 mb-4">Welcome to PetCentre</h1>
-            <p class="text-lg text-gray-600 mb-8">
-                A centralized platform for pet adoption, clinical care, and grooming services.
-            </p>
-            <div class="flex flex-col sm:flex-row justify-center gap-4">
-                <a href="/pets" class="inline-block px-6 py-3 bg-blue-600 text-white text-lg rounded-lg hover:bg-blue-700 transition">Browse Pets</a>
-                <a href="/services" class="inline-block px-6 py-3 bg-gray-200 text-gray-800 text-lg rounded-lg hover:bg-gray-300 transition">Our Services</a>
+    <!-- Hero Section -->
+    <section class="hero-bg py-16 md:py-24 px-4">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-32">
+                <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">Complete Care for Your <span class="text-blue-600">Pet Companion</span></h1>
+                <p class="text-lg md:text-xl text-gray-600 mb-12 max-w-3xl mx-auto">
+                    A centralized platform for pet adoption, clinical care, and grooming services.
+                </p>
+            </div>
+            
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4 section-title">Everything Your Pet Needs</h2>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">We provide comprehensive care for your furry friends with our range of specialized services</p>
+            </div>
+
+            <!-- Service Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-4">
+                <!-- Shelter Card -->
+                <div class="service-card p-8 text-center">
+                    <div class="service-icon shelter-icon">
+                        <i class="fas fa-home text-3xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-4">Shelter</h3>
+                    <p class="text-gray-600 mb-6">
+                        Find loving pets from local shelters waiting for their forever homes.
+                    </p>
+                    <a href="/shelter" class="service-link shelter-link inline-block px-6 py-3 font-medium rounded-lg transition">
+                        Explore Shelters <i class="fas fa-arrow-right ml-2 text-sm"></i>
+                    </a>
+                </div>
+                
+                <!-- Clinic Card -->
+                <div class="service-card p-8 text-center">
+                    <div class="service-icon clinic-icon">
+                        <i class="fas fa-stethoscope text-3xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-4">Clinic</h3>
+                    <p class="text-gray-600 mb-6">
+                        Professional veterinary care to keep your pets healthy and happy.
+                    </p>
+                    <a href="/clinic" class="service-link clinic-link inline-block px-6 py-3 font-medium rounded-lg transition">
+                        Clinic Services <i class="fas fa-arrow-right ml-2 text-sm"></i>
+                    </a>
+                </div>
+                
+                <!-- Groomer Card -->
+                <div class="service-card p-8 text-center">
+                    <div class="service-icon groomer-icon">
+                        <i class="fas fa-spa text-3xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-4">Groomer</h3>
+                    <p class="text-gray-600 mb-6">
+                        Professional grooming services to keep your pets looking their best.
+                    </p>
+                    <a href="/groomer" class="service-link groomer-link inline-block px-6 py-3 font-medium rounded-lg transition">
+                        Book Grooming <i class="fas fa-arrow-right ml-2 text-sm"></i>
+                    </a>
+                </div>
             </div>
         </div>
     </section>
 
-    {{-- Features Section --}}
-    <section class="py-16 bg-gray-100">
-        <div class="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-
-            <div class="p-6 bg-white rounded-lg shadow hover:shadow-md transition">
-                <h3 class="text-xl font-semibold text-blue-600 mb-2">Adoption</h3>
-                <p class="text-gray-600">
-                    Browse and adopt pets from local shelters looking for forever homes.
-                </p>
-            </div>
-
-            <div class="p-6 bg-white rounded-lg shadow hover:shadow-md transition">
-                <h3 class="text-xl font-semibold text-blue-600 mb-2">Pet Clinic</h3>
-                <p class="text-gray-600">
-                    Schedule vet visits, vaccinations, and keep medical records organized.
-                </p>
-            </div>
-
-            <div class="p-6 bg-white rounded-lg shadow hover:shadow-md transition">
-                <h3 class="text-xl font-semibold text-blue-600 mb-2">Grooming Services</h3>
-                <p class="text-gray-600">
-                    Book grooming sessions to keep your pets clean, healthy, and happy.
-                </p>
-            </div>
-
-        </div>
-    </section>
     
-    {{-- Pet Adoption Showcase --}}
-    <section class="py-16 bg-white">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 class="text-3xl font-bold text-gray-800 mb-8 text-center">Pets Available for Adoption</h2>
+    <!-- Pet Adoption Showcase -->
+    <section class="py-16 md:py-24 bg-white">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4 section-title">Pets Looking for a Home</h2>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">These adorable pets are waiting to meet their forever families. Could one of them be yours?</p>
+            </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
                 <!-- Pet Card 1 -->
-                <div onclick="openQuickView('Buddy', 'Golden Retriever • 2 years old', '/images/dog.png')" class="bg-gray-50 rounded-lg shadow p-4 hover:shadow-lg transition cursor-pointer">
-                    <img src="/images/dog.png" alt="Buddy" class="w-full h-48 object-cover rounded mb-4">
-                    <h3 class="text-lg font-semibold text-gray-800">Buddy</h3>
-                    <p class="text-sm text-gray-500">Golden Retriever • 2 years old</p>
+                <div onclick="openQuickView('Buddy', 'Golden Retriever • 2 years old', '/images/dog.png')" 
+                     class="pet-card bg-white rounded-xl overflow-hidden cursor-pointer border border-gray-100">
+                    <div class="h-56 overflow-hidden bg-gray-100 flex items-center justify-center">
+                        <img src="/images/dog.png" alt="Buddy" class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold text-gray-900">Buddy</h3>
+                        <p class="text-gray-600 text-sm mt-1">Golden Retriever • 2 years</p>
+                        <div class="flex items-center mt-4">
+                            <span class="pet-tag bg-blue-100 text-blue-800">Friendly</span>
+                            <span class="pet-tag bg-green-100 text-green-800 ml-2">Good with kids</span>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Pet Card 2 -->
-                <div onclick="openQuickView('Mittens', 'Tabby Cat • 1.5 years old', '/images/cat.png')" class="bg-gray-50 rounded-lg shadow p-4 hover:shadow-lg transition cursor-pointer">
-                    <img src="/images/cat.png" alt="Mittens" class="w-full h-48 object-cover rounded mb-4">
-                    <h3 class="text-lg font-semibold text-gray-800">Mittens</h3>
-                    <p class="text-sm text-gray-500">Tabby Cat • 1.5 years old</p>
+                <div onclick="openQuickView('Mittens', 'Tabby Cat • 1.5 years old', '/images/cat.png')" 
+                     class="pet-card bg-white rounded-xl overflow-hidden cursor-pointer border border-gray-100">
+                    <div class="h-56 overflow-hidden bg-gray-100 flex items-center justify-center">
+                        <img src="/images/cat.png" alt="Mittens" class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold text-gray-900">Mittens</h3>
+                        <p class="text-gray-600 text-sm mt-1">Tabby Cat • 1.5 years</p>
+                        <div class="flex items-center mt-4">
+                            <span class="pet-tag bg-blue-100 text-blue-800">Playful</span>
+                            <span class="pet-tag bg-purple-100 text-purple-800 ml-2">Indoor</span>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Pet Card 3 -->
-                <div onclick="openQuickView('Snowy', 'White Rabbit • 8 months old', '/images/paws.png')" class="bg-gray-50 rounded-lg shadow p-4 hover:shadow-lg transition cursor-pointer">
-                    <img src="/images/paws.png" alt="Snowy" class="w-full h-48 object-cover rounded mb-4">
-                    <h3 class="text-lg font-semibold text-gray-800">Snowy</h3>
-                    <p class="text-sm text-gray-500">White Rabbit • 8 months old</p>
+                <div onclick="openQuickView('Snowy', 'White Rabbit • 8 months old', '/images/paws.png')" 
+                     class="pet-card bg-white rounded-xl overflow-hidden cursor-pointer border border-gray-100">
+                    <div class="h-56 overflow-hidden bg-gray-100 flex items-center justify-center">
+                        <img src="/images/paws.png" alt="Snowy" class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold text-gray-900">Snowy</h3>
+                        <p class="text-gray-600 text-sm mt-1">White Rabbit • 8 months</p>
+                        <div class="flex items-center mt-4">
+                            <span class="pet-tag bg-blue-100 text-blue-800">Gentle</span>
+                            <span class="pet-tag bg-yellow-100 text-yellow-800 ml-2">Quiet</span>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Pet Card 4 -->
-                <div onclick="openQuickView('Rocky', 'Mixed Breed • 3 years old', '/images/dog.png')" class="bg-gray-50 rounded-lg shadow p-4 hover:shadow-lg transition cursor-pointer">
-                    <img src="/images/dog.png" alt="Rocky" class="w-full h-48 object-cover rounded mb-4">
-                    <h3 class="text-lg font-semibold text-gray-800">Rocky</h3>
-                    <p class="text-sm text-gray-500">Mixed Breed • 3 years old</p>
+                <div onclick="openQuickView('Rocky', 'Mixed Breed • 3 years old', '/images/dog.png')" 
+                     class="pet-card bg-white rounded-xl overflow-hidden cursor-pointer border border-gray-100">
+                    <div class="h-56 overflow-hidden bg-gray-100 flex items-center justify-center">
+                        <img src="/images/dog.png" alt="Rocky" class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold text-gray-900">Rocky</h3>
+                        <p class="text-gray-600 text-sm mt-1">Mixed Breed • 3 years</p>
+                        <div class="flex items-center mt-4">
+                            <span class="pet-tag bg-blue-100 text-blue-800">Loyal</span>
+                            <span class="pet-tag bg-green-100 text-green-800 ml-2">Active</span>
+                        </div>
+                    </div>
                 </div>
-            </div>
-
-            <div class="mt-10 text-center">
-                <a href="/pets" class="text-blue-600 hover:underline font-medium">View all pets →</a>
             </div>
         </div>
     </section>
-    
-    {{-- Quick View Modal (Flowbite) --}}
-    <div id="quickViewModal" tabindex="-1" aria-hidden="true" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-        <div class="relative bg-white rounded-lg shadow dark:bg-gray-800 max-w-md w-full p-6">
-            <button type="button" onclick="closeModal()" class="absolute top-3 right-3 text-gray-400 hover:text-gray-900 text-sm">
-                ✕
-            </button>
-            <div id="quickViewContent">
-                <!-- JS will populate this -->
-            </div>
-        </div>
-    </div>
+
 
 @endsection
 
 @push('scripts')
-<script>
-    function openQuickView(name, desc, imgUrl) {
-        document.getElementById('quickViewModal').classList.remove('hidden');
-        document.getElementById('quickViewContent').innerHTML = `
-            <img src="${imgUrl}" alt="${name}" class="w-full h-48 object-cover rounded mb-4">
-            <h3 class="text-xl font-bold text-gray-800">${name}</h3>
-            <p class="text-sm text-gray-600 mb-4">${desc}</p>
-            <a href="/pets" class="text-blue-600 hover:underline">See more pets →</a>
-        `;
-    }
+    <script>
+        function openQuickView(name, desc, imgUrl) {
+            document.getElementById('quickViewModal').classList.remove('hidden');
+            document.getElementById('quickViewContent').innerHTML = `
+                <div class="text-center">
+                    <div class="h-56 overflow-hidden bg-gray-100 rounded-lg mb-5 flex items-center justify-center">
+                        <img src="${imgUrl}" alt="${name}" class="h-full object-cover">
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900">${name}</h3>
+                    <p class="text-gray-600 mb-5">${desc}</p>
+                    <div class="flex justify-center gap-4">
+                        <button class="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition">
+                            <i class="fas fa-heart mr-2"></i> Adopt Me
+                        </button>
+                        <button onclick="closeQuickView()" class="px-6 py-3 bg-gray-200 text-gray-800 rounded-lg font-medium hover:bg-gray-300 transition">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
 
-    function closeModal() {
-        document.getElementById('quickViewModal').classList.add('hidden');
-    }
-</script>
+        function closeQuickView() {
+            document.getElementById('quickViewModal').classList.add('hidden');
+        }
+    </script>
 @endpush
+</body>
+</html>

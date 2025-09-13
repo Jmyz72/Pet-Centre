@@ -18,7 +18,7 @@ class ApiTestController extends Controller
         $userId = (int) ($request->query('user_id', 1));
         $limit  = (int) ($request->query('limit', 10));
 
-        $base = rtrim((string) env('API_BASE_URL', ''), '/'); // e.g. http://127.0.0.1:8001/api
+        $base = rtrim((string) env('API_BASE_URL', 'http://127.0.0.1:8001/api'), '/'); // e.g. http://127.0.0.1:8001/api
         $usingHttp = !empty($base);
 
         if ($usingHttp) {
