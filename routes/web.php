@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\MerchantApplicationController;
+use App\Http\Controllers\BookingPageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicMerchantController;
 
@@ -80,6 +81,10 @@ Route::middleware('auth')->group(function () {
         return back();
     })->name('notifications.readAll');
 
+    Route::get('/debug-time', function () {
+    return now()->toDateTimeString();
+});
+
     // Customer Pets CRUD
     Route::get('/my-pets',            [CustomerPetController::class,'index'])->name('customer.pets.index');
     Route::get('/my-pets/create',     [CustomerPetController::class,'create'])->name('customer.pets.create');
@@ -89,17 +94,25 @@ Route::middleware('auth')->group(function () {
     Route::delete('/my-pets/{pet}',   [CustomerPetController::class,'destroy'])->name('customer.pets.destroy');
 
     // Booking (web) presentation routes
+    Route::get('/bookings/select-pet', [BookingController::class, 'selectPet'])->name('bookings.select-pet');
     Route::get('/bookings/create', [BookingController::class, 'create'])->name('bookings.create');
     Route::get('/bookings/available-slots', [BookingController::class, 'availableSlots'])
     ->name('bookings.available-slots');
     Route::get('/bookings/available-staff', [BookingController::class, 'availableStaff'])->name('bookings.available-staff'); // AJAX from the form
     Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
-    Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
+    Route::get('/bookings/bank-auth', [BookingController::class, 'bankAuth'])->name('bookings.bank-auth');
+    Route::post('/bookings/complete', [BookingController::class, 'complete'])->name('bookings.complete');
+    Route::get('/bookings/{booking}/success', [BookingController::class, 'success'])->name('bookings.success');
+
+    Route::get('/bookings', [BookingPageController::class, 'index'])
+        ->name('bookings.index');
+
+    Route::get('/bookings/{booking}', [BookingPageController::class, 'show'])
+    ->name('bookings.show');
 
     Route::get('/bookings/quote-price', [BookingController::class, 'quotePrice'])
-        ->name('bookings.quote-price');
+    ->name('bookings.quote-price');
     // routes/web.php
-    Route::post('/bookings', [\App\Http\Controllers\BookingController::class, 'store'])->name('bookings.store');
 
     Route::get('/payments/{payment}/redirect', [\App\Http\Controllers\PaymentController::class, 'redirect'])
         ->name('payments.redirect');

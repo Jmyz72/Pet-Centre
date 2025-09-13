@@ -22,22 +22,56 @@ class BookingController extends Controller
         return rtrim((string) config('services.internal_api.base', env('API_BASE_URL', 'http://127.0.0.1:8001/api')), '/');
     }
 
-    /**
-     * Show list of bookings for the logged-in customer.
-     */
-    public function index()
+    public function selectPet(Request $request)
     {
-        $bookings = Booking::where('customer_id', auth()->id())->latest()->get();
+        $api = $this->apiBase();
+        $petsResp = Http::acceptJson()
+            ->timeout(5)
+            ->connectTimeout(2)
+            ->get("{$api}/customers/" . auth()->id() . "/pets", ['limit' => 100]);
 
-        return view('bookings.index', compact('bookings'));
+        // Normalize pet data
+        $pets = collect($petsResp->json('data') ?? [])->map(function ($p) {
+            $p['type_name']  = $p['type_name']  ?? $p['pet_type_name'] ?? null;
+            $p['size_name']  = $p['size_label'] ?? $p['size_name']     ?? null;
+            $p['breed_name'] = $p['breed_name'] ?? null;
+
+            if ($p['type_name'] === null && !empty($p['pet_type_id'])) {
+                $p['type_name'] = DB::table('pet_types')->where('id', $p['pet_type_id'])->value('name');
+            }
+            if ($p['size_name'] === null && !empty($p['size_id'])) {
+                $p['size_name'] = DB::table('sizes')->where('id', $p['size_id'])->value('label');
+            }
+            if ($p['breed_name'] === null && (!empty($p['pet_breed_id']) || !empty($p['breed_id']))) {
+                $breedId = $p['pet_breed_id'] ?? $p['breed_id'];
+                $p['breed_name'] = DB::table('pet_breeds')->where('id', $breedId)->value('name');
+            }
+
+            if (!empty($p['photo_url'])) {
+                // keep as is
+            } elseif (!empty($p['photo_path'])) {
+                $p['photo_url'] = asset('storage/' . ltrim($p['photo_path'], '/'));
+            }
+            return $p;
+        });
+
+        // Build continue URL with existing query parameters
+        $continueUrl = route('bookings.create') . '?' . http_build_query($request->query());
+
+        return view('bookings.select-pet', compact('pets', 'continueUrl'));
     }
 
-    /**
-     * Show the booking form.
-     * Prefill merchant/service/package/pet if passed in query params.
-     */
     public function create(Request $request)
     {
+        // For service and package bookings, require customer_pet_id (adoption doesn't need it)
+        $bookingType = 'service';
+        if ($request->filled('package_id')) { $bookingType = 'package'; }
+        if ($request->filled('pet_id'))     { $bookingType = 'adoption'; }
+
+        if (in_array($bookingType, ['service', 'package']) && !$request->filled('customer_pet_id')) {
+            return redirect()->route('bookings.select-pet', $request->query());
+        }
+
         $merchants = MerchantProfile::all();
         $api = $this->apiBase();
         $petsResp = Http::acceptJson()
@@ -128,7 +162,30 @@ class BookingController extends Controller
             'pet'      => $pet,
         ];
 
-        return view('bookings.create', compact('merchants', 'pets', 'prefill', 'context', 'eligibleStaff'));
+        // Get selected customer pet data for hidden fields and validate package requirements
+        $selectedPet = null;
+        if ($request->filled('customer_pet_id')) {
+            $selectedPet = $pets->firstWhere('id', $request->integer('customer_pet_id'));
+            
+            // For package bookings, validate that the pet meets package requirements
+            if ($bookingType === 'package' && $package && $selectedPet) {
+                $petTypeId = $selectedPet['pet_type_id'] ?? null;
+                
+                if ($petTypeId) {
+                    $packageSupportsType = DB::table('package_pet_types')
+                        ->where('package_id', $package->id)
+                        ->where('pet_type_id', $petTypeId)
+                        ->exists();
+                    
+                    if (!$packageSupportsType) {
+                        return redirect()->route('bookings.select-pet', $request->query())
+                            ->with('error', 'This package does not support your selected pet type. Please choose a different pet.');
+                    }
+                }
+            }
+        }
+
+        return view('bookings.create', compact('merchants', 'pets', 'prefill', 'context', 'eligibleStaff', 'selectedPet'));
     }
 
     public function store(Request $request)
@@ -153,6 +210,12 @@ class BookingController extends Controller
                     }
                 }
             ],
+            'payment_method' => 'required|in:fpx,card',
+            'bank'           => 'nullable|string',
+            'card_name'      => 'nullable|string',
+            'card_number'    => 'nullable|string',
+            'card_expiry'    => 'nullable|string',
+            'card_ccv'       => 'nullable|string',
         ];
         $rulesByType = match ($type) {
             'service' => [
@@ -184,15 +247,75 @@ class BookingController extends Controller
             default => abort(422, 'Unknown booking type'),
         };
 
+        // Extra conditional rules when the chosen method is card
+        if ($request->input('payment_method') === 'card') {
+            $request->validate([
+                'card_name'   => 'required|string',
+                'card_number' => 'required|string',
+                'card_expiry' => 'required|string',
+                'card_ccv'    => 'required|string',
+            ]);
+        }
+
         $data = $request->validate($rulesCommon + $rulesByType);
         $data['booking_type'] = $type;
         $data['customer_id']  = auth()->id();
+        $data['idempotency_key'] = bin2hex(random_bytes(16));
 
-        // ---------- Use Template Method via BookingFactory ----------
-        $booking = \App\Bookings\BookingFactory::make($data['booking_type'])->process($data);
+        // ---------- Split booking process: Hold first, then bank auth ----------
+        $hold = \App\Bookings\BookingFactory::make($data['booking_type'])->holdOnly($data);
 
-        return redirect()->route('bookings.index')->with('success', 'Booking confirmed.');
+        return redirect()->route('bookings.bank-auth', [
+            'hold_id' => $hold->id,
+            'idempotency_key' => $data['idempotency_key']
+        ]);
     }
+
+    public function bankAuth(Request $request)
+    {
+        $holdId = $request->query('hold_id');
+        $idempotencyKey = $request->query('idempotency_key');
+        
+        $hold = BookingHold::findOrFail($holdId);
+        
+        // Verify ownership
+        if ($hold->customer_id !== auth()->id()) {
+            abort(403, 'Unauthorized access to booking hold');
+        }
+
+        return view('bookings.bank-auth', compact('hold', 'idempotencyKey'));
+    }
+
+    public function complete(Request $request)
+    {
+        $request->validate([
+            'hold_id' => 'required|exists:booking_holds,id',
+            'idempotency_key' => 'required|string',
+        ]);
+
+        $hold = BookingHold::findOrFail($request->hold_id);
+        
+        // Verify ownership
+        if ($hold->customer_id !== auth()->id()) {
+            abort(403, 'Unauthorized access to booking hold');
+        }
+
+        // Complete the booking using the hold data
+        $booking = \App\Bookings\BookingFactory::make($hold->booking_type)->completeFromHold($hold);
+
+        return redirect()->route('bookings.success', ['booking' => $booking->id]);
+    }
+
+    public function success(Booking $booking)
+    {
+        // Verify ownership
+        if ($booking->customer_id !== auth()->id()) {
+            abort(403, 'Unauthorized access to booking');
+        }
+
+        return view('bookings.success', compact('booking'));
+    }
+
     /**
      * AJAX: Quote live price for service/package/adoption without writing to DB.
     * Consumed by bookings/create.blade.js via GET /bookings/quote-price.
@@ -223,6 +346,7 @@ class BookingController extends Controller
             }
         }
   
+
         $amount = 0.0;
         switch ($data['type']) {
             case 'service':
@@ -322,6 +446,45 @@ class BookingController extends Controller
         $date = CarbonImmutable::parse($data['date'])->startOfDay();
         $dow  = (int) $date->dayOfWeek; // 0=Sun…6=Sat
 
+        // ---- Occupancy from schedules (store/staff bookings) to gray-out full slots ----
+        $dayStart = $date->copy();                 // immutable start of day
+        $dayEnd   = $date->copy()->endOfDay();     // immutable end of day
+
+        // Pull all schedules overlapping this date for the merchant
+        $schedRows = \App\Models\Schedule::query()
+            ->where('merchant_id', $data['merchant_id'])
+            ->where('start_at', '<', $dayEnd->toDateTimeString())
+            ->where('end_at',   '>', $dayStart->toDateTimeString())
+            ->get(['staff_id','start_at','end_at']);
+
+        // Partition into store-level blocks (staff_id NULL) and per-staff blocks
+        $storeBlocksMin = [];             // [[sMin,eMin], ...]
+        $staffBlocksMin = [];             // [staff_id => [[sMin,eMin], ...]]
+        foreach ($schedRows as $row) {
+            $sCarbon = CarbonImmutable::parse($row->start_at);
+            $eCarbon = CarbonImmutable::parse($row->end_at);
+
+            // Clamp to this day’s [00:00, 24:00] window and convert to minutes since midnight
+            $sMin = ($sCarbon->isSameDay($date)) ? ($sCarbon->hour * 60 + $sCarbon->minute) : 0;
+            $eMin = ($eCarbon->isSameDay($date)) ? ($eCarbon->hour * 60 + $eCarbon->minute) : 24 * 60;
+            if ($eMin <= $sMin) { continue; } // ignore invalid/zero-length
+
+            if (is_null($row->staff_id)) {
+                $storeBlocksMin[] = [$sMin, $eMin];
+            } else {
+                $staffBlocksMin[$row->staff_id][] = [$sMin, $eMin];
+            }
+        }
+
+        // Merge overlapping blocks for simpler overlap checks
+        $storeBlocksMin = $this->mergeRanges($storeBlocksMin);
+        foreach ($staffBlocksMin as $sid => $ranges) {
+            $staffBlocksMin[$sid] = $this->mergeRanges($ranges);
+        }
+
+        // Staff table links to merchant by `merchant_id`
+        $totalStaffForMerchant = \App\Models\Staff::where('merchant_id', $data['merchant_id'])->count();
+
         // If the selected date is today, disable slots earlier than "now"
         $nowMinutes = null;
         $appNow = Carbon::now();
@@ -367,12 +530,43 @@ class BookingController extends Controller
             $minStart = is_null($minStart) ? $s : min($minStart, $s);
             $maxEnd   = is_null($maxEnd)   ? $e : max($maxEnd, $e);
             for ($t=$s; $t+$step <= $e; $t += $step) {
+                $slotStart = $date->copy()->addMinutes($t);
+                $slotEnd   = $slotStart->copy()->addMinutes($duration);
+
                 $okWindow = ($t + $duration) <= $e; // fits inside open window
                 $okNow    = is_null($nowMinutes) || $t >= $nowMinutes; // not in the past if today
-                $slotStart = $date->copy()->addMinutes($t);
                 $okLead   = $slotStart->greaterThanOrEqualTo($appNow->copy()->addMinutes($minLeadMinutes));
                 $okMax    = $slotStart->lessThanOrEqualTo($maxAllowed);
-                $ok = $okWindow && $okNow && $okLead && $okMax;
+
+                // ---- New: gray-out if schedules make this slot unavailable ----
+                $slotS = $t;
+                $slotE = $t + $duration;
+
+                // 1) If any store-level block overlaps, the slot is unavailable
+                $blockedByStore = false;
+                foreach ($storeBlocksMin as [$bs, $be]) {
+                    if ($this->rangesOverlap($slotS, $slotE, $bs, $be)) { $blockedByStore = true; break; }
+                }
+
+                // 2) If all staff are occupied for this interval, the slot is unavailable
+                $blockedByAllStaff = false;
+                if (!$blockedByStore && $totalStaffForMerchant > 0) {
+                    $busyCount = 0;
+                    foreach ($staffBlocksMin as $sid => $ranges) {
+                        // if any range for this staff overlaps, they are busy
+                        $isBusy = false;
+                        foreach ($ranges as [$bs,$be]) {
+                            if ($this->rangesOverlap($slotS, $slotE, $bs, $be)) { $isBusy = true; break; }
+                        }
+                        if ($isBusy) { $busyCount++; }
+                    }
+                    $blockedByAllStaff = ($busyCount >= $totalStaffForMerchant);
+                }
+
+                $okSchedules = !$blockedByStore && !$blockedByAllStaff;
+
+                $ok = $okWindow && $okNow && $okLead && $okMax && $okSchedules;
+
                 $slots[] = [
                     'time' => sprintf('%02d:%02d', intdiv($t,60), $t%60),
                     'ok'   => $ok,
@@ -436,6 +630,12 @@ class BookingController extends Controller
             foreach ($segments as $seg) $result[] = $seg;
         }
         return $this->mergeRanges($result);
+    }
+
+    private function rangesOverlap(int $s1, int $e1, int $s2, int $e2): bool
+    {
+        // true if [s1,e1) intersects [s2,e2)
+        return ($s1 < $e2) && ($s2 < $e1);
     }
 
     /**
