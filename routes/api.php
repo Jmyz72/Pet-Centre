@@ -7,14 +7,13 @@ use App\Http\Controllers\Api\StaffController;
 use App\Http\Controllers\Api\CustomerPetController;
 use App\Http\Controllers\Api\BookingReleaseController;
 
-// Eligible staff for a merchant's service or package
+// Public API endpoints (no authentication required)
 Route::get('/merchants/{merchant}/eligible-staff', [StaffController::class, 'index']);
-
-// Customer pets
 Route::get('/customers/{customer}/pets', [CustomerPetController::class, 'index']);
 
-// Booking payout release via one-time code (JSON endpoints)
-Route::middleware(['auth','throttle:6,1'])->prefix('api')->group(function () {
+// Protected API endpoints (authentication required)
+Route::middleware(['auth:sanctum', 'throttle:6,1'])->group(function () {
+    // Booking release code management
     Route::post('/bookings/{booking}/release-code', [BookingReleaseController::class, 'generate'])
         ->name('api.bookings.generateReleaseCode');
     Route::post('/bookings/{booking}/release', [BookingReleaseController::class, 'release'])

@@ -105,65 +105,70 @@
         <div class="bg-white rounded-lg shadow p-5 md:col-span-2">
             <h2 class="text-sm font-semibold text-gray-600 mb-3">Release Code</h2>
             <p class="text-sm text-gray-600 mb-3">Generate a one-time code and share it with the merchant to complete your booking and release the payment.</p>
+            <div id="alert-box" class="hidden mb-3 p-3 rounded-md"></div>
             <div class="flex items-center gap-3">
-                <button id="btn-generate-code" class="rounded-md ring-1 ring-gray-300 px-4 py-2 text-sm hover:bg-gray-50">Generate Code</button>
-                <div id="code-box" class="hidden text-lg font-mono tracking-widest ring-1 ring-gray-300 rounded px-3 py-1">— — — — — —</div>
+                <button id="btn-generate-code" class="rounded-md bg-indigo-600 text-white px-4 py-2 text-sm hover:bg-indigo-700 disabled:opacity-50">Generate Code</button>
+                <div id="code-box" class="hidden text-lg font-mono tracking-widest bg-green-50 text-green-800 ring-1 ring-green-300 rounded px-3 py-1">— — — — — —</div>
                 <div id="code-exp" class="hidden text-xs text-gray-500"></div>
             </div>
         </div>
         @endif
 
-        <!-- Release with Code (Merchant action) -->
-        @php($isMerchantOwner = optional(auth()->user()->merchantProfile)->id === (int) $booking->merchant_id)
-        @if($isMerchantOwner)
-        <div class="bg-white rounded-lg shadow p-5 md:col-span-2">
-            <h2 class="text-sm font-semibold text-gray-600 mb-3">Complete Booking with Code</h2>
-            <form method="POST" action="{{ route('api.bookings.release', $booking) }}" class="flex flex-wrap items-center gap-3">
-                @csrf
-                <input name="code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6"
-                       class="ring-1 ring-gray-300 rounded px-3 py-2 text-sm"
-                       placeholder="Enter 6-digit code" required>
-                <button class="rounded-md ring-1 ring-gray-300 px-4 py-2 text-sm hover:bg-gray-50">Release</button>
-            </form>
-            <p class="text-xs text-gray-500 mt-2">Ask the customer for the one-time code. Codes expire in 30 minutes.</p>
-        </div>
-        @endif
     </div>
 </div>
 <script>
+// Generate Release Code (Customer)
 (function() {
     const btn = document.getElementById('btn-generate-code');
-    if (!btn) return; // not the customer owner
+    if (!btn) return;
+    
     const codeBox = document.getElementById('code-box');
     const codeExp = document.getElementById('code-exp');
+    const alertBox = document.getElementById('alert-box');
+
+    function showAlert(message, type = 'info') {
+        alertBox.textContent = message;
+        alertBox.className = `mb-3 p-3 rounded-md ${type === 'success' ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'}`;
+        alertBox.classList.remove('hidden');
+    }
 
     btn.addEventListener('click', async function() {
-        btn.disabled = true; btn.textContent = 'Generating…';
+        btn.disabled = true; 
+        btn.textContent = 'Generating...';
+        
         try {
-            const res = await fetch(`{{ route('api.bookings.generateReleaseCode', $booking->id) }}`, {
+            const res = await fetch('/api/bookings/{{ $booking->id }}/release-code', {
                 method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    'Accept': 'application/json'
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
                 }
             });
-            if (!res.ok) {
-                const text = await res.text();
-                throw new Error(`Failed (${res.status}): ${text || 'Unknown error'}`);
-            }
+            
             const data = await res.json();
-            codeBox.textContent = data.code;
-            codeBox.classList.remove('hidden');
-            if (data.expires_at) {
-                codeExp.textContent = 'Expires at: ' + new Date(data.expires_at).toLocaleString();
-                codeExp.classList.remove('hidden');
+            
+            if (data.success) {
+                codeBox.textContent = data.code;
+                codeBox.classList.remove('hidden');
+                
+                if (data.expires_at) {
+                    codeExp.textContent = 'Expires: ' + new Date(data.expires_at).toLocaleString();
+                    codeExp.classList.remove('hidden');
+                }
+                
+                showAlert(data.message, 'success');
+            } else {
+                showAlert(data.message || 'Failed to generate code');
             }
         } catch (e) {
-            alert(e.message || 'Something went wrong');
+            showAlert('Error: ' + e.message);
         } finally {
-            btn.disabled = false; btn.textContent = 'Generate Code';
+            btn.disabled = false; 
+            btn.textContent = 'Generate Code';
         }
     });
 })();
+
 </script>
 @endsection

@@ -8,6 +8,7 @@ use App\Http\Controllers\PublicBookingController;
 use App\Http\Controllers\CustomerPetController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ApiTestController; 
+use App\Http\Controllers\Api\BookingReleaseController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -95,12 +96,6 @@ Route::middleware('auth')->group(function () {
         ->name('payments.webhook');
 
     Route::get('/apitest', [ApiTestController::class, 'index'])->name('apitest.index');
-
-    Route::post('/bookings/{booking}/generate-release-code', [BookingPageController::class,'generateReleaseCode'])
-    ->middleware('auth')->name('bookings.generateReleaseCode');
-
-    Route::post('/bookings/{booking}/release', [BookingPageController::class,'releaseWithCode'])
-        ->middleware('auth')->name('bookings.release');
 
 });
 
