@@ -49,4 +49,24 @@ class MerchantProfile extends Model
     {
         return $this->hasMany(Package::class, 'merchant_id');
     }
+
+    public function wallet()
+    {
+        return $this->hasOne(MerchantWallet::class, 'merchant_id');
+    }
+
+    /**
+     * Get or create the merchant's wallet
+     */
+    public function getWallet(): MerchantWallet
+    {
+        return $this->wallet()->firstOrCreate([
+            'merchant_id' => $this->id,
+        ], [
+            'currency' => 'MYR',
+            'balance' => 0.00,
+            'pending_balance' => 0.00,
+            'is_active' => true,
+        ]);
+    }
 }
