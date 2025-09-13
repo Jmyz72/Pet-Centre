@@ -92,10 +92,6 @@
                     <div class="text-xs text-gray-500">Reference</div>
                     <div class="text-gray-900">{{ $booking->payment_ref ?? '—' }}</div>
                 </div>
-                <div>
-                    <div class="text-xs text-gray-500">Type</div>
-                    <div class="text-gray-900">{{ $booking->payment_method ?? '—' }}</div>
-                </div>
             </div>
         </div>
 

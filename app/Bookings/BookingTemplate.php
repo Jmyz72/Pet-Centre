@@ -97,10 +97,18 @@ abstract class BookingTemplate
 
             // 8) Attach any payment created during this transaction using the same idempotency key
             if (!empty($data['idempotency_key'])) {
-                Payment::query()
+                $payment = Payment::query()
                     ->whereNull('booking_id')
                     ->where('idempotency_key', $data['idempotency_key'])
-                    ->update(['booking_id' => $booking->id]);
+                    ->latest('id')
+                    ->first();
+                    
+                if ($payment) {
+                    $payment->update(['booking_id' => $booking->id]);
+                    
+                    // Also update the booking with the payment reference
+                    $booking->update(['payment_ref' => $payment->payment_ref]);
+                }
             }
 
             // 9) Mark hold as converted
@@ -155,12 +163,18 @@ abstract class BookingTemplate
 
             // Attach any payment created during this transaction using the same idempotency key
             if (!empty($data['idempotency_key'])) {
-                Payment::query()
+                $payment = Payment::query()
                     ->whereNull('booking_id')
                     ->where('idempotency_key', $data['idempotency_key'])
                     ->latest('id')
-                    ->limit(1)
-                    ->update(['booking_id' => $booking->id]);
+                    ->first();
+                    
+                if ($payment) {
+                    $payment->update(['booking_id' => $booking->id]);
+                    
+                    // Also update the booking with the payment reference
+                    $booking->update(['payment_ref' => $payment->payment_ref]);
+                }
             }
 
             // 8) Link schedule→booking & flip hold status
@@ -216,12 +230,18 @@ abstract class BookingTemplate
 
             // Attach any payment created during this transaction using the same idempotency key
             if (!empty($data['idempotency_key'])) {
-                Payment::query()
+                $payment = Payment::query()
                     ->whereNull('booking_id')
                     ->where('idempotency_key', $data['idempotency_key'])
                     ->latest('id')
-                    ->limit(1)
-                    ->update(['booking_id' => $booking->id]);
+                    ->first();
+                    
+                if ($payment) {
+                    $payment->update(['booking_id' => $booking->id]);
+                    
+                    // Also update the booking with the payment reference
+                    $booking->update(['payment_ref' => $payment->payment_ref]);
+                }
             }
 
             // 8) Link schedule→booking & flip hold status
