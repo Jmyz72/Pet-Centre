@@ -6,9 +6,14 @@ use App\Models\Booking;
 use App\Models\BookingHold;
 use App\Models\Schedule;
 use App\Models\Payment;
+use App\Models\User;
+use App\Notifications\BookingCreatedNotification;
+use App\Mail\BookingCreatedMail;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -286,7 +291,27 @@ abstract class BookingTemplate
      */
     protected function afterFinalised(Booking $booking, array $data): void
     {
-        // default: do nothing
+        \Log::info('BookingTemplate::afterFinalised called', ['booking_id' => $booking->id]);
+        
+        // Load the customer relationship for notification
+        $booking->load('customer');
+        
+        // Send notification to merchant (User model supports database + email notifications)
+        $merchant = User::find($booking->merchant_id);
+        if ($merchant) {
+            \Log::info('Sending BookingCreatedNotification to merchant', ['merchant_id' => $merchant->id, 'booking_id' => $booking->id]);
+            $merchant->notify(new BookingCreatedNotification($booking, 'merchant'));
+        } else {
+            \Log::warning('Merchant not found for booking', ['merchant_id' => $booking->merchant_id, 'booking_id' => $booking->id]);
+        }
+        
+        // Send notification to customer (User model supports database + email notifications)
+        if ($booking->customer) {
+            \Log::info('Sending BookingCreatedNotification to customer', ['customer_id' => $booking->customer->id, 'booking_id' => $booking->id]);
+            $booking->customer->notify(new BookingCreatedNotification($booking, 'customer'));
+        } else {
+            \Log::warning('Customer not found for booking', ['customer_id' => $booking->customer_id, 'booking_id' => $booking->id]);
+        }
     }
 
     /**
