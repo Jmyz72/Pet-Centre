@@ -22,20 +22,6 @@ class BookingController extends Controller
         return rtrim((string) config('services.internal_api.base', env('API_BASE_URL', 'http://127.0.0.1:8001/api')), '/');
     }
 
-    /**
-     * Show list of bookings for the logged-in customer.
-     */
-    public function index()
-    {
-        $bookings = Booking::where('customer_id', auth()->id())->latest()->get();
-
-        return view('bookings.index', compact('bookings'));
-    }
-
-    /**
-     * Show the booking form.
-     * Prefill merchant/service/package/pet if passed in query params.
-     */
     public function create(Request $request)
     {
         $merchants = MerchantProfile::all();
@@ -339,6 +325,45 @@ class BookingController extends Controller
         $date = CarbonImmutable::parse($data['date'])->startOfDay();
         $dow  = (int) $date->dayOfWeek; // 0=Sun…6=Sat
 
+        // ---- Occupancy from schedules (store/staff bookings) to gray-out full slots ----
+        $dayStart = $date->copy();                 // immutable start of day
+        $dayEnd   = $date->copy()->endOfDay();     // immutable end of day
+
+        // Pull all schedules overlapping this date for the merchant
+        $schedRows = \App\Models\Schedule::query()
+            ->where('merchant_id', $data['merchant_id'])
+            ->where('start_at', '<', $dayEnd->toDateTimeString())
+            ->where('end_at',   '>', $dayStart->toDateTimeString())
+            ->get(['staff_id','start_at','end_at']);
+
+        // Partition into store-level blocks (staff_id NULL) and per-staff blocks
+        $storeBlocksMin = [];             // [[sMin,eMin], ...]
+        $staffBlocksMin = [];             // [staff_id => [[sMin,eMin], ...]]
+        foreach ($schedRows as $row) {
+            $sCarbon = CarbonImmutable::parse($row->start_at);
+            $eCarbon = CarbonImmutable::parse($row->end_at);
+
+            // Clamp to this day’s [00:00, 24:00] window and convert to minutes since midnight
+            $sMin = ($sCarbon->isSameDay($date)) ? ($sCarbon->hour * 60 + $sCarbon->minute) : 0;
+            $eMin = ($eCarbon->isSameDay($date)) ? ($eCarbon->hour * 60 + $eCarbon->minute) : 24 * 60;
+            if ($eMin <= $sMin) { continue; } // ignore invalid/zero-length
+
+            if (is_null($row->staff_id)) {
+                $storeBlocksMin[] = [$sMin, $eMin];
+            } else {
+                $staffBlocksMin[$row->staff_id][] = [$sMin, $eMin];
+            }
+        }
+
+        // Merge overlapping blocks for simpler overlap checks
+        $storeBlocksMin = $this->mergeRanges($storeBlocksMin);
+        foreach ($staffBlocksMin as $sid => $ranges) {
+            $staffBlocksMin[$sid] = $this->mergeRanges($ranges);
+        }
+
+        // Staff table links to merchant by `merchant_id`
+        $totalStaffForMerchant = \App\Models\Staff::where('merchant_id', $data['merchant_id'])->count();
+
         // If the selected date is today, disable slots earlier than "now"
         $nowMinutes = null;
         $appNow = Carbon::now();
@@ -384,12 +409,43 @@ class BookingController extends Controller
             $minStart = is_null($minStart) ? $s : min($minStart, $s);
             $maxEnd   = is_null($maxEnd)   ? $e : max($maxEnd, $e);
             for ($t=$s; $t+$step <= $e; $t += $step) {
+                $slotStart = $date->copy()->addMinutes($t);
+                $slotEnd   = $slotStart->copy()->addMinutes($duration);
+
                 $okWindow = ($t + $duration) <= $e; // fits inside open window
                 $okNow    = is_null($nowMinutes) || $t >= $nowMinutes; // not in the past if today
-                $slotStart = $date->copy()->addMinutes($t);
                 $okLead   = $slotStart->greaterThanOrEqualTo($appNow->copy()->addMinutes($minLeadMinutes));
                 $okMax    = $slotStart->lessThanOrEqualTo($maxAllowed);
-                $ok = $okWindow && $okNow && $okLead && $okMax;
+
+                // ---- New: gray-out if schedules make this slot unavailable ----
+                $slotS = $t;
+                $slotE = $t + $duration;
+
+                // 1) If any store-level block overlaps, the slot is unavailable
+                $blockedByStore = false;
+                foreach ($storeBlocksMin as [$bs, $be]) {
+                    if ($this->rangesOverlap($slotS, $slotE, $bs, $be)) { $blockedByStore = true; break; }
+                }
+
+                // 2) If all staff are occupied for this interval, the slot is unavailable
+                $blockedByAllStaff = false;
+                if (!$blockedByStore && $totalStaffForMerchant > 0) {
+                    $busyCount = 0;
+                    foreach ($staffBlocksMin as $sid => $ranges) {
+                        // if any range for this staff overlaps, they are busy
+                        $isBusy = false;
+                        foreach ($ranges as [$bs,$be]) {
+                            if ($this->rangesOverlap($slotS, $slotE, $bs, $be)) { $isBusy = true; break; }
+                        }
+                        if ($isBusy) { $busyCount++; }
+                    }
+                    $blockedByAllStaff = ($busyCount >= $totalStaffForMerchant);
+                }
+
+                $okSchedules = !$blockedByStore && !$blockedByAllStaff;
+
+                $ok = $okWindow && $okNow && $okLead && $okMax && $okSchedules;
+
                 $slots[] = [
                     'time' => sprintf('%02d:%02d', intdiv($t,60), $t%60),
                     'ok'   => $ok,
@@ -453,6 +509,12 @@ class BookingController extends Controller
             foreach ($segments as $seg) $result[] = $seg;
         }
         return $this->mergeRanges($result);
+    }
+
+    private function rangesOverlap(int $s1, int $e1, int $s2, int $e2): bool
+    {
+        // true if [s1,e1) intersects [s2,e2)
+        return ($s1 < $e2) && ($s2 < $e1);
     }
 
     /**

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\MerchantApplicationController;
+use App\Http\Controllers\BookingPageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicMerchantController;
 use App\Http\Controllers\PublicBookingController;
@@ -55,6 +56,10 @@ Route::middleware('auth')->group(function () {
         return back();
     })->name('notifications.readAll');
 
+    Route::get('/debug-time', function () {
+    return now()->toDateTimeString();
+});
+
     // Customer Pets CRUD
     Route::get('/my-pets',            [CustomerPetController::class,'index'])->name('customer.pets.index');
     Route::get('/my-pets/create',     [CustomerPetController::class,'create'])->name('customer.pets.create');
@@ -69,10 +74,15 @@ Route::middleware('auth')->group(function () {
     ->name('bookings.available-slots');
     Route::get('/bookings/available-staff', [BookingController::class, 'availableStaff'])->name('bookings.available-staff'); // AJAX from the form
     Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.success');
-    Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
+
+    Route::get('/bookings', [BookingPageController::class, 'index'])
+        ->name('bookings.index');
+
+    Route::get('/bookings/{booking}', [BookingPageController::class, 'show'])
+    ->name('bookings.show');
 
     Route::get('/bookings/quote-price', [BookingController::class, 'quotePrice'])
-        ->name('bookings.quote-price');
+    ->name('bookings.quote-price');
     // routes/web.php
 
     Route::get('/payments/{payment}/redirect', [\App\Http\Controllers\PaymentController::class, 'redirect'])
@@ -85,6 +95,12 @@ Route::middleware('auth')->group(function () {
         ->name('payments.webhook');
 
     Route::get('/apitest', [ApiTestController::class, 'index'])->name('apitest.index');
+
+    Route::post('/bookings/{booking}/generate-release-code', [BookingPageController::class,'generateReleaseCode'])
+    ->middleware('auth')->name('bookings.generateReleaseCode');
+
+    Route::post('/bookings/{booking}/release', [BookingPageController::class,'releaseWithCode'])
+        ->middleware('auth')->name('bookings.release');
 
 });
 

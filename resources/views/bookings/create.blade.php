@@ -17,10 +17,6 @@
                 {{ ($context['merchant']->display_name ?? $context['merchant']->name ?? null) ?? 'Merchant #'.($prefill['merchant_id'] ?? request('merchant_id')) }}
             </p>
         </div>
-        <a href="{{ route('bookings.index') }}"
-           class="inline-flex items-center rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">
-            Back to My Bookings
-        </a>
     </div>
 
     {{-- Alerts --}}
@@ -196,17 +192,33 @@
                     });
                     const res = await fetch('{{ route('bookings.available-slots') }}?' + params.toString(), { headers: { 'Accept': 'application/json' }});
                     const json = await res.json();
+                    console.log('[available-slots][response]', json);
+                    if (!res.ok) {
+                        const msg = (json?.message || 'Failed to load slots.');
+                        gridEl.innerHTML = '<div class="col-span-full text-sm text-red-500">' + msg + '</div>';
+                        return;
+                    }
+                    if (json?.errors) {
+                        const errText = Object.values(json.errors).flat().join('<br>');
+                        gridEl.innerHTML = '<div class="col-span-full text-sm text-red-500">' + errText + '</div>';
+                        return;
+                    }
                     const step = json.step ?? STEP_FALLBACK;
                     const duration = json.duration ?? DURATION_MIN;
                     const hourStartEl = document.getElementById('hourStart');
                     const hourEndEl   = document.getElementById('hourEnd');
                     if (hourStartEl) hourStartEl.textContent = json?.hours?.start ?? '--:--';
                     if (hourEndEl)   hourEndEl.textContent   = json?.hours?.end   ?? '--:--';
+                    const slotsArr = Array.isArray(json.slots) ? json.slots : [];
                     if (json.is_closed_day) {
                         gridEl.innerHTML = '<div class="col-span-full text-sm text-gray-500">Store is closed on this day.</div>';
                         return;
                     }
-                    (json.slots || []).forEach(slot => {
+                    if (!slotsArr.length) {
+                        gridEl.innerHTML = '<div class="col-span-full text-sm text-gray-500">No available times for this day.</div>';
+                        return;
+                    }
+                    slotsArr.forEach(slot => {
                         const btn = document.createElement('button');
                         btn.type = 'button';
                         btn.textContent = slot.time;

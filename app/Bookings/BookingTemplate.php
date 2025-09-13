@@ -24,6 +24,96 @@ use Illuminate\Validation\ValidationException;
 abstract class BookingTemplate
 {
     /**
+     * Create a hold for the booking without finalising it.
+     *
+     * Runs steps 1–4: normalise, compute duration, compute amount, calc window,
+     * guard availability, then create and return the hold.
+     *
+     * @param array $data
+     * @return BookingHold
+     */
+    public function holdOnly(array $data): BookingHold
+    {
+        return DB::transaction(function () use ($data) {
+            // 1) Normalise & enrich context common to all bookings
+            $data = $this->normalise($data);
+
+            // 2) Let subclass provide duration (minutes) and price (amount)
+            $duration = $this->getDurationMinutes($data);
+            $amount   = $this->computeAmount($data);
+
+            [$start, $end] = $this->calcWindow($data['start_at'], $duration);
+
+            // 3) Guard rails: availability checks (subclasses can extend via hook)
+            $this->guardAvailability($data, $start, $end);
+            $this->afterGuardAvailability($data, $start, $end);
+
+            // 4) Create a hold to prevent race conditions
+            $hold = $this->createHold($data, $start, $end);
+
+            return $hold;
+        });
+    }
+
+    /**
+     * Finalise a booking from an existing hold.
+     *
+     * Runs steps 5–9: process payment, create booking, create schedule,
+     * attach payment via idempotency_key, update hold status to converted,
+     * run afterFinalised(), and return fresh booking.
+     *
+     * @param array $data
+     * @return Booking
+     */
+    public function finaliseFromHold(array $data): Booking
+    {
+        return DB::transaction(function () use ($data) {
+            // 1) Normalise & enrich context common to all bookings
+            $data = $this->normalise($data);
+
+            // 2) Let subclass provide duration (minutes) and price (amount)
+            $duration = $this->getDurationMinutes($data);
+            $amount   = $this->computeAmount($data);
+
+            [$start, $end] = $this->calcWindow($data['start_at'], $duration);
+
+            // Retrieve existing hold by idempotency_key or other identifier
+            $hold = BookingHold::query()
+                ->where('idempotency_key', $data['idempotency_key'])
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            // 5) Take payment (default: COD/no-op). Subclass may override.
+            $this->processPayment($hold, $amount, $data);
+
+            // 6) Persist final booking row (before schedule so booking_id is available)
+            $booking = $this->finaliseBooking($data, $start, $end, $amount);
+
+            // 7) Create schedule block (staff may be null for adoption) with non-null booking_id
+            $schedule = $this->createSchedule($data, $start, $end, $booking->id);
+
+            // Attach any payment created during this transaction using the same idempotency key
+            if (!empty($data['idempotency_key'])) {
+                Payment::query()
+                    ->whereNull('booking_id')
+                    ->where('idempotency_key', $data['idempotency_key'])
+                    ->latest('id')
+                    ->limit(1)
+                    ->update(['booking_id' => $booking->id]);
+            }
+
+            // 8) Link schedule→booking & flip hold status
+            // booking_id is already set on schedule, so no update here
+            $hold->update(['status' => \App\Models\BookingHold::STATUS_CONVERTED]);
+
+            // 9) Optional post-processing hook
+            $this->afterFinalised($booking, $data);
+
+            return $booking->fresh();
+        });
+    }
+
+    /**
      * Orchestrate the end‑to‑end booking transaction.
      *
      * @param  array  $data Normalised input:
