@@ -84,10 +84,10 @@
                 </label>
             </div>
 
-            {{-- FPX extra (optional) --}}
+            {{-- FPX extra (required) --}}
             <div id="fpxFields" class="mt-4">
-                <label class="block text-sm text-gray-700 mb-1">Select Bank</label>
-                <select name="bank" class="mt-1 block w-full rounded-xl border-gray-300 focus:border-pink-400 focus:ring-pink-400">
+                <label class="block text-sm text-gray-700 mb-1">Select Bank <span class="text-red-500">*</span></label>
+                <select name="bank" id="bank" class="mt-1 block w-full rounded-xl border-gray-300 focus:border-pink-400 focus:ring-pink-400" required>
                     <option value="">— Choose a bank —</option>
                     <option value="maybank">Maybank</option>
                     <option value="cimb">CIMB Bank</option>
@@ -100,22 +100,22 @@
                 </select>
             </div>
 
-            {{-- Card fields (mock) --}}
+            {{-- Card fields (all required) --}}
             <div id="cardFields" class="mt-4 hidden">
-                <label class="block text-sm text-gray-700 mb-1">Cardholder Name</label>
-                <input type="text" name="card_name" class="mt-1 block w-full rounded-xl border-gray-300 focus:border-pink-400 focus:ring-pink-400 placeholder-gray-400" placeholder="John Doe">
+                <label class="block text-sm text-gray-700 mb-1">Cardholder Name <span class="text-red-500">*</span></label>
+                <input type="text" name="card_name" id="card_name" class="mt-1 block w-full rounded-xl border-gray-300 focus:border-pink-400 focus:ring-pink-400 placeholder-gray-400" placeholder="John Doe" required>
 
-                <label class="block text-sm text-gray-700 mt-3 mb-1">Card Number</label>
-                <input type="text" name="card_number" class="mt-1 block w-full rounded-xl border-gray-300 focus:border-pink-400 focus:ring-pink-400 placeholder-gray-400" placeholder="4111 1111 1111 1111">
+                <label class="block text-sm text-gray-700 mt-3 mb-1">Card Number <span class="text-red-500">*</span></label>
+                <input type="text" name="card_number" id="card_number" class="mt-1 block w-full rounded-xl border-gray-300 focus:border-pink-400 focus:ring-pink-400 placeholder-gray-400" placeholder="4111 1111 1111 1111" required maxlength="19">
 
                 <div class="grid grid-cols-2 gap-4 mt-3">
                     <div>
-                        <label class="block text-sm text-gray-700 mb-1">Expiry Date</label>
-                        <input type="text" name="card_expiry" class="mt-1 block w-full rounded-xl border-gray-300 focus:border-pink-400 focus:ring-pink-400 placeholder-gray-400" placeholder="MM/YY">
+                        <label class="block text-sm text-gray-700 mb-1">Expiry Date <span class="text-red-500">*</span></label>
+                        <input type="text" name="card_expiry" id="card_expiry" class="mt-1 block w-full rounded-xl border-gray-300 focus:border-pink-400 focus:ring-pink-400 placeholder-gray-400" placeholder="MM/YY" required maxlength="5">
                     </div>
                     <div>
-                        <label class="block text-sm text-gray-700 mb-1">CCV</label>
-                        <input type="text" name="card_ccv" class="mt-1 block w-full rounded-xl border-gray-300 focus:border-pink-400 focus:ring-pink-400 placeholder-gray-400" placeholder="123">
+                        <label class="block text-sm text-gray-700 mb-1">CVV <span class="text-red-500">*</span></label>
+                        <input type="text" name="card_ccv" id="card_ccv" class="mt-1 block w-full rounded-xl border-gray-300 focus:border-pink-400 focus:ring-pink-400 placeholder-gray-400" placeholder="123" required maxlength="4">
                     </div>
                 </div>
             </div>
@@ -138,14 +138,144 @@
 </section>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const expiryInput = document.querySelector('input[name="card_expiry"]');
-    if (expiryInput) {
-        expiryInput.addEventListener('input', function (e) {
+    const fpxFields = document.getElementById('fpxFields');
+    const cardFields = document.getElementById('cardFields');
+    const bankSelect = document.getElementById('bank');
+    const cardName = document.getElementById('card_name');
+    const cardNumber = document.getElementById('card_number');
+    const cardExpiry = document.getElementById('card_expiry');
+    const cardCcv = document.getElementById('card_ccv');
+
+    // Handle payment method switching
+    function togglePaymentFields() {
+        const selectedMethod = document.querySelector('input[name="payment_method"]:checked')?.value || 'fpx';
+        
+        if (selectedMethod === 'card') {
+            // Show card fields and make them required
+            cardFields.classList.remove('hidden');
+            fpxFields.classList.add('hidden');
+            
+            // Make card fields required
+            if (cardName) cardName.required = true;
+            if (cardNumber) cardNumber.required = true;
+            if (cardExpiry) cardExpiry.required = true;
+            if (cardCcv) cardCcv.required = true;
+            
+            // Make bank field optional
+            if (bankSelect) bankSelect.required = false;
+        } else {
+            // Show FPX fields and make bank required
+            fpxFields.classList.remove('hidden');
+            cardFields.classList.add('hidden');
+            
+            // Make card fields optional
+            if (cardName) cardName.required = false;
+            if (cardNumber) cardNumber.required = false;
+            if (cardExpiry) cardExpiry.required = false;
+            if (cardCcv) cardCcv.required = false;
+            
+            // Make bank field required
+            if (bankSelect) bankSelect.required = true;
+        }
+    }
+
+    // Listen to payment method changes
+    const paymentRadios = document.querySelectorAll('input[name="payment_method"]');
+    paymentRadios.forEach(radio => {
+        radio.addEventListener('change', togglePaymentFields);
+    });
+
+    // Initialize on page load
+    togglePaymentFields();
+
+    // Card number formatting
+    if (cardNumber) {
+        cardNumber.addEventListener('input', function (e) {
+            let val = e.target.value.replace(/[^0-9]/g, '');
+            val = val.replace(/(.{4})/g, '$1 ').trim();
+            if (val.length > 19) val = val.substring(0, 19);
+            e.target.value = val;
+        });
+    }
+
+    // Expiry date formatting
+    if (cardExpiry) {
+        cardExpiry.addEventListener('input', function (e) {
             let val = e.target.value.replace(/[^0-9]/g, '');
             if (val.length >= 3) {
                 val = val.substring(0,2) + '/' + val.substring(2,4);
             }
             e.target.value = val;
+        });
+    }
+
+    // CVV numeric only
+    if (cardCcv) {
+        cardCcv.addEventListener('input', function (e) {
+            e.target.value = e.target.value.replace(/[^0-9]/g, '');
+        });
+    }
+
+    // Form validation before submit
+    const form = document.querySelector('form[action*="bookings.store"]');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const startAt = document.getElementById('start_at');
+            const staffId = document.getElementById('staff_id');
+            const selectedMethod = document.querySelector('input[name="payment_method"]:checked')?.value;
+
+            // Check if schedule is selected
+            if (!startAt || !startAt.value) {
+                e.preventDefault();
+                alert('Please select a date and time for your booking.');
+                return false;
+            }
+
+            // Check if staff is selected for service/package bookings
+            if (staffId && staffId.hasAttribute('required') && !staffId.value) {
+                e.preventDefault();
+                alert('Please select an available staff member.');
+                return false;
+            }
+
+            // Validate payment fields based on selected method
+            if (selectedMethod === 'card') {
+                if (!cardName?.value || !cardNumber?.value || !cardExpiry?.value || !cardCcv?.value) {
+                    e.preventDefault();
+                    alert('Please fill in all credit card details.');
+                    return false;
+                }
+
+                // Basic card validation
+                const cardNum = cardNumber.value.replace(/\s/g, '');
+                if (cardNum.length < 13 || cardNum.length > 19) {
+                    e.preventDefault();
+                    alert('Please enter a valid card number.');
+                    return false;
+                }
+
+                // Expiry validation
+                const expiry = cardExpiry.value;
+                if (!/^\d{2}\/\d{2}$/.test(expiry)) {
+                    e.preventDefault();
+                    alert('Please enter a valid expiry date (MM/YY).');
+                    return false;
+                }
+
+                // CVV validation
+                if (cardCcv.value.length < 3 || cardCcv.value.length > 4) {
+                    e.preventDefault();
+                    alert('Please enter a valid CVV (3-4 digits).');
+                    return false;
+                }
+            } else {
+                // FPX validation
+                if (!bankSelect?.value) {
+                    e.preventDefault();
+                    alert('Please select a bank for online banking payment.');
+                    return false;
+                }
+            }
         });
     }
 });
