@@ -1,5 +1,7 @@
 {{-- Price & Payment --}}
 @php
+    use Illuminate\Support\Facades\DB;
+    
     $currency = 'RM';
     $displayPrice = null;
     $priceNote = null;
@@ -7,8 +9,52 @@
     if ($bookingType === 'service' && !empty($context['service'])) {
         $displayPrice = $context['service']->price ?? 0;
     } elseif ($bookingType === 'package' && !empty($context['package'])) {
-        $displayPrice = $context['package']->price ?? 0;
-        $priceNote = 'Final price may vary based on your pet (type/size/breed).';
+        $basePrice = $context['package']->price ?? 0;
+        $displayPrice = $basePrice;
+        
+        // If we have a selected pet, calculate the variation price
+        if (!empty($selectedPet)) {
+            $petTypeId = $selectedPet['pet_type_id'] ?? null;
+            $sizeId = $selectedPet['size_id'] ?? null;
+            $breedId = $selectedPet['pet_breed_id'] ?? $selectedPet['breed_id'] ?? null;
+            
+            if ($petTypeId) {
+                // Find pivot records for this package + pet type
+                $pivotIds = DB::table('package_pet_types')
+                    ->where('package_id', $context['package']->id)
+                    ->where('pet_type_id', $petTypeId)
+                    ->pluck('id');
+                
+                if ($pivotIds->isNotEmpty()) {
+                    // Get active variations for this package + pet type
+                    $variations = \App\Models\PackageVariation::query()
+                        ->where('package_id', $context['package']->id)
+                        ->whereIn('package_pet_type_id', $pivotIds)
+                        ->where('is_active', 1)
+                        ->get();
+                    
+                    if ($variations->isNotEmpty()) {
+                        // Choose the most specific match: breed > size > fallback
+                        $chosen = null;
+                        if ($breedId) {
+                            $chosen = $variations->firstWhere('package_breed_id', $breedId);
+                        }
+                        if (!$chosen && $sizeId) {
+                            $chosen = $variations->firstWhere('package_size_id', $sizeId);
+                        }
+                        if (!$chosen) {
+                            $chosen = $variations->first();
+                        }
+                        
+                        if ($chosen) {
+                            $displayPrice = (float) $chosen->price;
+                        }
+                    }
+                }
+            }
+        }
+        
+        $priceNote = 'Price calculated based on your selected pet.';
     } elseif ($bookingType === 'adoption' && !empty($context['pet'])) {
         $displayPrice = $context['pet']->adoption_fee ?? 0;
     }

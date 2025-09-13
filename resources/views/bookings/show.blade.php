@@ -101,15 +101,22 @@
 
         <!-- Release Code (Customer action) -->
         @php($isCustomerOwner = (int) auth()->id() === (int) $booking->customer_id)
-        @if($isCustomerOwner)
+        @if($isCustomerOwner && isset($booking->meta['release_code']))
         <div class="bg-white rounded-lg shadow p-5 md:col-span-2">
             <h2 class="text-sm font-semibold text-gray-600 mb-3">Release Code</h2>
-            <p class="text-sm text-gray-600 mb-3">Generate a one-time code and share it with the merchant to complete your booking and release the payment.</p>
-            <div id="alert-box" class="hidden mb-3 p-3 rounded-md"></div>
-            <div class="flex items-center gap-3">
-                <button id="btn-generate-code" class="rounded-md bg-indigo-600 text-white px-4 py-2 text-sm hover:bg-indigo-700 disabled:opacity-50">Generate Code</button>
-                <div id="code-box" class="hidden text-lg font-mono tracking-widest bg-green-50 text-green-800 ring-1 ring-green-300 rounded px-3 py-1">— — — — — —</div>
-                <div id="code-exp" class="hidden text-xs text-gray-500"></div>
+            <p class="text-sm text-gray-600 mb-3">Share this code with the merchant when your service is completed to release the payment.</p>
+            
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="text-lg font-mono tracking-widest text-yellow-900 font-bold">{{ $booking->meta['release_code'] }}</div>
+                        <div class="text-xs text-yellow-700 mt-1">Give this code to the merchant</div>
+                    </div>
+                    <button onclick="copyToClipboard('{{ $booking->meta['release_code'] }}')" 
+                            class="px-3 py-2 bg-yellow-600 hover:bg-yellow-700 text-white text-sm rounded-lg transition-colors">
+                        Copy
+                    </button>
+                </div>
             </div>
         </div>
         @endif
@@ -117,58 +124,24 @@
     </div>
 </div>
 <script>
-// Generate Release Code (Customer)
-(function() {
-    const btn = document.getElementById('btn-generate-code');
-    if (!btn) return;
-    
-    const codeBox = document.getElementById('code-box');
-    const codeExp = document.getElementById('code-exp');
-    const alertBox = document.getElementById('alert-box');
-
-    function showAlert(message, type = 'info') {
-        alertBox.textContent = message;
-        alertBox.className = `mb-3 p-3 rounded-md ${type === 'success' ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'}`;
-        alertBox.classList.remove('hidden');
-    }
-
-    btn.addEventListener('click', async function() {
-        btn.disabled = true; 
-        btn.textContent = 'Generating...';
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(function() {
+        // Show success feedback
+        const button = event.target.closest('button');
+        const originalText = button.innerHTML;
+        button.innerHTML = 'Copied!';
+        button.classList.remove('bg-yellow-600', 'hover:bg-yellow-700');
+        button.classList.add('bg-green-600', 'hover:bg-green-700');
         
-        try {
-            const res = await fetch('/api/bookings/{{ $booking->id }}/release-code', {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
-            });
-            
-            const data = await res.json();
-            
-            if (data.success) {
-                codeBox.textContent = data.code;
-                codeBox.classList.remove('hidden');
-                
-                if (data.expires_at) {
-                    codeExp.textContent = 'Expires: ' + new Date(data.expires_at).toLocaleString();
-                    codeExp.classList.remove('hidden');
-                }
-                
-                showAlert(data.message, 'success');
-            } else {
-                showAlert(data.message || 'Failed to generate code');
-            }
-        } catch (e) {
-            showAlert('Error: ' + e.message);
-        } finally {
-            btn.disabled = false; 
-            btn.textContent = 'Generate Code';
-        }
+        setTimeout(() => {
+            button.innerHTML = originalText;
+            button.classList.remove('bg-green-600', 'hover:bg-green-700');
+            button.classList.add('bg-yellow-600', 'hover:bg-yellow-700');
+        }, 2000);
+    }).catch(function(err) {
+        console.error('Failed to copy text: ', err);
+        alert('Failed to copy code. Please copy manually: ' + text);
     });
-})();
-
+}
 </script>
 @endsection

@@ -30,7 +30,7 @@
         </div>
     @endif
 
-    <form method="POST" action="{{ route('bookings.success') }}" class="space-y-8">
+    <form method="POST" action="{{ route('bookings.store') }}" class="space-y-8">
         @csrf
 
         {{-- Hidden enforced context (user cannot change) --}}
@@ -48,15 +48,13 @@
         @if($bookingType === 'adoption')
             <input type="hidden" name="pet_id" id="pet_id" value="{{ $prefill['pet_id'] ?? request('pet_id') }}">
         @endif
-        <input type="hidden" name="pet_type_id" id="pet_type_id">
-        <input type="hidden" name="size_id" id="size_id">
-        <input type="hidden" name="breed_id" id="breed_id">
+        <input type="hidden" name="customer_pet_id" value="{{ request('customer_pet_id') }}">
+        <input type="hidden" name="pet_type_id" id="pet_type_id" value="{{ $dg($selectedPet, 'pet_type_id') }}">
+        <input type="hidden" name="size_id" id="size_id" value="{{ $dg($selectedPet, 'size_id') }}">
+        <input type="hidden" name="breed_id" id="breed_id" value="{{ $dg($selectedPet, 'pet_breed_id') ?? $dg($selectedPet, 'breed_id') }}">
 
         {{-- Context Summary --}}
         @include('bookings.partials._summary')
-
-        {{-- Pet picker --}}
-        @include('bookings.partials._pet_picker')
 
         {{-- Schedule --}}
         @include('bookings.partials._schedule')
@@ -93,7 +91,7 @@
 
             async function quoteLivePrice() {
                 const ids = getIds();
-                console.log('[quoteLivePrice]', {
+                const petData = {
                     type: bookingType,
                     service_id: ids.serviceId,
                     package_id: ids.packageId,
@@ -102,7 +100,8 @@
                     pet_type_id: document.getElementById('pet_type_id')?.value,
                     size_id: document.getElementById('size_id')?.value,
                     breed_id: document.getElementById('breed_id')?.value
-                });
+                };
+                console.log('[quoteLivePrice] Sending data:', petData);
                 try {
                     const ids2 = getIds();
                     const params = new URLSearchParams({
@@ -118,9 +117,13 @@
                     const res = await fetch(quoteUrl + '?' + params.toString(), { headers: { 'Accept': 'application/json' }});
                     const json = await res.json();
                     console.log('[quoteLivePrice][response]', json);
+                    console.log('[quoteLivePrice][current amount element]', document.querySelector('[data-amount-text]')?.textContent);
                     const amountEl = document.querySelector('[data-amount-text]');
                     if (json?.ok && amountEl) {
+                        console.log('[quoteLivePrice][updating amount]', 'RM ' + json.amount_formatted);
                         amountEl.textContent = 'RM ' + json.amount_formatted;
+                    } else {
+                        console.error('[quoteLivePrice][failed]', { jsonOk: json?.ok, amountEl: !!amountEl, json });
                     }
                 } catch (e) {
                     console.error('quote price failed', e);
@@ -130,9 +133,20 @@
             // expose for highlightPet() to call
             window.quoteLivePrice = quoteLivePrice;
 
-            // If page already has a selected pet (back button), refresh price once.
+            // If page already has a selected pet, refresh price once on load
             document.addEventListener('DOMContentLoaded', () => {
-                quoteLivePrice();
+                console.log('[DOMContentLoaded] Hidden input values:', {
+                    customer_pet_id: document.getElementById('customer_pet_id')?.value,
+                    pet_type_id: document.getElementById('pet_type_id')?.value,
+                    size_id: document.getElementById('size_id')?.value,
+                    breed_id: document.getElementById('breed_id')?.value
+                });
+                
+                // Always refresh price on load (especially for package variations)
+                setTimeout(() => {
+                    quoteLivePrice();
+                }, 100);
+                
                 const cp = document.getElementById('customer_pet_id');
                 if (cp) cp.addEventListener('change', quoteLivePrice);
             });

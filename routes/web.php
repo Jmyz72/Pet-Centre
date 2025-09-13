@@ -8,7 +8,6 @@ use App\Http\Controllers\PublicBookingController;
 use App\Http\Controllers\CustomerPetController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ApiTestController; 
-use App\Http\Controllers\Api\BookingReleaseController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -70,11 +69,15 @@ Route::middleware('auth')->group(function () {
     Route::delete('/my-pets/{pet}',   [CustomerPetController::class,'destroy'])->name('customer.pets.destroy');
 
     // Booking (web) presentation routes
+    Route::get('/bookings/select-pet', [BookingController::class, 'selectPet'])->name('bookings.select-pet');
     Route::get('/bookings/create', [BookingController::class, 'create'])->name('bookings.create');
     Route::get('/bookings/available-slots', [BookingController::class, 'availableSlots'])
     ->name('bookings.available-slots');
     Route::get('/bookings/available-staff', [BookingController::class, 'availableStaff'])->name('bookings.available-staff'); // AJAX from the form
-    Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.success');
+    Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
+    Route::get('/bookings/bank-auth', [BookingController::class, 'bankAuth'])->name('bookings.bank-auth');
+    Route::post('/bookings/complete', [BookingController::class, 'complete'])->name('bookings.complete');
+    Route::get('/bookings/{booking}/success', [BookingController::class, 'success'])->name('bookings.success');
 
     Route::get('/bookings', [BookingPageController::class, 'index'])
         ->name('bookings.index');

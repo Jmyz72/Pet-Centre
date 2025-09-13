@@ -22,8 +22,56 @@ class BookingController extends Controller
         return rtrim((string) config('services.internal_api.base', env('API_BASE_URL', 'http://127.0.0.1:8001/api')), '/');
     }
 
+    public function selectPet(Request $request)
+    {
+        $api = $this->apiBase();
+        $petsResp = Http::acceptJson()
+            ->timeout(5)
+            ->connectTimeout(2)
+            ->get("{$api}/customers/" . auth()->id() . "/pets", ['limit' => 100]);
+
+        // Normalize pet data
+        $pets = collect($petsResp->json('data') ?? [])->map(function ($p) {
+            $p['type_name']  = $p['type_name']  ?? $p['pet_type_name'] ?? null;
+            $p['size_name']  = $p['size_label'] ?? $p['size_name']     ?? null;
+            $p['breed_name'] = $p['breed_name'] ?? null;
+
+            if ($p['type_name'] === null && !empty($p['pet_type_id'])) {
+                $p['type_name'] = DB::table('pet_types')->where('id', $p['pet_type_id'])->value('name');
+            }
+            if ($p['size_name'] === null && !empty($p['size_id'])) {
+                $p['size_name'] = DB::table('sizes')->where('id', $p['size_id'])->value('label');
+            }
+            if ($p['breed_name'] === null && (!empty($p['pet_breed_id']) || !empty($p['breed_id']))) {
+                $breedId = $p['pet_breed_id'] ?? $p['breed_id'];
+                $p['breed_name'] = DB::table('pet_breeds')->where('id', $breedId)->value('name');
+            }
+
+            if (!empty($p['photo_url'])) {
+                // keep as is
+            } elseif (!empty($p['photo_path'])) {
+                $p['photo_url'] = asset('storage/' . ltrim($p['photo_path'], '/'));
+            }
+            return $p;
+        });
+
+        // Build continue URL with existing query parameters
+        $continueUrl = route('bookings.create') . '?' . http_build_query($request->query());
+
+        return view('bookings.select-pet', compact('pets', 'continueUrl'));
+    }
+
     public function create(Request $request)
     {
+        // For service and package bookings, require customer_pet_id (adoption doesn't need it)
+        $bookingType = 'service';
+        if ($request->filled('package_id')) { $bookingType = 'package'; }
+        if ($request->filled('pet_id'))     { $bookingType = 'adoption'; }
+
+        if (in_array($bookingType, ['service', 'package']) && !$request->filled('customer_pet_id')) {
+            return redirect()->route('bookings.select-pet', $request->query());
+        }
+
         $merchants = MerchantProfile::all();
         $api = $this->apiBase();
         $petsResp = Http::acceptJson()
@@ -114,7 +162,30 @@ class BookingController extends Controller
             'pet'      => $pet,
         ];
 
-        return view('bookings.create', compact('merchants', 'pets', 'prefill', 'context', 'eligibleStaff'));
+        // Get selected customer pet data for hidden fields and validate package requirements
+        $selectedPet = null;
+        if ($request->filled('customer_pet_id')) {
+            $selectedPet = $pets->firstWhere('id', $request->integer('customer_pet_id'));
+            
+            // For package bookings, validate that the pet meets package requirements
+            if ($bookingType === 'package' && $package && $selectedPet) {
+                $petTypeId = $selectedPet['pet_type_id'] ?? null;
+                
+                if ($petTypeId) {
+                    $packageSupportsType = DB::table('package_pet_types')
+                        ->where('package_id', $package->id)
+                        ->where('pet_type_id', $petTypeId)
+                        ->exists();
+                    
+                    if (!$packageSupportsType) {
+                        return redirect()->route('bookings.select-pet', $request->query())
+                            ->with('error', 'This package does not support your selected pet type. Please choose a different pet.');
+                    }
+                }
+            }
+        }
+
+        return view('bookings.create', compact('merchants', 'pets', 'prefill', 'context', 'eligibleStaff', 'selectedPet'));
     }
 
     public function store(Request $request)
@@ -191,11 +262,60 @@ class BookingController extends Controller
         $data['customer_id']  = auth()->id();
         $data['idempotency_key'] = bin2hex(random_bytes(16));
 
-        // ---------- Use Template Method via BookingFactory ----------
-        $booking = \App\Bookings\BookingFactory::make($data['booking_type'])->process($data);
+        // ---------- Split booking process: Hold first, then bank auth ----------
+        $hold = \App\Bookings\BookingFactory::make($data['booking_type'])->holdOnly($data);
 
-        return view('bookings.sucess', compact('booking'));
+        return redirect()->route('bookings.bank-auth', [
+            'hold_id' => $hold->id,
+            'idempotency_key' => $data['idempotency_key']
+        ]);
     }
+
+    public function bankAuth(Request $request)
+    {
+        $holdId = $request->query('hold_id');
+        $idempotencyKey = $request->query('idempotency_key');
+        
+        $hold = BookingHold::findOrFail($holdId);
+        
+        // Verify ownership
+        if ($hold->customer_id !== auth()->id()) {
+            abort(403, 'Unauthorized access to booking hold');
+        }
+
+        return view('bookings.bank-auth', compact('hold', 'idempotencyKey'));
+    }
+
+    public function complete(Request $request)
+    {
+        $request->validate([
+            'hold_id' => 'required|exists:booking_holds,id',
+            'idempotency_key' => 'required|string',
+        ]);
+
+        $hold = BookingHold::findOrFail($request->hold_id);
+        
+        // Verify ownership
+        if ($hold->customer_id !== auth()->id()) {
+            abort(403, 'Unauthorized access to booking hold');
+        }
+
+        // Complete the booking using the hold data
+        $booking = \App\Bookings\BookingFactory::make($hold->booking_type)->completeFromHold($hold);
+
+        return redirect()->route('bookings.success', ['booking' => $booking->id]);
+    }
+
+    public function success(Booking $booking)
+    {
+        // Verify ownership
+        if ($booking->customer_id !== auth()->id()) {
+            abort(403, 'Unauthorized access to booking');
+        }
+
+        return view('bookings.success', compact('booking'));
+    }
+
     /**
      * AJAX: Quote live price for service/package/adoption without writing to DB.
     * Consumed by bookings/create.blade.js via GET /bookings/quote-price.
@@ -226,6 +346,7 @@ class BookingController extends Controller
             }
         }
   
+
         $amount = 0.0;
         switch ($data['type']) {
             case 'service':
