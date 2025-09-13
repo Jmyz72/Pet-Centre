@@ -31,7 +31,7 @@ class MerchantPanelProvider extends PanelProvider
             ->discoverResources(in: app_path('Filament/Merchant/Resources'), for: 'App\\Filament\\Merchant\\Resources')
             ->discoverPages(in: app_path('Filament/Merchant/Pages'), for: 'App\\Filament\\Merchant\\Pages')
             ->pages([
-                Pages\Dashboard::class,
+                \App\Filament\Merchant\Pages\Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Merchant/Widgets'), for: 'App\\Filament\\Merchant\\Widgets')
             ->widgets([

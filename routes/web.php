@@ -7,7 +7,7 @@ use App\Http\Controllers\PublicMerchantController;
 use App\Http\Controllers\PublicBookingController;
 use App\Http\Controllers\CustomerPetController;
 use App\Http\Controllers\BookingController;
-use App\Http\Controllers\ApiTestController; 
+use App\Http\Controllers\ApiTestController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -29,6 +29,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/apply-merchant/form', [MerchantApplicationController::class, 'showForm'])->name('merchant.apply.form');
     Route::post('/apply-merchant/store', [MerchantApplicationController::class, 'submit'])->name('merchant.apply.submit');
     Route::get('/apply-merchant/submitted', [MerchantApplicationController::class, 'showSubmitted'])->name('merchant.application.submitted');
+
 
     Route::get('/notifications', function () {
         $user = auth()->user();

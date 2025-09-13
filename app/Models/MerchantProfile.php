@@ -50,6 +50,11 @@ class MerchantProfile extends Model
         return $this->hasMany(Package::class, 'merchant_id');
     }
 
+    public function bookings(): HasMany
+    {
+        return $this->hasMany(Booking::class, 'merchant_id');
+    }
+
     public function wallet()
     {
         return $this->hasOne(MerchantWallet::class, 'merchant_id');
