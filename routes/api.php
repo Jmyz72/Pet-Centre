@@ -16,3 +16,13 @@ Route::get('/contact/messages', [ContactController::class, 'index'])->middleware
 Route::get('/contact/messages/{id}', [ContactController::class, 'show'])->middleware('auth:sanctum');
 Route::put('/contact/messages/{id}/status', [ContactController::class, 'updateStatus'])->middleware('auth:sanctum');
 Route::delete('/contact/messages/{id}', [ContactController::class, 'destroy'])->middleware('auth:sanctum');
+
+Route::middleware(['auth'])->prefix('merchant')->group(function () {
+    // Dashboard endpoints
+    Route::get('/dashboard/overview', [MerchantDashboardController::class, 'overview']);
+    Route::get('/bookings/recent', [MerchantDashboardController::class, 'recentBookings']);
+    Route::get('/revenue/analytics', [MerchantDashboardController::class, 'revenueAnalytics']);
+    Route::get('/wallet/summary', [MerchantDashboardController::class, 'walletSummary']);
+    Route::get('/staff/performance', [MerchantDashboardController::class, 'staffPerformance']);
+    Route::get('/bookings/stats', [MerchantDashboardController::class, 'bookingStats']);
+});
