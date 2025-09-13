@@ -4,11 +4,15 @@ namespace App\Filament\Merchant\Pages;
 
 use App\Models\Message;
 use App\Models\User;
+use App\Events\MessageSent;
 use Filament\Forms;
 use Filament\Forms\Components\FileUpload;
+use App\Interfaces\ChatRepositoryInterface; 
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
+use App\Rules\VirusScan; // <-- IMPORT THE NEW RULE
+use Illuminate\Support\Facades\Validator; // <-- Import Validator
 use Filament\Pages\Page;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Collection;
@@ -102,7 +106,7 @@ class MerchantChat extends Page implements HasForms
         $this->loadMessages();
     }
 
-    public function sendMessage(): void
+    public function sendMessage(ChatRepositoryInterface $chatRepository): void
     {
         $merchant = auth()->user();
         $customerId = $this->selectedCustomerId;
@@ -118,11 +122,31 @@ class MerchantChat extends Page implements HasForms
         $messageText = Arr::get($this->data, 'message');
         $file = Arr::get($this->data, 'file');
 
-        $filePath = null;
         if ($file) {
-            $filePath = $file->store('chat_files', 'public');
+            $validator = Validator::make(['file_upload' => $file], [
+                'file_upload' => [
+                    'required',
+                    'file',
+                    'max:5120',
+                    'mimetypes:image/jpeg,image/png,application/pdf', // Use the secure rule
+                    new VirusScan(),
+                ]
+            ]);
+
+            if ($validator->fails()) {
+                Notification::make()
+                    ->title('Upload Failed')
+                    ->danger()
+                    ->body($validator->errors()->first()) // Show the error from the rule
+                    ->send();
+                
+                $this->data['file'] = null; // Clear the invalid file
+                return;
+            }
         }
 
+        $filePath = $file ? $file->store('chat_files', 'public') : null;
+        
         if (empty($messageText) && !$filePath) {
             return;
         }
@@ -133,6 +157,7 @@ class MerchantChat extends Page implements HasForms
             'message'     => $messageText ?? '',
             'image_path'  => $filePath,
         ]);
+
 
         $this->data = [];
         $this->loadMessages();

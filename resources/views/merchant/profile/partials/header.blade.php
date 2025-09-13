@@ -41,5 +41,24 @@
                 @endif
             </div>
         </div>
+
+        {{-- --- NEW CHAT BUTTON --- --}}
+        {{-- It's placed inside the main relative container but outside the flex content --}}
+        {{-- Assumes the $profile object has a `user_id` property linking to the user model --}}
+        <div class="absolute top-6 right-6">
+            <a href="{{ route('chat.index', $profile->user_id) }}" 
+            class="inline-flex items-center gap-2 rounded-full bg-white/20 px-5 py-2.5 text-sm font-semibold text-white
+                    shadow-md backdrop-blur-sm transition hover:bg-white/30 focus:outline-none focus:ring-2 
+                    focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900">
+                
+                {{-- Chat Icon --}}
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M2 5a2 2 0 012-2h12a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm1.5 1a.5.5 0 000 1h8a.5.5 0 000-1h-8zm0 3a.5.5 0 000 1h5a.5.5 0 000-1h-5z"></path>
+                    <path d="M2 12.5a.5.5 0 01.5-.5h4a.5.5 0 010 1h-4a.5.5 0 01-.5-.5z"></path>
+                </svg>
+
+                <span>Chat with Merchant</span>
+            </a>
+        </div>
     </div>
 </div>

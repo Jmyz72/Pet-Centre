@@ -7,6 +7,7 @@ use App\Http\Controllers\PublicBookingController;
 use App\Http\Controllers\CustomerPetController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ApiTestController; 
+use App\Http\Controllers\ChatController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -31,7 +32,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/apply-merchant/submitted', [MerchantApplicationController::class, 'showSubmitted'])->name('merchant.application.submitted');
 
     /* Chat Route Method */
-    Route::get('/chat/{receiverId}', [ChatController::class, 'index'])->name('chat.index');
+    Route::get('/chat/{receiverId?}', [ChatController::class, 'index'])->name('chat.index');
     Route::delete('/chat/{partnerId}', [ChatController::class, 'deleteChat'])->name('chat.delete');
     Route::post('/chat/send', [ChatController::class, 'send'])->name('chat.send');
     Route::put('/chat/message/{id}', [ChatController::class, 'update'])->name('chat.update');
