@@ -270,9 +270,8 @@
                 <div class="policy-card">
                     <p class="text-gray-600">If you have any questions about this Privacy Policy, please contact us:</p>
                     <ul class="list-none pl-0 mt-2 text-gray-600">
-                        <li class="mb-2"><i class="fas fa-envelope text-blue-600 mr-2"></i> privacy@petcentre.com</li>
-                        <li class="mb-2"><i class="fas fa-phone text-blue-600 mr-2"></i> +1 (555) 123-PRIVACY</li>
-                        <li><i class="fas fa-map-marker-alt text-blue-600 mr-2"></i> 123 Pet Street, Animal City, AC 12345</li>
+                        <li class="mb-2"><i class="fas fa-envelope text-blue-600 mr-2"></i>privacy@petcentre.com</li>
+                        <li class="mb-2"><i class="fas fa-phone text-blue-600 mr-2"></i> +60 12 345 6789</li>
                     </ul>
                 </div>
             </div>
