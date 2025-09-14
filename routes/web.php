@@ -4,6 +4,7 @@ use App\Http\Controllers\MerchantApplicationController;
 use App\Http\Controllers\BookingPageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicMerchantController;
+use App\Http\Controllers\HomeController;
 
 use App\Http\Controllers\ContactController; // Add this line
 
@@ -14,9 +15,7 @@ use App\Http\Controllers\ApiTestController;
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::get('/dashboard', function () {
     return redirect('/');

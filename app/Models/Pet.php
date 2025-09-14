@@ -47,6 +47,11 @@ class Pet extends Model
         return $this->belongsTo(Size::class);
     }
 
+    public function merchantProfile()
+    {
+        return $this->belongsTo(MerchantProfile::class, 'merchant_id');
+    }
+
     /**
      * Check if pet is available for adoption
      */
