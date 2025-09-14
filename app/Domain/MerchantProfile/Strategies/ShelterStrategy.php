@@ -13,12 +13,14 @@ class ShelterStrategy implements MerchantRoleStrategy
         $p->loadCount(['pets']);
 
         // 2) Main dataset (unified style: build directly from relation)
+        // Only show available pets to customers
         $pets = $p->pets()
             ->select([
                 'id', 'merchant_id', 'name', 'status', 'created_at',
                 'image', 'sex', 'date_of_birth', 'size_id', 'pet_breed_id',
                 'weight_kg', 'vaccinated', 'description', 'adoption_fee', 'adopted_at',
             ])
+            ->where('status', \App\Models\Pet::STATUS_AVAILABLE)
             ->with(['petType', 'petBreed', 'size'])
             ->latest('created_at')
             ->paginate(12)

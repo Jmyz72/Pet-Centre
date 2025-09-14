@@ -41,24 +41,22 @@ class PlatformWalletTransactionResource extends Resource
                     ->copyable()
                     ->searchable()
                     ->limit(8),
-                Tables\Columns\TextColumn::make('wallet.wallet_type')
+                Tables\Columns\TextColumn::make('wallet_type')
                     ->label('Wallet Type')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
-                        'transaction_fees' => 'info',
-                        'platform_fees' => 'success',
+                        'App\Models\PlatformWallet' => 'info',
                         default => 'gray',
                     })
                     ->formatStateUsing(fn (string $state): string => match ($state) {
-                        'transaction_fees' => 'Transaction Fees',
-                        'platform_fees' => 'Platform Fees',
-                        default => ucfirst($state),
+                        'App\Models\PlatformWallet' => 'Platform Wallet',
+                        default => class_basename($state),
                     }),
                 Tables\Columns\TextColumn::make('booking.id')
                     ->label('Booking')
                     ->prefix('#')
-                    ->url(fn (WalletTransaction $record) => $record->booking 
-                        ? route('filament.admin.resources.bookings.view', $record->booking)
+                    ->url(fn (WalletTransaction $record) => $record->booking
+                        ? route('filament.admin.resources.bookings.edit', $record->booking)
                         : null)
                     ->color('primary'),
                 Tables\Columns\TextColumn::make('type')
@@ -95,11 +93,9 @@ class PlatformWalletTransactionResource extends Resource
                     ->sortable(),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('wallet.wallet_type')
-                    ->relationship('wallet', 'wallet_type')
+                Tables\Filters\SelectFilter::make('wallet_type')
                     ->options([
-                        'transaction_fees' => 'Transaction Fees',
-                        'platform_fees' => 'Platform Fees',
+                        'App\Models\PlatformWallet' => 'Platform Wallet',
                     ])
                     ->label('Wallet Type'),
                 Tables\Filters\SelectFilter::make('status')
