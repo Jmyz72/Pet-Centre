@@ -7,56 +7,45 @@ use Illuminate\Database\Eloquent\Model;
 class Pet extends Model
 {
     protected $fillable = [
-        'merchant_id',
+        'name',
         'pet_type_id',
         'pet_breed_id',
-        'date_of_birth',
-        'name',
-        'weight_kg',
-        'sex',
-        'status',
-        'adoption_fee',
-        'adopted_at',
-        'image',
-        'description',
         'size_id',
-        'vaccinated'
+        'sex',
+        'age_months',
+        'photo_path',
+        'status',
     ];
 
-    public function petType()
+    public function petType()   { return $this->belongsTo(PetType::class,  'pet_type_id'); }
+    public function petBreed()  { return $this->belongsTo(PetBreed::class, 'pet_breed_id'); }
+    public function size()      { return $this->belongsTo(Size::class,     'size_id'); }
+
+    public function type()  { return $this->petType(); }
+    public function breed() { return $this->petBreed(); }
+  
+    public function scopeAdoptable($q)
     {
-        return $this->belongsTo(PetType::class);
+        return $q->where('status', 'available');
     }
 
-    public function petBreed()
+
+    public function getPhotoUrlAttribute(): string
     {
-        return $this->belongsTo(PetBreed::class);
+        $p = $this->photo_path;
+        if (!$p) return asset('images/placeholder/pet.png');
+        return str_starts_with($p, 'http') ? $p : asset('storage/' . ltrim($p, '/'));
     }
 
-    public function size()
+    // “2 yrs 3 mo” style age
+    public function getAgeHumanAttribute(): string
     {
-        return $this->belongsTo(Size::class);
-    }
-
-    protected static function booted(): void
-    {
-        static::saving(function (Pet $pet) {
-            $weight = $pet->weight_kg;
-
-            if ($weight !== null && $weight !== '') {
-                $w = (float) $weight;
-
-                // Find size where min_weight ≤ weight ≤ max_weight (NULL bounds are open-ended)
-                $size = Size::select('id')
-                    ->whereRaw('? >= COALESCE(min_weight, -1e9)', [$w])
-                    ->whereRaw('? <= COALESCE(max_weight,  1e9)', [$w])
-                    ->orderBy('min_weight')
-                    ->first();
-
-                $pet->size_id = $size?->id;
-            } else {
-                $pet->size_id = null;
-            }
-        });
+        $m = (int) ($this->age_months ?? 0);
+        $y = intdiv($m, 12);
+        $r = $m % 12;
+        $parts = [];
+        if ($y) $parts[] = $y.' yr'.($y > 1 ? 's' : '');
+        if ($r) $parts[] = $r.' mo';
+        return $parts ? implode(' ', $parts) : '—';
     }
 }

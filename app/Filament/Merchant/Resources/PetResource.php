@@ -77,7 +77,7 @@ class PetResource extends Resource
 
             Select::make('pet_type_id')
                 ->label('Pet Type')
-                ->relationship('petType', 'name')
+                ->relationship(name: 'petType', titleAttribute: 'name')
                 ->searchable()
                 ->preload()
                 ->reactive()

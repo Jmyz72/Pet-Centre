@@ -6,6 +6,7 @@ use App\Filament\Resources\PetResource\Pages;
 use App\Filament\Resources\PetResource\RelationManagers;
 use App\Models\Pet;
 use Filament\Forms;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -27,39 +28,51 @@ class PetResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('merchant_id')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('pet_type_id')
-                    ->numeric()
-                    ->default(null),
-                Forms\Components\TextInput::make('pet_breed_id')
-                    ->numeric()
-                    ->default(null),
-                Forms\Components\DatePicker::make('date_of_birth'),
                 Forms\Components\TextInput::make('name')
                     ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('weight_kg')
-                    ->numeric()
-                    ->default(null),
-                Forms\Components\TextInput::make('sex')
+                    ->maxLength(120),
+
+                Forms\Components\Select::make('pet_type_id')
+                    ->label('Pet Type')
+                    ->relationship('petType', 'name') 
+                    ->searchable()
+                    ->preload()
                     ->required(),
-                Forms\Components\TextInput::make('size_id')
-                    ->numeric()
-                    ->default(null),
-                Forms\Components\Toggle::make('vaccinated')
+
+                Forms\Components\Select::make('pet_breed_id')
+                    ->label('Pet Breed')
+                    ->relationship('petBreed', 'name') 
+                    ->searchable()
+                    ->preload()
                     ->required(),
-                Forms\Components\TextInput::make('status')
+
+                Forms\Components\Select::make('sex')
+                    ->options([
+                        'male' => 'Male',
+                        'female' => 'Female',
+                    ])
                     ->required(),
-                Forms\Components\TextInput::make('adoption_fee')
+
+                Forms\Components\TextInput::make('age_months')
                     ->numeric()
-                    ->default(null),
-                Forms\Components\DateTimePicker::make('adopted_at'),
-                Forms\Components\FileUpload::make('image')
-                    ->image(),
+                    ->minValue(0),
+
+                Forms\Components\FileUpload::make('photo_path')
+                    ->image()
+                    ->directory('pets'),
+
+                Forms\Components\Select::make('status')
+                    ->options([
+                        'available' => 'Available',
+                        'pending'   => 'Pending',
+                        'adopted'   => 'Adopted',
+                    ])
+                    ->default('available')
+                    ->required(),
+
                 Forms\Components\Textarea::make('description')
-                    ->columnSpanFull(),
+                    ->rows(4)
+                    ->maxLength(1000),
             ]);
     }
 
@@ -67,59 +80,22 @@ class PetResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('merchant_id')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('pet_type_id')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('pet_breed_id')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('date_of_birth')
-                    ->date()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('name')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('weight_kg')
-                    ->numeric()
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('name')->sortable()->searchable(),
+                Tables\Columns\TextColumn::make('petType.name')->label('Type')->sortable(),
+                Tables\Columns\TextColumn::make('petBreed.name')->label('Breed')->sortable(),
                 Tables\Columns\TextColumn::make('sex'),
-                Tables\Columns\TextColumn::make('size_id')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\IconColumn::make('vaccinated')
-                    ->boolean(),
-                Tables\Columns\TextColumn::make('status'),
-                Tables\Columns\TextColumn::make('adoption_fee')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('adopted_at')
-                    ->dateTime()
-                    ->sortable(),
-                Tables\Columns\ImageColumn::make('image'),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('status')->badge(),
+                Tables\Columns\ImageColumn::make('photo_path')->label('Photo'),
             ])
-            ->filters([
-                //
-            ])
+            ->filters([])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                Tables\Actions\DeleteBulkAction::make(),
             ]);
     }
-
     public static function getRelations(): array
     {
         return [

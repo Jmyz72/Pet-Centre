@@ -4,15 +4,16 @@ use App\Http\Controllers\MerchantApplicationController;
 use App\Http\Controllers\BookingPageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicMerchantController;
-
-use App\Http\Controllers\ContactController; // Add this line
-
+use App\Http\Controllers\ContactController; 
 use App\Http\Controllers\PublicBookingController;
 use App\Http\Controllers\CustomerPetController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ApiTestController; 
-
+use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PetAdoptionController;
+use App\Http\Controllers\ServiceController;
+use App\Models\Pet;
 
 Route::get('/', function () {
     return view('welcome');
@@ -38,9 +39,24 @@ Route::get('/faq', function () {
     return view('faq');
 })->name('faq');
 
-Route::post('/contact', [ContactController::class, 'submit'])->name('contact.submit');
+Route::get('/', function () {
+    $pets = Pet::query()
+        ->adoptable()
+        ->with(['petType:id,name', 'petBreed:id,name'])
+        ->latest('id')->take(8)->get();
 
-// Add contact routes (publicly accessible)
+    return view('welcome', compact('pets'));
+})->name('welcome');
+
+Route::get('/services', [ServiceController::class, 'index'])->name('services.index');
+Route::get('/services/{service}', [ServiceController::class, 'show'])->name('services.show');
+
+Route::get('/adopt', [PetAdoptionController::class, 'index'])->name('pets.index');
+Route::get('/adopt/{pet}', [PetAdoptionController::class, 'show'])->name('pets.show');
+
+Route::get('/', [HomeController::class, 'welcome'])->name('welcome');
+
+Route::post('/contact', [ContactController::class, 'submit'])->name('contact.submit');  
 Route::get('/contact', [ContactController::class, 'index'])->name('contact');
 Route::post('/contact', [ContactController::class, 'submit'])->name('contact.submit');
 
@@ -54,6 +70,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/apply-merchant/form', [MerchantApplicationController::class, 'showForm'])->name('merchant.apply.form');
     Route::post('/apply-merchant/store', [MerchantApplicationController::class, 'submit'])->name('merchant.apply.submit');
     Route::get('/apply-merchant/submitted', [MerchantApplicationController::class, 'showSubmitted'])->name('merchant.application.submitted');
+
+    Route::get('/merchant/profile/roles/{role}', [MerchantApplicationController::class, 'showProfile'])
+        ->whereIn('role', ['clinic','groomer','shelter'])
+        ->name('merchant.profile.index');
 
     Route::get('/notifications', function () {
         $user = auth()->user();
@@ -79,11 +99,11 @@ Route::middleware('auth')->group(function () {
         $user->unreadNotifications->markAsRead();
 
         return back();
-    })->name('notifications.readAll');
+        })->name('notifications.readAll');
 
-    Route::get('/debug-time', function () {
-    return now()->toDateTimeString();
-});
+        Route::get('/debug-time', function () {
+        return now()->toDateTimeString();
+    });
 
     // Customer Pets CRUD
     Route::get('/my-pets',            [CustomerPetController::class,'index'])->name('customer.pets.index');
@@ -112,7 +132,6 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/bookings/quote-price', [BookingController::class, 'quotePrice'])
     ->name('bookings.quote-price');
-    // routes/web.php
 
     Route::get('/payments/{payment}/redirect', [\App\Http\Controllers\PaymentController::class, 'redirect'])
         ->name('payments.redirect');
@@ -130,10 +149,12 @@ Route::middleware('auth')->group(function () {
 // Public merchant browsing and profile viewing
 Route::get('/merchants', [PublicMerchantController::class, 'index'])->name('merchants.index');
 Route::get('/merchants/{merchantProfile}', [PublicMerchantController::class, 'show'])->name('merchants.show');
-
-
 Route::get('/merchants/{merchantProfile}/book', [PublicBookingController::class, 'create'])
     ->name('booking.create');
+
+Route::get('/merchant/profile/roles/{role}', [MerchantApplicationController::class, 'showProfile'])
+    ->whereIn('role', ['clinic','groomer','shelter'])
+    ->name('merchant.profile.index');
 
 require __DIR__.'/auth.php';
 

@@ -212,7 +212,7 @@
                     <p class="text-gray-600 mb-6">
                         Find loving pets from local shelters waiting for their forever homes.
                     </p>
-                    <a href="/shelter" class="service-link shelter-link inline-block px-6 py-3 font-medium rounded-lg transition">
+                    <a href="{{ route('merchants.index', ['role' => 'shelter']) }}" class="service-link shelter-link inline-block px-6 py-3 font-medium rounded-lg transition">
                         Explore Shelters <i class="fas fa-arrow-right ml-2 text-sm"></i>
                     </a>
                 </div>
@@ -226,7 +226,7 @@
                     <p class="text-gray-600 mb-6">
                         Professional veterinary care to keep your pets healthy and happy.
                     </p>
-                    <a href="/clinic" class="service-link clinic-link inline-block px-6 py-3 font-medium rounded-lg transition">
+                    <a href="{{ route('merchants.index', ['role' => 'clinic']) }}" class="service-link clinic-link inline-block px-6 py-3 font-medium rounded-lg transition">
                         Clinic Services <i class="fas fa-arrow-right ml-2 text-sm"></i>
                     </a>
                 </div>
@@ -240,7 +240,7 @@
                     <p class="text-gray-600 mb-6">
                         Professional grooming services to keep your pets looking their best.
                     </p>
-                    <a href="/groomer" class="service-link groomer-link inline-block px-6 py-3 font-medium rounded-lg transition">
+                    <a href="{{ route('merchants.index', ['role' => 'groomer']) }}" class="service-link groomer-link inline-block px-6 py-3 font-medium rounded-lg transition">
                         Book Grooming <i class="fas fa-arrow-right ml-2 text-sm"></i>
                     </a>
                 </div>
@@ -249,81 +249,155 @@
     </section>
 
     
-    <!-- Pet Adoption Showcase -->
-    <section class="py-16 md:py-24 bg-white">
-        <div class="max-w-7xl mx-auto px-4">
-            <div class="text-center mb-16">
-                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4 section-title">Pets Looking for a Home</h2>
-                <p class="text-lg text-gray-600 max-w-2xl mx-auto">These adorable pets are waiting to meet their forever families. Could one of them be yours?</p>
-            </div>
+ <!-- Pet Adoption Showcase -->
+<section class="max-w-7xl mx-auto px-4 py-16">
+  <div class="text-center mb-12">
+    <h2 class="text-4xl md:text-5xl font-extrabold text-slate-900">Adopt a Friend</h2>
+    <p class="mt-3 text-lg text-slate-600 max-w-2xl mx-auto">
+      Give a loving home to one of our furry friends waiting for adoption.
+    </p>
+  </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-                <!-- Pet Card 1 -->
-                <div onclick="openQuickView('Buddy', 'Golden Retriever • 2 years old', '/images/dog.png')" 
-                     class="pet-card bg-white rounded-xl overflow-hidden cursor-pointer border border-gray-100">
-                    <div class="h-56 overflow-hidden bg-gray-100 flex items-center justify-center">
-                        <img src="/images/dog.png" alt="Buddy" class="w-full h-full object-cover">
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-xl font-semibold text-gray-900">Buddy</h3>
-                        <p class="text-gray-600 text-sm mt-1">Golden Retriever • 2 years</p>
-                        <div class="flex items-center mt-4">
-                            <span class="pet-tag bg-blue-100 text-blue-800">Friendly</span>
-                            <span class="pet-tag bg-green-100 text-green-800 ml-2">Good with kids</span>
-                        </div>
-                    </div>
-                </div>
+  @php
+    $displayPets = ($pets ?? collect())->take(4);
+    $slots = 4;
+    $placeholders = max(0, $slots - $displayPets->count());
+  @endphp
 
-                <!-- Pet Card 2 -->
-                <div onclick="openQuickView('Mittens', 'Tabby Cat • 1.5 years old', '/images/cat.png')" 
-                     class="pet-card bg-white rounded-xl overflow-hidden cursor-pointer border border-gray-100">
-                    <div class="h-56 overflow-hidden bg-gray-100 flex items-center justify-center">
-                        <img src="/images/cat.png" alt="Mittens" class="w-full h-full object-cover">
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-xl font-semibold text-gray-900">Mittens</h3>
-                        <p class="text-gray-600 text-sm mt-1">Tabby Cat • 1.5 years</p>
-                        <div class="flex items-center mt-4">
-                            <span class="pet-tag bg-blue-100 text-blue-800">Playful</span>
-                            <span class="pet-tag bg-purple-100 text-purple-800 ml-2">Indoor</span>
-                        </div>
-                    </div>
-                </div>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
 
-                <!-- Pet Card 3 -->
-                <div onclick="openQuickView('Snowy', 'White Rabbit • 8 months old', '/images/paws.png')" 
-                     class="pet-card bg-white rounded-xl overflow-hidden cursor-pointer border border-gray-100">
-                    <div class="h-56 overflow-hidden bg-gray-100 flex items-center justify-center">
-                        <img src="/images/paws.png" alt="Snowy" class="w-full h-full object-cover">
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-xl font-semibold text-gray-900">Snowy</h3>
-                        <p class="text-gray-600 text-sm mt-1">White Rabbit • 8 months</p>
-                        <div class="flex items-center mt-4">
-                            <span class="pet-tag bg-blue-100 text-blue-800">Gentle</span>
-                            <span class="pet-tag bg-yellow-100 text-yellow-800 ml-2">Quiet</span>
-                        </div>
-                    </div>
-                </div>
+    {{-- Real pet cards --}}
+    @foreach($displayPets as $pet)
+      <a href="{{ route('pets.show', $pet ?? null, false) ?? url('/pets/' . ($pet->id ?? '')) }}"
+         class="group block rounded-2xl border border-slate-200 bg-white shadow-sm hover:shadow-xl hover:-translate-y-1 transition overflow-hidden">
 
-                <!-- Pet Card 4 -->
-                <div onclick="openQuickView('Rocky', 'Mixed Breed • 3 years old', '/images/dog.png')" 
-                     class="pet-card bg-white rounded-xl overflow-hidden cursor-pointer border border-gray-100">
-                    <div class="h-56 overflow-hidden bg-gray-100 flex items-center justify-center">
-                        <img src="/images/dog.png" alt="Rocky" class="w-full h-full object-cover">
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-xl font-semibold text-gray-900">Rocky</h3>
-                        <p class="text-gray-600 text-sm mt-1">Mixed Breed • 3 years</p>
-                        <div class="flex items-center mt-4">
-                            <span class="pet-tag bg-blue-100 text-blue-800">Loyal</span>
-                            <span class="pet-tag bg-green-100 text-green-800 ml-2">Active</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        {{-- Pet photo --}}
+        @if(!empty($pet->photo_path))
+          <img src="{{ asset('storage/' . $pet->photo_path) }}"
+               alt="{{ $pet->name }}"
+               class="h-48 w-full object-cover">
+        @else
+          <div class="h-48 w-full bg-slate-100 flex items-center justify-center text-slate-400">
+            <span class="text-sm">No Photo</span>
+          </div>
+        @endif
+
+        <div class="p-6 flex flex-col min-h-[200px]">
+          <h3 class="text-lg font-semibold text-slate-900 group-hover:text-blue-700 transition">
+            {{ $pet->name ?? 'Unnamed Pet' }}
+          </h3>
+          <p class="mt-1 text-sm text-slate-600">
+            {{ optional($pet->type)->name ?? 'Unknown Type' }} • {{ optional($pet->breed)->name ?? 'Unknown Breed' }}
+          </p>
+          <div class="mt-auto pt-4">
+            <span class="inline-flex items-center rounded-full bg-green-50 px-3 py-1 text-sm font-semibold text-green-700 ring-1 ring-inset ring-green-200">
+              Ready for Adoption
+            </span>
+          </div>
         </div>
-    </section>
+      </a>
+    @endforeach
+
+    {{-- Empty placeholders (same as Services) --}}
+    @for ($i = 0; $i < $placeholders; $i++)
+      <div class="rounded-2xl border border-slate-200 bg-slate-50 flex items-center justify-center min-h-[200px] shadow-sm">
+        <div class="text-center text-slate-400 font-semibold">
+          <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto mb-2 h-8 w-8 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-3-3v6" />
+          </svg>
+          <p>Coming Soon</p>
+        </div>
+      </div>
+    @endfor
+  </div>
+
+  <!-- Browse all -->
+  <div class="mt-14 text-center">
+    <a href="{{ route('pets.index') }}" class="inline-flex items-center px-6 py-3 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium shadow hover:shadow-lg hover:scale-105 transition">
+      Browse all pets
+      <svg xmlns="http://www.w3.org/2000/svg" class="ml-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+      </svg>
+    </a>
+  </div>
+</section>
+</section>
+
+
+<!-- Services -->
+<section class="max-w-7xl mx-auto px-4 py-16">
+  <div class="text-center mb-12">
+    <h2 class="text-4xl md:text-5xl font-extrabold text-slate-900">Our Services</h2>
+    <p class="mt-3 text-lg text-slate-600 max-w-2xl mx-auto">
+      Trusted care from verified partners—book treatments, grooming, and more.
+    </p>
+  </div>
+
+  @php
+    $displayServices = ($services ?? collect())->take(4);
+    $slots = 4;
+    $placeholders = max(0, $slots - $displayServices->count());
+  @endphp
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+
+    {{-- Real service cards --}}
+    @foreach($displayServices as $svc)
+      <a href="{{ route('services.show', $svc ?? null, false) ?? url('/services/' . ($svc->id ?? '')) }}"
+         class="group block rounded-2xl border border-slate-200 bg-white shadow-sm hover:shadow-xl hover:-translate-y-1 transition overflow-hidden">
+
+        {{-- top accent --}}
+        <div class="h-2 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500"></div>
+
+        <div class="p-6 flex flex-col min-h-[220px]">
+          <h3 class="text-lg font-semibold text-slate-900 group-hover:text-blue-700 transition">
+            {{ $svc->name ?? 'Service' }}
+          </h3>
+
+          <p class="mt-1 text-sm text-slate-600 line-clamp-3">
+            {{ $svc->short_description ?? $svc->description ?? 'Professional and caring service for your pet.' }}
+          </p>
+
+          <div class="mt-auto flex items-center justify-between pt-4">
+            <div class="text-sm text-slate-700">
+              @if(!empty($svc->category))
+                <span class="px-2 py-1 rounded-full bg-slate-100">{{ $svc->category }}</span>
+              @endif
+            </div>
+            @if(isset($svc->price))
+              <span class="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-sm font-semibold text-blue-700 ring-1 ring-inset ring-blue-200">
+                {{ is_numeric($svc->price) ? 'RM ' . number_format($svc->price, 2) : $svc->price }}
+              </span>
+            @endif
+          </div>
+        </div>
+      </a>
+    @endforeach
+
+    {{-- Empty placeholders (Pet-style design) --}}
+    @for ($i = 0; $i < $placeholders; $i++)
+      <div class="rounded-2xl border border-slate-200 bg-slate-50 flex items-center justify-center min-h-[220px] shadow-sm">
+        <div class="text-center text-slate-400 font-semibold">
+          <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto mb-2 h-8 w-8 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-3-3v6" />
+          </svg>
+          <p>Coming Soon</p>
+        </div>
+      </div>
+    @endfor
+  </div>
+
+  <!-- Browse all -->
+  <div class="mt-14 text-center">
+    <a href="{{ route('services.index', [], false) ?? url('/services') }}" class="inline-flex items-center px-6 py-3 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium shadow hover:shadow-lg hover:scale-105 transition">
+      Browse all services
+      <svg xmlns="http://www.w3.org/2000/svg" class="ml-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+      </svg>
+    </a>
+  </div>
+</section>
+
 
 
 @endsection
