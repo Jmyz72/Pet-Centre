@@ -23,7 +23,19 @@ class PackageResource extends Resource
 
     protected static ?string $model = Package::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-gift';
+    protected static ?string $navigationLabel = 'Packages';
+    protected static ?string $navigationGroup = 'Grooming Services';
+    protected static ?int $navigationSort = 10;
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        $user = auth()->user();
+        $merchantProfile = $user?->merchantProfile;
+        
+        // Only show for groomer merchants
+        return $merchantProfile && $merchantProfile->role === 'groomer';
+    }
 
     public static function getEloquentQuery(): Builder
     {

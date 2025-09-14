@@ -17,7 +17,10 @@ class CustomerPetResource extends Resource
 {
     protected static ?string $model = CustomerPet::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-user-circle';
+    protected static ?string $navigationLabel = 'Customer Pets';
+    protected static ?string $navigationGroup = 'Pet Management';
+    protected static ?int $navigationSort = 30;
 
     public static function form(Form $form): Form
     {

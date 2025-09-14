@@ -17,10 +17,9 @@ class PetBreedResource extends Resource
 {
     protected static ?string $model = PetBreed::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-heart';
-
-    protected static ?string $navigationGroup = 'Pet Management';
-
+    protected static ?string $navigationIcon = 'heroicon-o-squares-2x2';
+    protected static ?string $navigationLabel = 'Pet Breeds';
+    protected static ?string $navigationGroup = 'Content Management';
     protected static ?int $navigationSort = 20;
 
     public static function form(Form $form): Form

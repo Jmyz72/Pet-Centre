@@ -18,12 +18,10 @@ class WalletTransactionResource extends Resource
     protected static ?string $model = WalletTransaction::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
-    
     protected static ?string $navigationLabel = 'Transaction History';
-    
+    protected static ?string $navigationGroup = 'Financial Management';
     protected static ?string $modelLabel = 'Transaction';
-    
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 20;
 
     public static function getEloquentQuery(): Builder
     {

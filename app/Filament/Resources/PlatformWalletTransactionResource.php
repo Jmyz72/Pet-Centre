@@ -17,12 +17,10 @@ class PlatformWalletTransactionResource extends Resource
     protected static ?string $model = WalletTransaction::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
-    
     protected static ?string $navigationLabel = 'Platform Transactions';
-    
+    protected static ?string $navigationGroup = 'Financial Management';
     protected static ?string $modelLabel = 'Platform Transaction';
-    
-    protected static ?string $navigationGroup = 'Finance';
+    protected static ?int $navigationSort = 20;
 
     public static function getEloquentQuery(): Builder
     {

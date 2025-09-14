@@ -23,6 +23,18 @@ class StaffResource extends Resource
     protected static ?string $model = Staff::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-users';
+    protected static ?string $navigationLabel = 'Staff Members';
+    protected static ?string $navigationGroup = 'Staff Management';
+    protected static ?int $navigationSort = 10;
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        $user = auth()->user();
+        $merchantProfile = $user?->merchantProfile;
+        
+        // Only show for clinic and groomer merchants
+        return $merchantProfile && in_array($merchantProfile->role, ['clinic', 'groomer']);
+    }
 
     public static function getEloquentQuery(): Builder
     {

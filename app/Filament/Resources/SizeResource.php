@@ -17,11 +17,10 @@ class SizeResource extends Resource
 {
     protected static ?string $model = Size::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-heart';
-
-    protected static ?string $navigationGroup = 'Pet Management';
-
-    protected static ?int $navigationSort = 20;
+    protected static ?string $navigationIcon = 'heroicon-o-adjustments-horizontal';
+    protected static ?string $navigationLabel = 'Pet Sizes';
+    protected static ?string $navigationGroup = 'Content Management';
+    protected static ?int $navigationSort = 30;
 
     public static function form(Form $form): Form
     {

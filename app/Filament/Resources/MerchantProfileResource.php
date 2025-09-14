@@ -17,7 +17,10 @@ class MerchantProfileResource extends Resource
 {
     protected static ?string $model = MerchantProfile::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-building-storefront';
+    protected static ?string $navigationLabel = 'Merchant Profiles';
+    protected static ?string $navigationGroup = 'Merchant Management';
+    protected static ?int $navigationSort = 10;
 
     public static function form(Form $form): Form
     {

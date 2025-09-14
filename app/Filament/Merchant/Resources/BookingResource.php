@@ -20,8 +20,9 @@ class BookingResource extends Resource
     protected static ?string $model = Booking::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-calendar';
-
     protected static ?string $navigationLabel = 'Bookings';
+    protected static ?string $navigationGroup = 'Booking Management';
+    protected static ?int $navigationSort = 10;
 
     public static function getEloquentQuery(): Builder
     {

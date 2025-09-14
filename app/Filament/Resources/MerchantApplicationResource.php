@@ -20,7 +20,10 @@ class MerchantApplicationResource extends Resource
 {
     protected static ?string $model = MerchantApplication::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-building-storefront';
+    protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
+    protected static ?string $navigationLabel = 'Merchant Applications';
+    protected static ?string $navigationGroup = 'Merchant Management';
+    protected static ?int $navigationSort = 20;
 
     public static function form(Form $form): Form
     {

@@ -26,7 +26,19 @@ class PetResource extends Resource
 
     protected static ?string $model = Pet::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-heart';
+    protected static ?string $navigationLabel = 'My Pets';
+    protected static ?string $navigationGroup = 'Pet Management';
+    protected static ?int $navigationSort = 10;
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        $user = auth()->user();
+        $merchantProfile = $user?->merchantProfile;
+        
+        // Only show for shelter merchants
+        return $merchantProfile && $merchantProfile->role === 'shelter';
+    }
 
     public static function getEloquentQuery(): Builder
     {

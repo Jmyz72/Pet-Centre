@@ -28,10 +28,14 @@ class StaffOperatingHours extends Page implements HasForms
 
     protected static ?string $navigationLabel = 'Staff Operating Hours';
     protected static ?string $navigationIcon  = 'heroicon-o-clock';
-    // Hide from sidebar navigation
-    protected static bool $shouldRegisterNavigation = true;
-    protected static ?string $navigationGroup = 'Account';
-    protected static ?int    $navigationSort  = 21;
+    protected static ?string $navigationGroup = 'Staff Management';
+    protected static ?int    $navigationSort  = 20;
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        $role = auth()->user()?->merchantProfile?->role;
+        return in_array($role, ['clinic', 'groomer']);
+    }
 
     protected static ?string $title = 'Staff Operating Hours';
     protected static ?string $slug  = 'staff-operating-hours';

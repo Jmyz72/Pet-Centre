@@ -17,12 +17,10 @@ class PlatformWalletResource extends Resource
     protected static ?string $model = PlatformWallet::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-building-office';
-    
     protected static ?string $navigationLabel = 'Platform Wallets';
-    
+    protected static ?string $navigationGroup = 'Financial Management';
     protected static ?string $modelLabel = 'Platform Wallet';
-    
-    protected static ?string $navigationGroup = 'Finance';
+    protected static ?int $navigationSort = 10;
 
     public static function form(Form $form): Form
     {

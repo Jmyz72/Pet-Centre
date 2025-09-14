@@ -17,11 +17,10 @@ class ServiceTypeResource extends Resource
 {
     protected static ?string $model = ServiceType::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-cog';
-
-    protected static ?string $navigationGroup = 'Service Management';
-    
-    protected static ?int $navigationSort = 30;
+    protected static ?string $navigationIcon = 'heroicon-o-tag';
+    protected static ?string $navigationLabel = 'Service Types';
+    protected static ?string $navigationGroup = 'Content Management';
+    protected static ?int $navigationSort = 40;
 
     public static function form(Form $form): Form
     {
