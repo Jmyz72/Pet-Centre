@@ -51,6 +51,7 @@ class MerchantPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+                'check.merchant',
             ]);
     }
 }

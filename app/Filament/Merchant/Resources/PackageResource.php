@@ -4,7 +4,6 @@ namespace App\Filament\Merchant\Resources;
 
 use App\Filament\Merchant\Resources\PackageResource\Pages;
 use App\Models\Package;
-use App\Filament\Traits\MerchantScopedResource;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -21,11 +20,17 @@ use App\Models\PetBreed;
 
 class PackageResource extends Resource
 {
-    use MerchantScopedResource;
 
     protected static ?string $model = Package::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+
+    public static function getEloquentQuery(): Builder
+    {
+        // Only show packages that belong to the current merchant
+        return parent::getEloquentQuery()
+            ->where('merchant_id', auth()->user()->merchantProfile->id ?? 0);
+    }
 
     public static function form(Form $form): Form
     {

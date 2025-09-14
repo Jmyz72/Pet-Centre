@@ -13,6 +13,12 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->statefulApi();
+        
+        // Register custom middleware aliases
+        $middleware->alias([
+            'check.admin' => \App\Http\Middleware\CheckAdminRole::class,
+            'check.merchant' => \App\Http\Middleware\CheckMerchantRole::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

@@ -11,7 +11,6 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Traits\MerchantScopedResource;
 
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
@@ -27,11 +26,17 @@ use App\Models\MerchantProfile;
 
 class ServiceResource extends Resource
 {
-    use MerchantScopedResource;
 
     protected static ?string $model = Service::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+
+    public static function getEloquentQuery(): Builder
+    {
+        // Only show services that belong to the current merchant
+        return parent::getEloquentQuery()
+            ->where('merchant_id', auth()->user()->merchantProfile->id ?? 0);
+    }
 
     public static function form(Form $form): Form
     {
