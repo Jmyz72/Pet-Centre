@@ -1,6 +1,22 @@
 <x-guest-layout>
     <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+    @if (session('status'))
+        <div class="mb-4 p-4 text-sm text-green-800 bg-green-100 border border-green-300 rounded-lg dark:bg-green-900 dark:text-green-300 dark:border-green-800">
+            {{ session('status') }}
+        </div>
+    @endif
+
+    <!-- Verification Message -->
+    @if (session('message'))
+        <div class="mb-4 p-4 text-sm text-blue-800 bg-blue-100 border border-blue-300 rounded-lg dark:bg-blue-900 dark:text-blue-300 dark:border-blue-800">
+            {{ session('message') }}
+        </div>
+    @endif
+
+    <!-- Help Text -->
+    <div class="mb-4 p-3 text-sm text-gray-600 bg-gray-50 border border-gray-200 rounded-lg dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700">
+        <strong>Note:</strong> You must verify your email address before you can login. If you haven't received the verification email, try logging in and we'll send you a new one.
+    </div>
 
     <form method="POST" action="{{ route('login') }}">
         @csrf

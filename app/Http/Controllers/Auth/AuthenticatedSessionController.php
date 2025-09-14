@@ -30,6 +30,17 @@ class AuthenticatedSessionController extends Controller
 
         $user = Auth::user();
 
+        // Check if user has verified their email
+        if (!$user->hasVerifiedEmail()) {
+            Auth::logout();
+
+            // Send verification email
+            $user->sendEmailVerificationNotification();
+
+            return redirect()->route('verification.notice')
+                ->with('message', 'Please verify your email before logging in. A verification email has been sent to your email address.');
+        }
+
         // Admin -> Filament Admin panel
         if ($user->hasRole('admin')) {
             return redirect()->route('filament.admin.pages.dashboard');
