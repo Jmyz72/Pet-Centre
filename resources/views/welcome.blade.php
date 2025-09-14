@@ -235,12 +235,12 @@
                     
                     <div class="max-w-4xl mx-auto">
                         <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-                            <span class="text-white drop-shadow-lg">Where Pets Find</span>
-                            <span class="bg-gradient-to-r from-pink-300 to-yellow-300 bg-clip-text text-transparent block">
+                            <span class="text-gray-800 drop-shadow-lg">Where Pets Find</span>
+                            <span class="bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent block">
                                 Love & Care
                             </span>
                         </h1>
-                        <p class="text-xl md:text-2xl text-white/90 mb-12 leading-relaxed">
+                        <p class="text-xl md:text-2xl text-gray-700 mb-12 leading-relaxed">
                             Your one-stop destination for pet adoption, veterinary care, and grooming services. 
                             Because every pet deserves the best! 🐾
                         </p>
@@ -429,7 +429,7 @@
                         <p class="text-gray-600 mb-8">
                             Check back soon! New adorable pets are looking for their forever homes every day.
                         </p>
-                        <a href="/merchants" class="btn-primary inline-flex items-center">
+                        <a href="/merchants?role=shelter" class="btn-primary inline-flex items-center">
                             <i class="fas fa-search mr-2"></i> Browse All Shelters
                         </a>
                     </div>
@@ -440,7 +440,7 @@
             <!-- View More Button -->
             @if(count($featuredPets) > 0)
             <div class="text-center mt-12">
-                <a href="/merchants" class="btn-primary inline-flex items-center text-lg">
+                <a href="/merchants?role=shelter" class="btn-primary inline-flex items-center text-lg">
                     <i class="fas fa-paw mr-3"></i>
                     View All Available Pets
                 </a>
@@ -544,7 +544,7 @@
                         <p class="text-gray-600 mb-8">
                             Our veterinary partners are constantly adding new services. Check back soon!
                         </p>
-                        <a href="/merchants" class="btn-primary inline-flex items-center">
+                        <a href="/merchants?role=clinic" class="btn-primary inline-flex items-center">
                             <i class="fas fa-search mr-2"></i> Browse All Clinics
                         </a>
                     </div>
@@ -555,7 +555,7 @@
             <!-- View More Button -->
             @if(count($featuredServices) > 0)
             <div class="text-center mt-12">
-                <a href="/merchants" class="btn-primary inline-flex items-center text-lg">
+                <a href="/merchants?role=clinic" class="btn-primary inline-flex items-center text-lg">
                     <i class="fas fa-stethoscope mr-3"></i>
                     View All Available Services
                 </a>
@@ -660,8 +660,8 @@
                         <p class="text-gray-600 mb-8">
                             Our partners are working on amazing care packages. Stay tuned for great deals!
                         </p>
-                        <a href="/merchants" class="btn-primary inline-flex items-center">
-                            <i class="fas fa-search mr-2"></i> Browse All Clinics
+                        <a href="/merchants?role=groomer" class="btn-primary inline-flex items-center">
+                            <i class="fas fa-search mr-2"></i> Browse All Groomers
                         </a>
                     </div>
                 </div>
@@ -671,7 +671,7 @@
             <!-- View More Button -->
             @if(count($featuredPackages) > 0)
             <div class="text-center mt-12">
-                <a href="/merchants" class="btn-primary inline-flex items-center text-lg">
+                <a href="/merchants?role=groomer" class="btn-primary inline-flex items-center text-lg">
                     <i class="fas fa-gift mr-3"></i>
                     View All Available Packages
                 </a>

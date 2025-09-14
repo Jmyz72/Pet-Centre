@@ -117,6 +117,14 @@
             <div class="mt-6">{{ $pets->links() }}</div>
         @endif
     @else
-        <div class="text-gray-500 italic">No pets available for adoption.</div>
+        <div class="text-center py-12">
+            <div class="mx-auto max-w-md">
+                <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-green-50 to-emerald-50">
+                    <i class="fas fa-heart text-2xl text-green-600"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">No Pets Available</h3>
+                <p class="text-gray-600 text-sm leading-relaxed">This shelter doesn't have any pets available for adoption right now. Please check back later or contact them directly for more information.</p>
+            </div>
+        </div>
     @endif
 </div>

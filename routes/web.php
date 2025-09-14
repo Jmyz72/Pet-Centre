@@ -8,7 +8,6 @@ use App\Http\Controllers\HomeController;
 
 use App\Http\Controllers\ContactController; // Add this line
 
-use App\Http\Controllers\PublicBookingController;
 use App\Http\Controllers\CustomerPetController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ApiTestController; 
@@ -120,9 +119,6 @@ Route::middleware('auth')->group(function () {
 Route::get('/merchants', [PublicMerchantController::class, 'index'])->name('merchants.index');
 Route::get('/merchants/{merchantProfile}', [PublicMerchantController::class, 'show'])->name('merchants.show');
 
-
-Route::get('/merchants/{merchantProfile}/book', [PublicBookingController::class, 'create'])
-    ->name('booking.create');
 
 require __DIR__.'/auth.php';
 

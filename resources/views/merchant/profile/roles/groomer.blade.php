@@ -231,14 +231,14 @@
             </div>
         @endif
     @else
-        <div class="rounded-3xl border border-dashed border-gray-300 bg-white p-8 text-center">
-            <div class="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M3 4.5A1.5 1.5 0 014.5 3h11A1.5 1.5 0 0117 4.5V15a2 2 0 01-2 2H5a2 2 0 01-2-2V4.5zM5 6v9h10V6H5z"/>
-                </svg>
+        <div class="text-center py-12">
+            <div class="mx-auto max-w-md">
+                <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-purple-50 to-pink-50">
+                    <i class="fas fa-cut text-2xl text-purple-600"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">No Packages Available</h3>
+                <p class="text-gray-600 text-sm leading-relaxed">This groomer hasn't added any grooming packages yet. Please check back later or contact them directly for more information.</p>
             </div>
-            <h3 class="text-base font-semibold text-gray-900">No grooming packages available</h3>
-            <p class="mt-1 text-sm text-gray-600">Please check back later or contact the merchant for more information.</p>
         </div>
     @endif
 </section>
