@@ -29,7 +29,7 @@
             <div class="text-gray-400 text-4xl mb-4">🐾</div>
             <h3 class="text-lg font-medium text-gray-900 mb-2">No Pets Found</h3>
             <p class="text-sm text-gray-500 mb-4">You don't have any pets registered yet.</p>
-            <a href="{{ route('profile.edit') }}" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-500">
+            <a href="{{ route('customer.pets.create') }}" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-500">
                 Add Pet to Profile
             </a>
         </div>

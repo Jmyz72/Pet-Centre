@@ -83,7 +83,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/debug-time', function () {
     return now()->toDateTimeString();
-});
+    });
 
     // Customer Pets CRUD
     Route::get('/my-pets',            [CustomerPetController::class,'index'])->name('customer.pets.index');
@@ -112,16 +112,6 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/bookings/quote-price', [BookingController::class, 'quotePrice'])
     ->name('bookings.quote-price');
-    // routes/web.php
-
-    Route::get('/payments/{payment}/redirect', [\App\Http\Controllers\PaymentController::class, 'redirect'])
-        ->name('payments.redirect');
-
-    Route::get('/payments/callback', [\App\Http\Controllers\PaymentController::class, 'callback'])
-        ->name('payments.callback');
-
-    Route::post('/payments/webhook', [\App\Http\Controllers\PaymentController::class, 'webhook'])
-        ->name('payments.webhook');
 
     Route::get('/apitest', [ApiTestController::class, 'index'])->name('apitest.index');
 
