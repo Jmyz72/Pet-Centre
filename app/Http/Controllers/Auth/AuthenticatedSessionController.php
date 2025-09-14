@@ -30,20 +30,20 @@ class AuthenticatedSessionController extends Controller
 
         $user = Auth::user();
 
-        // // Admin -> Filament Admin panel
-        // if ($user->hasRole('admin')) {
-        //     return redirect()->route('filament.admin.pages.dashboard');
-        // }
+        // Admin -> Filament Admin panel
+        if ($user->hasRole('admin')) {
+            return redirect()->route('filament.admin.pages.dashboard');
+        }
 
-        // // Groomer / Clinic / Shelter -> Filament Merchant panel
-        // if ($user->hasAnyRole(['groomer', 'clinic', 'shelter'])) {
-        //     return redirect()->route('filament.merchant.pages.dashboard');
-        // }
+        // Groomer / Clinic / Shelter -> Filament Merchant panel
+        if ($user->hasAnyRole(['groomer', 'clinic', 'shelter'])) {
+            return redirect()->route('filament.merchant.pages.dashboard');
+        }
 
-        // // Customer -> Welcome page (public landing)
-        // if ($user->hasRole('customer')) {
-        //     return redirect()->to('/');
-        // }
+        // Customer -> Welcome page (public landing)
+        if ($user->hasRole('customer')) {
+            return redirect()->to('/');
+        }
 
         // Fallback: go home
         return redirect()->intended('/');
