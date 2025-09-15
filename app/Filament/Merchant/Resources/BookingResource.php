@@ -24,6 +24,11 @@ class BookingResource extends Resource
     protected static ?string $navigationGroup = 'Booking Management';
     protected static ?int $navigationSort = 10;
 
+    public static function canCreate(): bool
+    {
+        return false; // Disable creating new bookings from merchant panel
+    }
+
     public static function getEloquentQuery(): Builder
     {
         // Scope to current merchant's bookings
