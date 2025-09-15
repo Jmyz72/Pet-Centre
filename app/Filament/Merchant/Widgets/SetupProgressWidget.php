@@ -119,16 +119,6 @@ class SetupProgressWidget extends Widget
                     'icon' => 'heroicon-o-calendar-days',
                 ]);
 
-                // Step 5: Grooming Services
-                $steps->push([
-                    'id' => 'services',
-                    'title' => 'Setup Grooming Services',
-                    'description' => 'Add grooming services you offer',
-                    'completed' => $this->hasServices($merchantProfile),
-                    'url' => '/merchant/services',
-                    'icon' => 'heroicon-o-scissors',
-                ]);
-
                 // Step 6: Grooming Packages
                 $steps->push([
                     'id' => 'packages',
