@@ -84,10 +84,10 @@ class MerchantWalletResource extends Resource
                 //
             ])
             ->actions([
-                // No actions needed
+                // No actions needed - wallets are view-only for merchants
             ])
             ->bulkActions([
-                // Remove bulk actions for wallet
+                // No bulk actions - wallets cannot be modified by merchants
             ]);
     }
 
@@ -152,6 +152,7 @@ class MerchantWalletResource extends Resource
     {
         return [
             'index' => Pages\ListMerchantWallets::route('/'),
+            // Removed create and edit pages - wallets are managed automatically
         ];
     }
 }
