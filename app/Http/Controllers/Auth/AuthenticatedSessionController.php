@@ -37,8 +37,10 @@ class AuthenticatedSessionController extends Controller
             // Send verification email
             $user->sendEmailVerificationNotification();
 
-            return redirect()->route('verification.notice')
-                ->with('message', 'Please verify your email before logging in. A verification email has been sent to your email address.');
+            // Stay on login page with error message
+            return back()->withErrors([
+                'email' => 'Please verify your email before logging in. A verification email has been sent to your email address.'
+            ]);
         }
 
         // Admin -> Filament Admin panel
