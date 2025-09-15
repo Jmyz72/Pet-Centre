@@ -112,7 +112,10 @@ class WalletTransactionResource extends Resource
                     ]),
             ])
             ->actions([
-                // No actions needed - all info shown in table
+                // No actions needed - transactions are view-only records
+            ])
+            ->bulkActions([
+                // No bulk actions - transactions cannot be modified
             ])
             ->defaultSort('created_at', 'desc');
     }
@@ -121,6 +124,7 @@ class WalletTransactionResource extends Resource
     {
         return [
             'index' => Pages\ListWalletTransactions::route('/'),
+            // Removed create and edit pages - transactions are generated automatically
         ];
     }
 }

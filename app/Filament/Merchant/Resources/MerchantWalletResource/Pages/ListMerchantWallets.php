@@ -13,7 +13,7 @@ class ListMerchantWallets extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            // No create action - wallets are automatically created, not manually added
         ];
     }
 }

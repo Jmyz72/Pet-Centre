@@ -13,7 +13,7 @@ class ListWalletTransactions extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            // No create action - transactions are generated automatically, not manually created
         ];
     }
 }
