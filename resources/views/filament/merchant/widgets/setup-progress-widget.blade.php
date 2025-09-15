@@ -1,21 +1,33 @@
 <x-filament-widgets::widget>
-    <x-filament::section>
+    <x-filament::section style="{{ $this->getCompletionPercentage() === 100 ? 'background-color: #f0fdf4; border-color: #bbf7d0; border-width: 1px;' : '' }}">
         <x-slot name="heading">
             <div class="flex items-center gap-2">
-                <x-heroicon-o-clipboard-document-check class="h-5 w-5 text-primary-600" />
-                Business Setup Progress
+                @if($this->getCompletionPercentage() === 100)
+                    <x-heroicon-o-check-circle class="h-5 w-5" style="color: #16a34a;" />
+                @else
+                    <x-heroicon-o-clipboard-document-check class="h-5 w-5 text-primary-600" />
+                @endif
+                <span style="{{ $this->getCompletionPercentage() === 100 ? 'color: #15803d;' : '' }}">
+                    Business Setup Progress
+                    @if($this->getCompletionPercentage() === 100)
+                        <span class="ml-2 text-xs font-normal">✓ Complete</span>
+                    @endif
+                </span>
             </div>
         </x-slot>
 
         <div class="space-y-6">
             {{-- Progress Bar --}}
-            <div>
+            <div style="{{ $this->getCompletionPercentage() === 100 ? 'background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 16px;' : '' }}">
                 <div class="flex items-center justify-between mb-2">
-                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <span class="text-sm font-medium" style="{{ $this->getCompletionPercentage() === 100 ? 'color: #15803d;' : 'color: #374151;' }}">
                         Setup Completion
                     </span>
-                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <span class="text-sm font-medium" style="{{ $this->getCompletionPercentage() === 100 ? 'color: #15803d;' : 'color: #374151;' }}">
                         {{ $this->getCompletionPercentage() }}%
+                        @if($this->getCompletionPercentage() === 100)
+                            🎉
+                        @endif
                     </span>
                 </div>
                 <div class="w-full bg-gray-200 rounded-full h-3 dark:bg-gray-700">
