@@ -43,7 +43,7 @@ class BookingCompletedNotification extends Notification
                 ->line('The merchant has confirmed completion of your service and funds have been released.')
                 ->line('Thank you for choosing our services!');
         } else {
-            // Merchant notification
+            // Merchant-facing email
             return (new MailMessage)
                 ->subject('Payment Released - ' . $bookingType)
                 ->greeting('Hello!')

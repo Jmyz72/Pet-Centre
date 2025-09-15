@@ -32,9 +32,9 @@ class Service extends Model
     {
         return $this->belongsToMany(
             Staff::class,
-            'staff_service', // pivot table
-            'service_id',    // this model's FK on pivot
-            'staff_id'       // related model's FK on pivot
+            'staff_service',
+            'service_id',
+            'staff_id'
         );
     }
 

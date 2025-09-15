@@ -15,14 +15,10 @@ class Message extends Model
         'message',
         'image_path',
     ];
-
-    // Sender relationship
     public function sender()
     {
         return $this->belongsTo(User::class, 'sender_id');
     }
-
-    // Receiver relationship
     public function receiver()
     {
         return $this->belongsTo(User::class, 'receiver_id');

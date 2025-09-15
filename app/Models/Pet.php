@@ -6,9 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Pet extends Model
 {
-    /**
-     * Pet status constants
-     */
     public const STATUS_DRAFT = 'draft';
     public const STATUS_AVAILABLE = 'available';
     public const STATUS_RESERVED = 'reserved';
@@ -52,25 +49,16 @@ class Pet extends Model
         return $this->belongsTo(MerchantProfile::class, 'merchant_id');
     }
 
-    /**
-     * Check if pet is available for adoption
-     */
     public function isAvailable(): bool
     {
         return $this->status === self::STATUS_AVAILABLE;
     }
 
-    /**
-     * Check if pet is reserved for adoption
-     */
     public function isReserved(): bool
     {
         return $this->status === self::STATUS_RESERVED;
     }
 
-    /**
-     * Check if pet is adopted
-     */
     public function isAdopted(): bool
     {
         return $this->status === self::STATUS_ADOPTED;
@@ -84,7 +72,6 @@ class Pet extends Model
             if ($weight !== null && $weight !== '') {
                 $w = (float) $weight;
 
-                // Find size where min_weight ≤ weight ≤ max_weight (NULL bounds are open-ended)
                 $size = Size::select('id')
                     ->whereRaw('? >= COALESCE(min_weight, -1e9)', [$w])
                     ->whereRaw('? <= COALESCE(max_weight,  1e9)', [$w])

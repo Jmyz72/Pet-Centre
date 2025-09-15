@@ -45,25 +45,16 @@ class WalletTransaction extends Model
         return $this->belongsTo(Booking::class);
     }
 
-    /**
-     * Check if transaction is pending release
-     */
     public function isPending(): bool
     {
         return $this->status === 'pending';
     }
 
-    /**
-     * Check if transaction is completed
-     */
     public function isCompleted(): bool
     {
         return $this->status === 'completed';
     }
 
-    /**
-     * Get formatted amount with currency
-     */
     public function getFormattedAmountAttribute(): string
     {
         return $this->currency . ' ' . number_format($this->amount, 2);

@@ -32,10 +32,6 @@ class MerchantWallet extends Model
     {
         return $this->morphMany(WalletTransaction::class, 'wallet', 'wallet_type', 'wallet_id');
     }
-
-    /**
-     * Add funds to pending balance (when booking is completed)
-     */
     public function addPendingFunds(float $amount, string $description, ?int $bookingId = null): WalletTransaction
     {
         $this->increment('pending_balance', $amount);
@@ -52,9 +48,6 @@ class MerchantWallet extends Model
         ]);
     }
 
-    /**
-     * Release pending funds to available balance using release code
-     */
     public function releaseFunds(string $releaseCode): bool
     {
         $transaction = $this->transactions()
@@ -66,13 +59,11 @@ class MerchantWallet extends Model
             return false;
         }
 
-        // Calculate fees
         $totalAmount = $transaction->amount;
-        $transactionFee = $totalAmount * 0.02; // 2%
-        $platformFee = $totalAmount * 0.10;    // 10%
+        $transactionFee = $totalAmount * 0.02;
+        $platformFee = $totalAmount * 0.10;
         $merchantAmount = $totalAmount - $transactionFee - $platformFee;
 
-        // Update transaction
         $transaction->update([
             'status' => 'completed',
             'transaction_fee' => $transactionFee,
@@ -81,19 +72,13 @@ class MerchantWallet extends Model
             'released_at' => now(),
         ]);
 
-        // Move from pending to available balance
         $this->decrement('pending_balance', $totalAmount);
         $this->increment('balance', $merchantAmount);
 
-        // Add platform fees
         $this->addPlatformFees($transactionFee, $platformFee, $transaction->booking_id);
 
         return true;
     }
-
-    /**
-     * Generate a 6-digit release code
-     */
     private function generateReleaseCode(): string
     {
         do {
@@ -102,13 +87,8 @@ class MerchantWallet extends Model
         
         return $code;
     }
-
-    /**
-     * Add fees to platform wallets
-     */
     private function addPlatformFees(float $transactionFee, float $platformFee, ?int $bookingId = null): void
     {
-        // Transaction fee wallet
         $transactionWallet = PlatformWallet::firstOrCreate(['wallet_type' => 'transaction_fees']);
         $transactionWallet->increment('balance', $transactionFee);
         $transactionWallet->transactions()->create([
@@ -121,7 +101,6 @@ class MerchantWallet extends Model
             'status' => 'completed',
         ]);
 
-        // Platform fee wallet
         $platformWallet = PlatformWallet::firstOrCreate(['wallet_type' => 'platform_fees']);
         $platformWallet->increment('balance', $platformFee);
         $platformWallet->transactions()->create([

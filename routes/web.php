@@ -6,7 +6,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicMerchantController;
 use App\Http\Controllers\HomeController;
 
-use App\Http\Controllers\ContactController; // Add this line
+use App\Http\Controllers\ContactController; // Contact form controller
 
 use App\Http\Controllers\CustomerPetController;
 use App\Http\Controllers\BookingController;
@@ -39,7 +39,7 @@ Route::get('/faq', function () {
 
 Route::post('/contact', [ContactController::class, 'submit'])->name('contact.submit');
 
-// Add contact routes (publicly accessible)
+// Public contact routes
 Route::get('/contact', [ContactController::class, 'index'])->name('contact');
 Route::post('/contact', [ContactController::class, 'submit'])->name('contact.submit');
 
@@ -55,7 +55,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/apply-merchant/store', [MerchantApplicationController::class, 'submit'])->name('merchant.apply.submit');
     Route::get('/apply-merchant/submitted', [MerchantApplicationController::class, 'showSubmitted'])->name('merchant.application.submitted');
 
-    /* Chat Route Method */
+    /* Chat routes */
     Route::get('/chat/{receiverId?}', [ChatController::class, 'index'])->name('chat.index');
     Route::delete('/chat/{partnerId}', [ChatController::class, 'deleteChat'])->name('chat.delete');
     Route::post('/chat/send', [ChatController::class, 'send'])->name('chat.send');
@@ -63,7 +63,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/chat/message/{id}', [ChatController::class, 'destroy'])->name('chat.destroy');
 
     
-    /* Merchant Chat Route */
+    /* Notifications */
  
     Route::get('/notifications', function () {
         $user = auth()->user();
@@ -108,7 +108,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/bookings/create', [BookingController::class, 'create'])->name('bookings.create');
     Route::get('/bookings/available-slots', [BookingController::class, 'availableSlots'])
     ->name('bookings.available-slots');
-    Route::get('/bookings/available-staff', [BookingController::class, 'availableStaff'])->name('bookings.available-staff'); // AJAX from the form
+    Route::get('/bookings/available-staff', [BookingController::class, 'availableStaff'])->name('bookings.available-staff'); // Used by the booking form (AJAX)
     Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
     Route::get('/bookings/bank-auth', [BookingController::class, 'bankAuth'])->name('bookings.bank-auth');
     Route::post('/bookings/complete', [BookingController::class, 'complete'])->name('bookings.complete');
@@ -133,4 +133,3 @@ Route::get('/merchants/{merchantProfile}', [PublicMerchantController::class, 'sh
 
 
 require __DIR__.'/auth.php';
-

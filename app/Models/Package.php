@@ -24,9 +24,9 @@ class Package extends Model
     {
         return $this->belongsToMany(
             PackageType::class,
-            'package_package_types', // pivot table
-            'package_id',            // this model's FK on pivot
-            'package_type_id'        // related model's FK on pivot
+            'package_package_types',
+            'package_id',
+            'package_type_id'
         );
     }
 
@@ -34,9 +34,9 @@ class Package extends Model
     {
         return $this->belongsToMany(
             PetType::class,
-            'package_pet_types', // pivot table
-            'package_id',        // this model's FK on pivot
-            'pet_type_id'        // related model's FK on pivot
+            'package_pet_types',
+            'package_id',
+            'pet_type_id'
         );
     }
     
@@ -44,9 +44,9 @@ class Package extends Model
     {
         return $this->belongsToMany(
             PetBreed::class,
-            'package_breeds', // pivot table
-            'package_id',     // this model's FK on pivot
-            'pet_breed_id'    // related model's FK on pivot
+            'package_breeds',
+            'package_id',
+            'pet_breed_id'
         );
     }
     
@@ -54,9 +54,9 @@ class Package extends Model
     {
         return $this->belongsToMany(
             Size::class,
-            'package_sizes', // pivot table
-            'package_id',    // this model's FK on pivot
-            'size_id'        // related model's FK on pivot
+            'package_sizes',
+            'package_id',
+            'size_id'
         );
     }
 
@@ -69,9 +69,9 @@ class Package extends Model
     {
         return $this->belongsToMany(
             Staff::class,
-            'staff_package', // pivot table
-            'package_id',    // this model's FK on pivot
-            'staff_id'       // related model's FK on pivot
+            'staff_package',
+            'package_id',
+            'staff_id'
         );
     }
 }

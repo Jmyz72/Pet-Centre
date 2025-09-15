@@ -59,10 +59,6 @@ class MerchantProfile extends Model
     {
         return $this->hasOne(MerchantWallet::class, 'merchant_id');
     }
-
-    /**
-     * Get or create the merchant's wallet
-     */
     public function getWallet(): MerchantWallet
     {
         return $this->wallet()->firstOrCreate([

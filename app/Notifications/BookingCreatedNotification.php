@@ -47,7 +47,7 @@ class BookingCreatedNotification extends Notification
             
             return $mail->line('Thank you for choosing our services!');
         } else {
-            // Merchant notification
+            // Merchant-facing email
             return (new MailMessage)
                 ->subject('New Booking Received - ' . $bookingType)
                 ->greeting('Hello!')

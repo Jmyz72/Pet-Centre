@@ -21,11 +21,12 @@ use Illuminate\Support\Facades\Notification;
 class ReleaseCodeService
 {
     /**
-     * Release payment using customer's release code
+     * Releases payment using the customer’s 6‑digit release code
+     * and completes the associated booking.
      */
     public function release(Booking $booking, string $releaseCode): void
     {
-        // Find the wallet transaction with this release code
+        // Look up the pending wallet transaction that matches the code and booking
         $transaction = WalletTransaction::where('release_code', $releaseCode)
             ->where('booking_id', $booking->id)
             ->where('status', 'pending')
@@ -35,31 +36,31 @@ class ReleaseCodeService
             throw new Exception('Invalid release code or transaction already completed.');
         }
 
-        // Get the merchant wallet
+        // Make sure we can resolve the merchant’s wallet
         $wallet = $transaction->wallet;
         if (!$wallet) {
             throw new Exception('Merchant wallet not found.');
         }
 
-        // Release the funds (this handles fee calculations and platform wallets)
+        // Release the funds. The wallet handles fee calculations and platform allocations.
         $success = $wallet->releaseFunds($releaseCode);
         
         if (!$success) {
             throw new Exception('Failed to release funds. Please try again.');
         }
 
-        // Update booking status to completed
+        // Mark the booking as completed
         $booking->update(['status' => 'completed']);
 
-        // If this is an adoption booking, update pet status to adopted
+        // For adoptions, also mark the pet as adopted
         $this->updatePetStatusIfAdoption($booking);
 
-        // Send completion notifications to both customer and merchant
+        // Let both the customer and merchant know we’re done
         $this->sendCompletionNotifications($booking, $transaction);
     }
 
     /**
-     * Update pet status to adopted if this is an adoption booking
+     * If this booking is for an adoption, update the pet to “Adopted”.
      */
     private function updatePetStatusIfAdoption(Booking $booking): void
     {
@@ -94,16 +95,17 @@ class ReleaseCodeService
     }
 
     /**
-     * Send completion notifications to customer and merchant
-     */
+        * Notifies both parties (customer and merchant) that the booking was completed
+        * and payment was released.
+        */
     private function sendCompletionNotifications(Booking $booking, WalletTransaction $transaction): void
     {
         \Log::info('ReleaseCodeService::sendCompletionNotifications called', ['booking_id' => $booking->id, 'transaction_id' => $transaction->id]);
         
-        // Load the customer relationship for notification
+        // Ensure the customer relation is available for notifications
         $booking->load('customer');
         
-        // Send notification to merchant (User model supports database + email notifications)
+        // Notify the merchant (database + email)
         $merchant = User::find($booking->merchant_id);
         if ($merchant) {
             \Log::info('Sending BookingCompletedNotification to merchant', ['merchant_id' => $merchant->id, 'booking_id' => $booking->id]);
@@ -112,7 +114,7 @@ class ReleaseCodeService
             \Log::warning('Merchant not found for booking completion', ['merchant_id' => $booking->merchant_id, 'booking_id' => $booking->id]);
         }
         
-        // Send notification to customer (User model supports database + email notifications)
+        // Notify the customer (database + email)
         if ($booking->customer) {
             \Log::info('Sending BookingCompletedNotification to customer', ['customer_id' => $booking->customer->id, 'booking_id' => $booking->id]);
             $booking->customer->notify(new BookingCompletedNotification($booking, $transaction, 'customer'));

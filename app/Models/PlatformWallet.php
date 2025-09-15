@@ -24,25 +24,16 @@ class PlatformWallet extends Model
         return $this->morphMany(WalletTransaction::class, 'wallet', 'wallet_type', 'wallet_id');
     }
 
-    /**
-     * Get the main platform wallet
-     */
     public static function main(): self
     {
         return self::firstOrCreate(['wallet_type' => 'main']);
     }
 
-    /**
-     * Get the transaction fees wallet
-     */
     public static function transactionFees(): self
     {
         return self::firstOrCreate(['wallet_type' => 'transaction_fees']);
     }
 
-    /**
-     * Get the platform fees wallet
-     */
     public static function platformFees(): self
     {
         return self::firstOrCreate(['wallet_type' => 'platform_fees']);

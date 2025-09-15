@@ -9,45 +9,28 @@ class Staff extends Model
 {
     use HasFactory;
 
-    /**
-     * The table associated with the model.
-     */
     protected $table = 'staff';
 
-    /**
-     * Mass assignable attributes.
-     */
     protected $fillable = [
         'merchant_id',
         'name',
         'email',
         'phone',
-        'role',    // e.g. 'groomer', 'clinic'
-        'status',  // e.g. 'active', 'inactive'
+        'role',
+        'status',
     ];
 
-    /**
-     * Relationships
-     */
-
-    // Each staff belongs to a merchant profile
     public function merchant()
     {
         return $this->belongsTo(MerchantProfile::class, 'merchant_id');
     }
-
-    // Many-to-many: staff can perform many services
     public function services()
     {
         return $this->belongsToMany(Service::class, 'staff_service', 'staff_id', 'service_id');
     }
-
-    // Many-to-many: staff can be assigned to many packages
     public function packages()
     {
         return $this->belongsToMany(Package::class, 'staff_package', 'staff_id', 'package_id');    }
-
-    // One-to-many: per-staff operating hours
     public function operatingHours()
     {
         return $this->hasMany(StaffOperatingHour::class);
@@ -58,7 +41,6 @@ class Staff extends Model
         return $this->hasMany(Schedule::class);
     }
 
-    // One-to-many: staff can have many bookings
     public function bookings()
     {
         return $this->hasMany(Booking::class);

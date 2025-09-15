@@ -16,7 +16,7 @@ class VirusScan implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        // $value will be the uploaded file object
+        // $value is the uploaded file object we’re validating
         try {
             $response = Http::withHeaders([
                 'x-apikey' => config('services.virustotal.api_key'),
@@ -24,13 +24,13 @@ class VirusScan implements ValidationRule
             ->attach('file', file_get_contents($value->getRealPath()), $value->getClientOriginalName())
             ->post('https://www.virustotal.com/api/v3/files');
             
-            // If the API returns an error status code (4xx or 5xx), throw an exception.
+            // If VirusTotal responds with an error (4xx/5xx), surface it immediately
             $response->throw();
 
             Log::info('VirusTotal scan initiated for file: ' . $value->getClientOriginalName());
 
-            // You can optionally check the response body for immediate malicious flags,
-            // but for simplicity, we'll consider a successful upload as a pass for now.
+            // Optional: Inspect response for immediate “malicious” flags.
+            // For now, a successful upload is considered a pass.
             // $stats = $response->json('data.attributes.last_analysis_stats');
             // if (isset($stats['malicious']) && $stats['malicious'] > 0) {
             //     $fail('A virus was detected in the uploaded file.');
@@ -38,7 +38,7 @@ class VirusScan implements ValidationRule
 
         } catch (\Exception $e) {
             Log::error('VirusTotal scan failed: ' . $e->getMessage());
-            // This message will be shown to the user.
+            // A friendly message shown to the user when scanning fails
             $fail('The uploaded file could not be scanned and was rejected.');
         }
     }

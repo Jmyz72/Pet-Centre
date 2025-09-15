@@ -13,16 +13,12 @@ class Booking extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            // Log changes to these specific, important attributes
             ->logOnly(['status', 'start_at', 'end_at', 'price_amount', 'customer_id', 'merchant_id'])
-            
-            // Use a friendly, dynamic description for the log message
+
             ->setDescriptionForEvent(fn(string $eventName) => "A booking has been {$eventName}")
-            
-            // Log only the attributes that have actually changed
+
             ->logOnlyDirty()
-            
-            // Don't create a log entry if nothing was changed
+
             ->dontSubmitEmptyLogs();
     }
 
@@ -41,10 +37,10 @@ class Booking extends Model
 
     public function merchant()     { return $this->belongsTo(MerchantProfile::class); }
     public function customer()     { return $this->belongsTo(User::class, 'customer_id'); }
-    public function service()      { return $this->belongsTo(Service::class); }         // clinic
-    public function package()      { return $this->belongsTo(Package::class); }         // groomer
+    public function service()      { return $this->belongsTo(Service::class); }
+    public function package()      { return $this->belongsTo(Package::class); }
     public function customerPet()  { return $this->belongsTo(CustomerPet::class, 'customer_pet_id'); }
-    public function merchantPet()  { return $this->belongsTo(Pet::class, 'pet_id'); }   // shelter’s pet
+    public function merchantPet()  { return $this->belongsTo(Pet::class, 'pet_id'); }
     public function staff()        { return $this->belongsTo(Staff::class); }
     public function schedule()     { return $this->hasOne(Schedule::class); }
     public function payments()     { return $this->hasMany(Payment::class); }
