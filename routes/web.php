@@ -5,9 +5,7 @@ use App\Http\Controllers\BookingPageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicMerchantController;
 use App\Http\Controllers\HomeController;
-
-use App\Http\Controllers\ContactController; // Contact form controller
-
+use App\Http\Controllers\ContactController; 
 use App\Http\Controllers\CustomerPetController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ApiTestController; 
