@@ -2,6 +2,9 @@
 
 namespace App\Providers;
 
+use Illuminate\Auth\Events\Verified;
+use App\Listeners\AssignCustomerRole;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use App\Interfaces\ChatRepositoryInterface; // <-- Add this line
 use App\Repositories\EloquentChatRepository; // 
@@ -25,6 +28,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Event::listen(Verified::class, AssignCustomerRole::class);
     }
 }

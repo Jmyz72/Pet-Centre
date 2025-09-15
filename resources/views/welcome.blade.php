@@ -3,36 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PetCentre - Home</title>
+    <title>PetCentre - Your Pet's Complete Care Hub</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800&display=swap');
         
         body {
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Nunito', sans-serif;
         }
         
-        .hero-bg {
-            background: linear-gradient(to right, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0.95)), 
-                        url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23fafafa"/><path d="M0 0L100 100" stroke="%23f0f0f0" stroke-width="1.5"/><path d="M100 0L0 100" stroke="%23f0f0f0" stroke-width="1.5"/></svg>');
-            background-size: cover;
+        .hero-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .hero-pattern {
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(255,255,255,0.05) 0%, transparent 50%);
+        }
+        
+        .card-hover {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-12px) scale(1.02);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
         }
         
         .pet-card {
-            transition: all 0.3s ease;
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+            background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
         }
         
-        .pet-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
-        }
-        
-        .feature-icon {
-            background-color: #f8fafc;
+        /* Service icon styles */
+        .service-icon {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
             width: 80px;
             height: 80px;
             border-radius: 20px;
@@ -40,208 +51,292 @@
             align-items: center;
             justify-content: center;
             margin: 0 auto 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.03);
-            border: 1px solid #f1f5f9;
+            box-shadow: 0 10px 30px rgba(79, 172, 254, 0.3);
+        }
+        
+        /* Package icon styles */
+        .package-icon {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: white;
+            width: 80px;
+            height: 80px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            box-shadow: 0 10px 30px rgba(67, 233, 123, 0.3);
+        }
+        
+        .adoption-icon {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            box-shadow: 0 10px 30px rgba(240, 147, 251, 0.3);
+        }
+        
+        .clinic-icon {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            box-shadow: 0 10px 30px rgba(79, 172, 254, 0.3);
+        }
+        
+        .groomer-icon {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            box-shadow: 0 10px 30px rgba(67, 233, 123, 0.3);
         }
         
         .btn-primary {
-            background: linear-gradient(to right, #3b82f6, #2563eb);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-weight: 600;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.15);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
         }
         
         .btn-primary:hover {
-            background: linear-gradient(to right, #2563eb, #1d4ed8);
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
         }
         
         .btn-secondary {
             background: white;
+            border: 2px solid #e2e8f0;
+            color: #4a5568;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
             transition: all 0.3s ease;
-            border: 2px solid #e5e7eb;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.03);
         }
         
         .btn-secondary:hover {
-            background: #f8fafc;
+            border-color: #667eea;
+            color: #667eea;
             transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
-            border-color: #3b82f6;
-        }
-        
-        .modal-content {
-            border-radius: 20px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
         }
         
         .section-title {
             position: relative;
             display: inline-block;
-            margin-bottom: 2rem;
         }
         
         .section-title:after {
             content: '';
             position: absolute;
-            bottom: -12px;
+            bottom: -8px;
             left: 50%;
             transform: translateX(-50%);
-            width: 70px;
+            width: 60px;
             height: 4px;
-            background: linear-gradient(to right, #3b82f6, #2563eb);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border-radius: 2px;
         }
         
-        .service-card {
-            transition: all 0.3s ease;
+        .price-badge {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 6px 12px;
             border-radius: 20px;
-            overflow: hidden;
-            background: white;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
-            border: 1px solid #f8fafc;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+        
+        .adoption-badge {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+        
+        .floating-element {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .stats-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .paw-pattern {
+            background-image: 
+                radial-gradient(circle at 25% 25%, rgba(102, 126, 234, 0.1) 2px, transparent 2px),
+                radial-gradient(circle at 75% 75%, rgba(118, 75, 162, 0.1) 2px, transparent 2px);
+            background-size: 50px 50px;
+        }
+        
+        /* Additional floating animations */
+        .floating-paw {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .floating-heart {
+            animation: float 4s ease-in-out infinite reverse;
+        }
+        
+        /* Card specific hover effects */
+        .service-card {
+            border: 1px solid rgba(79, 172, 254, 0.2);
+            background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
         }
         
         .service-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 25px 30px -10px rgba(0, 0, 0, 0.08);
-            border-color: #e0e7ff;
+            border-color: rgba(79, 172, 254, 0.4);
+            box-shadow: 0 20px 40px rgba(79, 172, 254, 0.2);
         }
         
-        .service-icon {
-            width: 90px;
-            height: 90px;
-            border-radius: 22px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 24px;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
+        .package-card {
+            border: 1px solid rgba(67, 233, 123, 0.2);
+            background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
         }
         
-        .shelter-icon {
-            background: linear-gradient(135deg, #e0f2fe, #bae6fd);
-            color: #0369a1;
+        .package-card:hover {
+            border-color: rgba(67, 233, 123, 0.4);
+            box-shadow: 0 20px 40px rgba(67, 233, 123, 0.2);
         }
         
-        .clinic-icon {
-            background: linear-gradient(135deg, #fce7f3, #fbcfe8);
-            color: #9d174d;
-        }
-        
-        .groomer-icon {
-            background: linear-gradient(135deg, #dcfce7, #bbf7d0);
-            color: #166534;
-        }
-        
-        .service-link {
-            transition: all 0.3s ease;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-        }
-        
-        .service-link:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        }
-        
-        .shelter-link {
-            background-color: #dbeafe;
-            color: #1e40af;
-        }
-        
-        .shelter-link:hover {
-            background-color: #bfdbfe;
-        }
-        
-        .clinic-link {
-            background-color: #fce7f3;
-            color: #9d174d;
-        }
-        
-        .clinic-link:hover {
-            background-color: #fbcfe8;
-        }
-        
-        .groomer-link {
-            background-color: #dcfce7;
-            color: #166534;
-        }
-        
-        .groomer-link:hover {
-            background-color: #bbf7d0;
-        }
-        
-        .pet-tag {
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 500;
-            padding: 0.35rem 0.75rem;
+        /* Updated pet card hover */
+        .pet-card:hover {
+            border-color: rgba(240, 147, 251, 0.4);
+            box-shadow: 0 20px 40px rgba(240, 147, 251, 0.2);
         }
     </style>
 </head>
-<body class="bg-white text-gray-800">
+<body class="bg-gray-50 text-gray-800">
 
 @extends('layouts.app')
 
 @section('content')
 
     <!-- Hero Section -->
-    <section class="hero-bg py-16 md:py-24 px-4">
-        <div class="max-w-6xl mx-auto">
-            <div class="text-center mb-32">
-                <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">Complete Care for Your <span class="text-blue-600">Pet Companion</span></h1>
-                <p class="text-lg md:text-xl text-gray-600 mb-12 max-w-3xl mx-auto">
-                    A centralized platform for pet adoption, clinical care, and grooming services.
+    <section class="hero-gradient hero-pattern relative overflow-hidden">
+        <div class="absolute inset-0 paw-pattern"></div>
+        <div class="relative z-10 py-20 md:py-32 px-4">
+            <div class="max-w-7xl mx-auto">
+                <div class="text-center">
+                    <!-- Floating elements -->
+                    <div class="floating-element absolute top-10 left-10 text-white opacity-20">
+                        <i class="fas fa-paw text-4xl"></i>
+                    </div>
+                    <div class="floating-element absolute top-20 right-20 text-white opacity-20" style="animation-delay: -2s;">
+                        <i class="fas fa-heart text-3xl"></i>
+                    </div>
+                    <div class="floating-element absolute bottom-20 left-20 text-white opacity-20" style="animation-delay: -4s;">
+                        <i class="fas fa-bone text-3xl"></i>
+                    </div>
+                    
+                    <div class="max-w-4xl mx-auto">
+                        <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+                            <span class="text-gray-800 drop-shadow-lg">Where Pets Find</span>
+                            <span class="bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent block">
+                                Love & Care
+                            </span>
+                        </h1>
+                        <p class="text-xl md:text-2xl text-gray-700 mb-12 leading-relaxed">
+                            Your one-stop destination for pet adoption, veterinary care, and grooming services. 
+                            Because every pet deserves the best! 🐾
+                        </p>
+                        
+                        <div class="flex flex-col md:flex-row gap-6 justify-center items-center mb-16">
+                            <a href="#pets" class="btn-primary inline-flex items-center text-lg">
+                                <i class="fas fa-heart mr-3"></i>
+                                Find Your Pet
+                            </a>
+                            <a href="#services" class="btn-secondary inline-flex items-center text-lg">
+                                <i class="fas fa-stethoscope mr-3"></i>
+                                Book Care Services
+                            </a>
+                        </div>
+                        
+                        <!-- Stats -->
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
+                            <div class="stats-card rounded-2xl p-6 text-center">
+                                <div class="text-3xl font-bold text-purple-600 mb-2">{{ $stats['adoptions'] > 0 ? $stats['adoptions'] . '+' : '0' }}</div>
+                                <div class="text-sm text-gray-600">Happy Adoptions</div>
+                            </div>
+                            <div class="stats-card rounded-2xl p-6 text-center">
+                                <div class="text-3xl font-bold text-blue-600 mb-2">{{ $stats['clinics'] > 0 ? $stats['clinics'] . '+' : '0' }}</div>
+                                <div class="text-sm text-gray-600">Trusted Clinics</div>
+                            </div>
+                            <div class="stats-card rounded-2xl p-6 text-center">
+                                <div class="text-3xl font-bold text-green-600 mb-2">{{ $stats['services'] > 0 ? $stats['services'] . '+' : '0' }}</div>
+                                <div class="text-sm text-gray-600">Available Services</div>
+                            </div>
+                            <div class="stats-card rounded-2xl p-6 text-center">
+                                <div class="text-3xl font-bold text-pink-600 mb-2">{{ $stats['happy_families'] > 0 ? $stats['happy_families'] . '+' : '0' }}</div>
+                                <div class="text-sm text-gray-600">Happy Families</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Overview -->
+    <section class="py-20 bg-white relative">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6 section-title">
+                    Everything Your Pet Needs
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    From finding your perfect companion to keeping them healthy and beautiful, 
+                    we've got all your pet care needs covered.
                 </p>
             </div>
-            
-            <div class="text-center mb-16">
-                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4 section-title">Everything Your Pet Needs</h2>
-                <p class="text-lg text-gray-600 max-w-2xl mx-auto">We provide comprehensive care for your furry friends with our range of specialized services</p>
-            </div>
 
-            <!-- Service Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-4">
-                <!-- Shelter Card -->
-                <div class="service-card p-8 text-center">
-                    <div class="service-icon shelter-icon">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Adoption Card -->
+                <div class="card-hover bg-white rounded-3xl p-8 text-center border border-gray-100">
+                    <div class="service-icon adoption-icon mx-auto mb-6">
                         <i class="fas fa-home text-3xl"></i>
                     </div>
-                    <h3 class="text-2xl font-semibold text-gray-900 mb-4">Shelter</h3>
-                    <p class="text-gray-600 mb-6">
-                        Find loving pets from local shelters waiting for their forever homes.
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">Pet Adoption</h3>
+                    <p class="text-gray-600 mb-8 leading-relaxed">
+                        Discover loving pets from verified shelters waiting for their forever homes. 
+                        Start your adoption journey today!
                     </p>
-                    <a href="/shelter" class="service-link shelter-link inline-block px-6 py-3 font-medium rounded-lg transition">
-                        Explore Shelters <i class="fas fa-arrow-right ml-2 text-sm"></i>
+                    <a href="#pets" class="inline-flex items-center text-pink-600 font-semibold hover:text-pink-700">
+                        Browse Pets <i class="fas fa-arrow-right ml-2"></i>
                     </a>
                 </div>
                 
                 <!-- Clinic Card -->
-                <div class="service-card p-8 text-center">
-                    <div class="service-icon clinic-icon">
+                <div class="card-hover bg-white rounded-3xl p-8 text-center border border-gray-100">
+                    <div class="service-icon clinic-icon mx-auto mb-6">
                         <i class="fas fa-stethoscope text-3xl"></i>
                     </div>
-                    <h3 class="text-2xl font-semibold text-gray-900 mb-4">Clinic</h3>
-                    <p class="text-gray-600 mb-6">
-                        Professional veterinary care to keep your pets healthy and happy.
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">Veterinary Care</h3>
+                    <p class="text-gray-600 mb-8 leading-relaxed">
+                        Professional healthcare from certified veterinarians. 
+                        Keep your pets healthy with expert medical care.
                     </p>
-                    <a href="/clinic" class="service-link clinic-link inline-block px-6 py-3 font-medium rounded-lg transition">
-                        Clinic Services <i class="fas fa-arrow-right ml-2 text-sm"></i>
+                    <a href="#services" class="inline-flex items-center text-blue-600 font-semibold hover:text-blue-700">
+                        Book Appointment <i class="fas fa-arrow-right ml-2"></i>
                     </a>
                 </div>
                 
-                <!-- Groomer Card -->
-                <div class="service-card p-8 text-center">
-                    <div class="service-icon groomer-icon">
+                <!-- Grooming Card -->
+                <div class="card-hover bg-white rounded-3xl p-8 text-center border border-gray-100">
+                    <div class="service-icon groomer-icon mx-auto mb-6">
                         <i class="fas fa-spa text-3xl"></i>
                     </div>
-                    <h3 class="text-2xl font-semibold text-gray-900 mb-4">Groomer</h3>
-                    <p class="text-gray-600 mb-6">
-                        Professional grooming services to keep your pets looking their best.
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">Pet Grooming</h3>
+                    <p class="text-gray-600 mb-8 leading-relaxed">
+                        Pamper your pets with professional grooming services. 
+                        Keep them looking and feeling their absolute best.
                     </p>
-                    <a href="/groomer" class="service-link groomer-link inline-block px-6 py-3 font-medium rounded-lg transition">
-                        Book Grooming <i class="fas fa-arrow-right ml-2 text-sm"></i>
+                    <a href="#packages" class="inline-flex items-center text-green-600 font-semibold hover:text-green-700">
+                        View Packages <i class="fas fa-arrow-right ml-2"></i>
                     </a>
                 </div>
             </div>
@@ -250,110 +345,346 @@
 
     
     <!-- Pet Adoption Showcase -->
-    <section class="py-16 md:py-24 bg-white">
+    <section id="pets" class="py-20 bg-gradient-to-br from-purple-50 to-pink-50">
         <div class="max-w-7xl mx-auto px-4">
             <div class="text-center mb-16">
-                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4 section-title">Pets Looking for a Home</h2>
-                <p class="text-lg text-gray-600 max-w-2xl mx-auto">These adorable pets are waiting to meet their forever families. Could one of them be yours?</p>
+                <div class="inline-flex items-center bg-pink-100 text-pink-800 px-4 py-2 rounded-full text-sm font-semibold mb-4">
+                    <i class="fas fa-heart mr-2"></i>
+                    Featured Pets
+                </div>
+                <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6 section-title">
+                    Pets Looking for Love
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    These adorable companions are ready to fill your home with joy and unconditional love. 
+                    Could one of them be your perfect match? 💝
+                </p>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-                <!-- Pet Card 1 -->
-                <div onclick="openQuickView('Buddy', 'Golden Retriever • 2 years old', '/images/dog.png')" 
-                     class="pet-card bg-white rounded-xl overflow-hidden cursor-pointer border border-gray-100">
-                    <div class="h-56 overflow-hidden bg-gray-100 flex items-center justify-center">
-                        <img src="/images/dog.png" alt="Buddy" class="w-full h-full object-cover">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                @forelse($featuredPets as $pet)
+                <!-- Pet Card -->
+                <div class="pet-card rounded-3xl overflow-hidden card-hover">
+                    <!-- Pet Image -->
+                    <div class="relative h-64 overflow-hidden">
+                        <img src="{{ $pet['image'] }}" alt="{{ $pet['name'] }}" 
+                             class="w-full h-full object-cover">
+                        <!-- Price Badge -->
+                        <div class="absolute top-4 right-4">
+                            @if($pet['adoption_fee'])
+                                <span class="price-badge">RM {{ number_format($pet['adoption_fee'], 2) }}</span>
+                            @else
+                                <span class="adoption-badge">Free Adoption</span>
+                            @endif
+                        </div>
+                        <!-- Vaccination Badge -->
+                        @if($pet['vaccinated'])
+                            <div class="absolute top-4 left-4">
+                                <span class="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
+                                    <i class="fas fa-shield-alt mr-1"></i> Vaccinated
+                                </span>
+                            </div>
+                        @endif
                     </div>
+                    
+                    <!-- Pet Info -->
                     <div class="p-6">
-                        <h3 class="text-xl font-semibold text-gray-900">Buddy</h3>
-                        <p class="text-gray-600 text-sm mt-1">Golden Retriever • 2 years</p>
-                        <div class="flex items-center mt-4">
-                            <span class="pet-tag bg-blue-100 text-blue-800">Friendly</span>
-                            <span class="pet-tag bg-green-100 text-green-800 ml-2">Good with kids</span>
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="text-2xl font-bold text-gray-900">{{ $pet['name'] }}</h3>
+                            <div class="text-sm text-gray-500">
+                                <i class="fas fa-birthday-cake mr-1"></i>{{ $pet['age'] }}
+                            </div>
+                        </div>
+                        
+                        <p class="text-gray-600 mb-3">
+                            <i class="fas fa-tag mr-2 text-purple-500"></i>
+                            {{ $pet['type'] }}{{ $pet['breed'] ? ' • ' . $pet['breed'] : '' }}
+                        </p>
+                        
+                        <!-- Shelter Info -->
+                        <div class="flex items-center text-sm text-gray-500 mb-6">
+                            <i class="fas fa-map-marker-alt mr-2 text-pink-500"></i>
+                            <span>{{ $pet['merchant_name'] }}</span>
+                        </div>
+                        
+                        <!-- Action Buttons -->
+                        <div class="space-y-3">
+                            <a href="/bookings/create?pet_id={{ $pet['id'] }}&booking_type=adoption" 
+                               class="w-full inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-xl font-semibold hover:from-pink-600 hover:to-purple-700 transition duration-300">
+                                <i class="fas fa-heart mr-2"></i> Adopt {{ $pet['name'] }}
+                            </a>
+                            <a href="/merchants/{{ $pet['merchant_id'] }}" 
+                               class="w-full inline-flex items-center justify-center px-6 py-3 bg-white text-gray-700 border-2 border-gray-200 rounded-xl font-semibold hover:border-purple-300 hover:text-purple-600 transition duration-300">
+                                <i class="fas fa-home mr-2"></i> Visit Shelter
+                            </a>
                         </div>
                     </div>
                 </div>
-
-                <!-- Pet Card 2 -->
-                <div onclick="openQuickView('Mittens', 'Tabby Cat • 1.5 years old', '/images/cat.png')" 
-                     class="pet-card bg-white rounded-xl overflow-hidden cursor-pointer border border-gray-100">
-                    <div class="h-56 overflow-hidden bg-gray-100 flex items-center justify-center">
-                        <img src="/images/cat.png" alt="Mittens" class="w-full h-full object-cover">
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-xl font-semibold text-gray-900">Mittens</h3>
-                        <p class="text-gray-600 text-sm mt-1">Tabby Cat • 1.5 years</p>
-                        <div class="flex items-center mt-4">
-                            <span class="pet-tag bg-blue-100 text-blue-800">Playful</span>
-                            <span class="pet-tag bg-purple-100 text-purple-800 ml-2">Indoor</span>
-                        </div>
+                @empty
+                <!-- Fallback if no pets -->
+                <div class="col-span-full text-center py-20">
+                    <div class="max-w-md mx-auto">
+                        <div class="text-8xl mb-6">🐾</div>
+                        <h3 class="text-2xl font-bold text-gray-900 mb-4">No Pets Available Right Now</h3>
+                        <p class="text-gray-600 mb-8">
+                            Check back soon! New adorable pets are looking for their forever homes every day.
+                        </p>
+                        <a href="/merchants?role=shelter" class="btn-primary inline-flex items-center">
+                            <i class="fas fa-search mr-2"></i> Browse All Shelters
+                        </a>
                     </div>
                 </div>
-
-                <!-- Pet Card 3 -->
-                <div onclick="openQuickView('Snowy', 'White Rabbit • 8 months old', '/images/paws.png')" 
-                     class="pet-card bg-white rounded-xl overflow-hidden cursor-pointer border border-gray-100">
-                    <div class="h-56 overflow-hidden bg-gray-100 flex items-center justify-center">
-                        <img src="/images/paws.png" alt="Snowy" class="w-full h-full object-cover">
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-xl font-semibold text-gray-900">Snowy</h3>
-                        <p class="text-gray-600 text-sm mt-1">White Rabbit • 8 months</p>
-                        <div class="flex items-center mt-4">
-                            <span class="pet-tag bg-blue-100 text-blue-800">Gentle</span>
-                            <span class="pet-tag bg-yellow-100 text-yellow-800 ml-2">Quiet</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Pet Card 4 -->
-                <div onclick="openQuickView('Rocky', 'Mixed Breed • 3 years old', '/images/dog.png')" 
-                     class="pet-card bg-white rounded-xl overflow-hidden cursor-pointer border border-gray-100">
-                    <div class="h-56 overflow-hidden bg-gray-100 flex items-center justify-center">
-                        <img src="/images/dog.png" alt="Rocky" class="w-full h-full object-cover">
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-xl font-semibold text-gray-900">Rocky</h3>
-                        <p class="text-gray-600 text-sm mt-1">Mixed Breed • 3 years</p>
-                        <div class="flex items-center mt-4">
-                            <span class="pet-tag bg-blue-100 text-blue-800">Loyal</span>
-                            <span class="pet-tag bg-green-100 text-green-800 ml-2">Active</span>
-                        </div>
-                    </div>
-                </div>
+                @endforelse
             </div>
+            
+            <!-- View More Button -->
+            @if(count($featuredPets) > 0)
+            <div class="text-center mt-12">
+                <a href="/merchants?role=shelter" class="btn-primary inline-flex items-center text-lg">
+                    <i class="fas fa-paw mr-3"></i>
+                    View All Available Pets
+                </a>
+            </div>
+            @endif
         </div>
     </section>
 
+    <!-- Featured Services Section -->
+        <!-- Services Section -->
+    <section class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="text-center mb-16">
+                <div class="inline-flex items-center bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-semibold mb-4">
+                    <i class="fas fa-stethoscope mr-2"></i>
+                    Professional Services
+                </div>
+                <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6 section-title">
+                    Complete Pet Care Services
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    From routine checkups to specialized treatments, our trusted veterinary partners provide 
+                    comprehensive care to keep your pets healthy and happy.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                @forelse($featuredServices as $service)
+                <!-- Service Card -->
+                <div class="service-card bg-white rounded-3xl overflow-hidden border border-gray-100 card-hover p-8">
+                    <!-- Service Icon -->
+                    <div class="service-icon mb-6">
+                        @php
+                            $serviceIcons = [
+                                'Vaccination' => 'fa-syringe',
+                                'General Check-up' => 'fa-stethoscope',
+                                'Surgery' => 'fa-scalpel',
+                                'X-ray' => 'fa-x-ray',
+                                'Blood Test' => 'fa-vial',
+                                'Ultrasound' => 'fa-heartbeat',
+                                'Dental Care' => 'fa-tooth',
+                                'Deworming' => 'fa-pills',
+                                'Microchipping' => 'fa-microchip',
+                                'Emergency Care' => 'fa-ambulance',
+                                'default' => 'fa-stethoscope'
+                            ];
+                            $icon = $serviceIcons[$service['category']] ?? $serviceIcons['default'];
+                        @endphp
+                        <i class="fas {{ $icon }} text-3xl"></i>
+                    </div>
+                    
+                    <!-- Service Info -->
+                    <div class="mb-6">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="text-xl font-bold text-gray-900">{{ $service['name'] }}</h3>
+                            <span class="text-2xl font-bold text-blue-600">RM {{ number_format($service['price'], 2) }}</span>
+                        </div>
+                        
+                        <!-- Category Badge -->
+                        <div class="mb-4">
+                            <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold">
+                                {{ $service['category'] }}
+                            </span>
+                        </div>
+                        
+                        <p class="text-gray-600 mb-4 text-sm leading-relaxed">{{ $service['description'] }}</p>
+                        
+                        <!-- Duration Info -->
+                        @if($service['duration'])
+                            <div class="flex items-center text-sm text-gray-500 mb-4">
+                                <i class="fas fa-clock mr-2 text-blue-500"></i>
+                                <span>{{ $service['duration'] }} minutes</span>
+                            </div>
+                        @endif
+                        
+                        <!-- Clinic Info -->
+                        <div class="flex items-center text-sm text-gray-500 mb-6">
+                            <i class="fas fa-clinic-medical mr-2 text-blue-500"></i>
+                            <span>{{ $service['merchant_name'] }}</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="space-y-3">
+                        <a href="/bookings/create?service_id={{ $service['id'] }}&booking_type=service" 
+                           class="w-full inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-600 text-white rounded-xl font-semibold hover:from-blue-600 hover:to-cyan-700 transition duration-300">
+                            <i class="fas fa-calendar-plus mr-2"></i> Book Service
+                        </a>
+                        <a href="/merchants/{{ $service['merchant_id'] }}" 
+                           class="w-full inline-flex items-center justify-center px-6 py-3 bg-white text-gray-700 border-2 border-gray-200 rounded-xl font-semibold hover:border-blue-300 hover:text-blue-600 transition duration-300">
+                            <i class="fas fa-clinic-medical mr-2"></i> Visit Clinic
+                        </a>
+                    </div>
+                </div>
+                @empty
+                <!-- Fallback if no services -->
+                <div class="col-span-full text-center py-20">
+                    <div class="max-w-md mx-auto">
+                        <div class="text-8xl mb-6">🏥</div>
+                        <h3 class="text-2xl font-bold text-gray-900 mb-4">No Services Available</h3>
+                        <p class="text-gray-600 mb-8">
+                            Our veterinary partners are constantly adding new services. Check back soon!
+                        </p>
+                        <a href="/merchants?role=clinic" class="btn-primary inline-flex items-center">
+                            <i class="fas fa-search mr-2"></i> Browse All Clinics
+                        </a>
+                    </div>
+                </div>
+                @endforelse
+            </div>
+            
+            <!-- View More Button -->
+            @if(count($featuredServices) > 0)
+            <div class="text-center mt-12">
+                <a href="/merchants?role=clinic" class="btn-primary inline-flex items-center text-lg">
+                    <i class="fas fa-stethoscope mr-3"></i>
+                    View All Available Services
+                </a>
+            </div>
+            @endif
+        </div>
+    </section>
+
+    <!-- Featured Packages Section -->
+        <!-- Packages Section -->
+    <section class="py-20 bg-gradient-to-br from-green-50 to-emerald-50">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="text-center mb-16">
+                <div class="inline-flex items-center bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-semibold mb-4">
+                    <i class="fas fa-gift mr-2"></i>
+                    Special Packages
+                </div>
+                <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6 section-title">
+                    Complete Care Packages
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Save money while giving your pets the best care with our specially curated packages. 
+                    Everything your furry friend needs, bundled with love! 🎁
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                @forelse($featuredPackages as $package)
+                <!-- Package Card -->
+                <div class="package-card bg-white rounded-3xl overflow-hidden border border-gray-100 card-hover p-8">
+                    <!-- Package Icon -->
+                    <div class="package-icon mb-6">
+                        @php
+                            $packageIcons = [
+                                'Grooming' => 'fa-cut',
+                                'Health Package' => 'fa-heart-pulse',
+                                'Wellness Package' => 'fa-spa',
+                                'Puppy Package' => 'fa-dog',
+                                'Senior Care' => 'fa-heart',
+                                'Complete Care' => 'fa-star',
+                                'default' => 'fa-gift'
+                            ];
+                            $firstType = is_array($package['types']) && count($package['types']) > 0 ? $package['types'][0] : 'default';
+                            $icon = $packageIcons[$firstType] ?? $packageIcons['default'];
+                        @endphp
+                        <i class="fas {{ $icon }} text-3xl"></i>
+                    </div>
+                    
+                    <!-- Package Info -->
+                    <div class="mb-6">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="text-xl font-bold text-gray-900">{{ $package['name'] }}</h3>
+                            <span class="text-2xl font-bold text-green-600">RM {{ number_format($package['price'], 2) }}</span>
+                        </div>
+                        
+                        <!-- Package Types -->
+                        @if(is_array($package['types']) && count($package['types']) > 0)
+                            <div class="mb-4">
+                                @foreach($package['types'] as $type)
+                                    <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-semibold mr-2 mb-2 inline-block">
+                                        {{ $type }}
+                                    </span>
+                                @endforeach
+                            </div>
+                        @endif
+                        
+                        <p class="text-gray-600 mb-4 text-sm leading-relaxed">{{ $package['description'] }}</p>
+                        
+                        <!-- Duration Info -->
+                        @if($package['duration'])
+                            <div class="flex items-center text-sm text-gray-500 mb-4">
+                                <i class="fas fa-clock mr-2 text-green-500"></i>
+                                <span>{{ $package['duration'] }} minutes</span>
+                            </div>
+                        @endif
+                        
+                        <!-- Clinic Info -->
+                        <div class="flex items-center text-sm text-gray-500 mb-6">
+                            <i class="fas fa-clinic-medical mr-2 text-green-500"></i>
+                            <span>{{ $package['merchant_name'] }}</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="space-y-3">
+                        <a href="/bookings/create?package_id={{ $package['id'] }}&booking_type=package" 
+                           class="w-full inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-semibold hover:from-green-600 hover:to-emerald-700 transition duration-300">
+                            <i class="fas fa-shopping-cart mr-2"></i> Book Package
+                        </a>
+                        <a href="/merchants/{{ $package['merchant_id'] }}" 
+                           class="w-full inline-flex items-center justify-center px-6 py-3 bg-white text-gray-700 border-2 border-gray-200 rounded-xl font-semibold hover:border-green-300 hover:text-green-600 transition duration-300">
+                            <i class="fas fa-clinic-medical mr-2"></i> Visit Clinic
+                        </a>
+                    </div>
+                </div>
+                @empty
+                <!-- Fallback if no packages -->
+                <div class="col-span-full text-center py-20">
+                    <div class="max-w-md mx-auto">
+                        <div class="text-8xl mb-6">📦</div>
+                        <h3 class="text-2xl font-bold text-gray-900 mb-4">No Packages Available</h3>
+                        <p class="text-gray-600 mb-8">
+                            Our partners are working on amazing care packages. Stay tuned for great deals!
+                        </p>
+                        <a href="/merchants?role=groomer" class="btn-primary inline-flex items-center">
+                            <i class="fas fa-search mr-2"></i> Browse All Groomers
+                        </a>
+                    </div>
+                </div>
+                @endforelse
+            </div>
+            
+            <!-- View More Button -->
+            @if(count($featuredPackages) > 0)
+            <div class="text-center mt-12">
+                <a href="/merchants?role=groomer" class="btn-primary inline-flex items-center text-lg">
+                    <i class="fas fa-gift mr-3"></i>
+                    View All Available Packages
+                </a>
+            </div>
+            @endif
+        </div>
+    </section>
 
 @endsection
 
 @push('scripts')
     <script>
-        function openQuickView(name, desc, imgUrl) {
-            document.getElementById('quickViewModal').classList.remove('hidden');
-            document.getElementById('quickViewContent').innerHTML = `
-                <div class="text-center">
-                    <div class="h-56 overflow-hidden bg-gray-100 rounded-lg mb-5 flex items-center justify-center">
-                        <img src="${imgUrl}" alt="${name}" class="h-full object-cover">
-                    </div>
-                    <h3 class="text-2xl font-bold text-gray-900">${name}</h3>
-                    <p class="text-gray-600 mb-5">${desc}</p>
-                    <div class="flex justify-center gap-4">
-                        <button class="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition">
-                            <i class="fas fa-heart mr-2"></i> Adopt Me
-                        </button>
-                        <button onclick="closeQuickView()" class="px-6 py-3 bg-gray-200 text-gray-800 rounded-lg font-medium hover:bg-gray-300 transition">
-                            Close
-                        </button>
-                    </div>
-                </div>
-            `;
-        }
-
-        function closeQuickView() {
-            document.getElementById('quickViewModal').classList.add('hidden');
-        }
+        // No scripts needed for pet cards anymore
     </script>
 @endpush
 </body>

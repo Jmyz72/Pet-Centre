@@ -300,10 +300,29 @@ class BookingController extends Controller
             abort(403, 'Unauthorized access to booking hold');
         }
 
-        // Complete the booking using the hold data
-        $booking = \App\Bookings\BookingFactory::make($hold->booking_type)->completeFromHold($hold);
+        // Check if already converted to avoid duplicate processing
+        if ($hold->status === 'converted') {
+            // Find the existing booking and redirect to success
+            $booking = Booking::where('idempotency_key', $hold->idempotency_key)->first();
+            if ($booking) {
+                return redirect()->route('bookings.success', ['booking' => $booking->id]);
+            }
+        }
 
-        return redirect()->route('bookings.success', ['booking' => $booking->id]);
+        try {
+            // Complete the booking using the hold data
+            $booking = \App\Bookings\BookingFactory::make($hold->booking_type)->completeFromHold($hold);
+
+            return redirect()->route('bookings.success', ['booking' => $booking->id]);
+        } catch (\Exception $e) {
+            \Log::error('Booking completion failed', [
+                'user_id' => auth()->id(),
+                'hold_id' => $hold->id,
+                'error' => $e->getMessage()
+            ]);
+
+            return redirect()->back()->with('error', 'Payment processing failed. Please try again or contact support.');
+        }
     }
 
     public function success(Booking $booking)

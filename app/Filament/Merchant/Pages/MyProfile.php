@@ -24,8 +24,9 @@ class MyProfile extends Page implements HasForms
 
     protected static ?string $navigationIcon = 'heroicon-o-user';
     protected static ?string $navigationLabel = 'My Profile';
+    protected static ?string $navigationGroup = 'Account Management';
+    protected static ?int $navigationSort = 10;
     protected static ?string $title = 'My Merchant Profile';
-    protected static ?string $navigationGroup = 'Account';
 
     /**
      * Blade view path for this page.

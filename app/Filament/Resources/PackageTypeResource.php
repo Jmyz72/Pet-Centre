@@ -17,11 +17,10 @@ class PackageTypeResource extends Resource
 {
     protected static ?string $model = PackageType::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-cube';
-
-    protected static ?string $navigationGroup = 'Package Management';
-
-    protected static ?int $navigationSort = 40;
+    protected static ?string $navigationIcon = 'heroicon-o-tag';
+    protected static ?string $navigationLabel = 'Package Types';
+    protected static ?string $navigationGroup = 'Content Management';
+    protected static ?int $navigationSort = 50;
 
     public static function form(Form $form): Form
     {

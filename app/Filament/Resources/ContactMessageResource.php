@@ -17,10 +17,9 @@ class ContactMessageResource extends Resource
     protected static ?string $model = ContactMessage::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-chat-bubble-left-ellipsis';
-
-    protected static ?string $navigationGroup = 'User Management';
-
-    protected static ?int $navigationSort = 40;
+    protected static ?string $navigationLabel = 'Contact Messages';
+    protected static ?string $navigationGroup = 'Support Management';
+    protected static ?int $navigationSort = 10;
 
     public static function form(Form $form): Form
     {

@@ -6,6 +6,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class Pet extends Model
 {
+    /**
+     * Pet status constants
+     */
+    public const STATUS_DRAFT = 'draft';
+    public const STATUS_AVAILABLE = 'available';
+    public const STATUS_RESERVED = 'reserved';
+    public const STATUS_ADOPTED = 'adopted';
+    public const STATUS_INACTIVE = 'inactive';
+
     protected $fillable = [
         'merchant_id',
         'pet_type_id',
@@ -36,6 +45,35 @@ class Pet extends Model
     public function size()
     {
         return $this->belongsTo(Size::class);
+    }
+
+    public function merchantProfile()
+    {
+        return $this->belongsTo(MerchantProfile::class, 'merchant_id');
+    }
+
+    /**
+     * Check if pet is available for adoption
+     */
+    public function isAvailable(): bool
+    {
+        return $this->status === self::STATUS_AVAILABLE;
+    }
+
+    /**
+     * Check if pet is reserved for adoption
+     */
+    public function isReserved(): bool
+    {
+        return $this->status === self::STATUS_RESERVED;
+    }
+
+    /**
+     * Check if pet is adopted
+     */
+    public function isAdopted(): bool
+    {
+        return $this->status === self::STATUS_ADOPTED;
     }
 
     protected static function booted(): void

@@ -19,12 +19,10 @@ class MerchantWalletResource extends Resource
     protected static ?string $model = MerchantWallet::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-wallet';
-    
     protected static ?string $navigationLabel = 'My Wallet';
-    
+    protected static ?string $navigationGroup = 'Financial Management';
     protected static ?string $modelLabel = 'Wallet';
-    
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 10;
 
     public static function getEloquentQuery(): Builder
     {

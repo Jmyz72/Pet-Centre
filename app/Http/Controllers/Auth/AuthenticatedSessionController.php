@@ -30,20 +30,31 @@ class AuthenticatedSessionController extends Controller
 
         $user = Auth::user();
 
-        // // Admin -> Filament Admin panel
-        // if ($user->hasRole('admin')) {
-        //     return redirect()->route('filament.admin.pages.dashboard');
-        // }
+        // Check if user has verified their email
+        if (!$user->hasVerifiedEmail()) {
+            Auth::logout();
 
-        // // Groomer / Clinic / Shelter -> Filament Merchant panel
-        // if ($user->hasAnyRole(['groomer', 'clinic', 'shelter'])) {
-        //     return redirect()->route('filament.merchant.pages.dashboard');
-        // }
+            // Send verification email
+            $user->sendEmailVerificationNotification();
 
-        // // Customer -> Welcome page (public landing)
-        // if ($user->hasRole('customer')) {
-        //     return redirect()->to('/');
-        // }
+            return redirect()->route('verification.notice')
+                ->with('message', 'Please verify your email before logging in. A verification email has been sent to your email address.');
+        }
+
+        // Admin -> Filament Admin panel
+        if ($user->hasRole('admin')) {
+            return redirect()->route('filament.admin.pages.dashboard');
+        }
+
+        // Groomer / Clinic / Shelter -> Filament Merchant panel
+        if ($user->hasAnyRole(['groomer', 'clinic', 'shelter'])) {
+            return redirect()->route('filament.merchant.pages.dashboard');
+        }
+
+        // Customer -> Welcome page (public landing)
+        if ($user->hasRole('customer')) {
+            return redirect()->to('/');
+        }
 
         // Fallback: go home
         return redirect()->intended('/');

@@ -38,4 +38,35 @@ class AdoptionBooking extends BookingTemplate
 
         return (float) ($pet->adoption_fee ?? 0.0);
     }
+
+    /**
+     * Override afterFinalised to update pet status to reserved for adoption bookings
+     */
+    protected function afterFinalised(\App\Models\Booking $booking, array $data): void
+    {
+        // Call parent implementation first (notifications, etc.)
+        parent::afterFinalised($booking, $data);
+
+        // Update pet status to reserved if this is an adoption booking
+        if ($booking->booking_type === 'adoption' && isset($data['pet_id'])) {
+            $petId = (int) $data['pet_id'];
+
+            try {
+                $pet = Pet::findOrFail($petId);
+                $pet->update(['status' => Pet::STATUS_RESERVED]);
+
+                \Log::info('Pet status updated to reserved', [
+                    'pet_id' => $petId,
+                    'booking_id' => $booking->id,
+                    'status' => Pet::STATUS_RESERVED
+                ]);
+            } catch (\Exception $e) {
+                \Log::error('Failed to update pet status to reserved', [
+                    'pet_id' => $petId,
+                    'booking_id' => $booking->id,
+                    'error' => $e->getMessage()
+                ]);
+            }
+        }
+    }
 }

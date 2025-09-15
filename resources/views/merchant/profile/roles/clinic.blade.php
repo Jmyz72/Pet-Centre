@@ -61,8 +61,14 @@
             @endforeach
         </div>
     @else
-        <div class="bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 p-5 rounded shadow text-center">
-            <span class="font-medium">No services available at this clinic.</span>
+        <div class="text-center py-12">
+            <div class="mx-auto max-w-md">
+                <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-blue-50 to-indigo-50">
+                    <i class="fas fa-stethoscope text-2xl text-blue-600"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">No Services Available</h3>
+                <p class="text-gray-600 text-sm leading-relaxed">This clinic hasn't added any services yet. Please check back later or contact them directly for more information.</p>
+            </div>
         </div>
     @endif
 </section>

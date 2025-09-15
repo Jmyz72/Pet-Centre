@@ -20,15 +20,32 @@ use App\Models\PetBreed;
 use Carbon\Carbon;
 use Filament\Tables\Columns\IconColumn;
 use App\Models\Size;
-use App\Filament\Traits\MerchantScopedResource;
 
 class PetResource extends Resource
 {
-    use MerchantScopedResource;
 
     protected static ?string $model = Pet::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-heart';
+    protected static ?string $navigationLabel = 'My Pets';
+    protected static ?string $navigationGroup = 'Pet Management';
+    protected static ?int $navigationSort = 10;
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        $user = auth()->user();
+        $merchantProfile = $user?->merchantProfile;
+        
+        // Only show for shelter merchants
+        return $merchantProfile && $merchantProfile->role === 'shelter';
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        // Only show pets that belong to the current merchant
+        return parent::getEloquentQuery()
+            ->where('merchant_id', auth()->user()->merchantProfile->id ?? 0);
+    }
 
     public static function form(Form $form): Form
     {

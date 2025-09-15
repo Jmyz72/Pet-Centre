@@ -17,11 +17,10 @@ class PetTypeResource extends Resource
 {
     protected static ?string $model = PetType::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-heart';
-
-    protected static ?string $navigationGroup = 'Pet Management';
-
-    protected static ?int $navigationSort = 20;
+    protected static ?string $navigationIcon = 'heroicon-o-tag';
+    protected static ?string $navigationLabel = 'Pet Types';
+    protected static ?string $navigationGroup = 'Content Management';
+    protected static ?int $navigationSort = 10;
 
     public static function form(Form $form): Form
     {

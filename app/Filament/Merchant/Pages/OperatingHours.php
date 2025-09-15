@@ -25,12 +25,18 @@ class OperatingHours extends Page implements HasForms
 {
     use InteractsWithForms;
 
-    protected static ?string $navigationLabel = 'Operating Hours';
+    protected static ?string $navigationLabel = 'Shop Operating Hours';
     protected static ?string $navigationIcon  = 'heroicon-o-clock';
-    protected static ?string $navigationGroup = 'Account';
-    protected static ?int    $navigationSort  = 21;
+    protected static ?string $navigationGroup = 'Business Management';
+    protected static ?int    $navigationSort  = 10;
 
-    protected static ?string $title = 'Operating Hours';
+    public static function shouldRegisterNavigation(): bool
+    {
+        $role = auth()->user()?->merchantProfile?->role;
+        return in_array($role, ['clinic', 'groomer']);
+    }
+
+    protected static ?string $title = 'Shop Operating Hours';
     protected static ?string $slug  = 'operating-hours';
     protected static string $view   = 'filament.merchant.pages.operating-hours';
 

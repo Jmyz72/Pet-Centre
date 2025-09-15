@@ -1,12 +1,30 @@
 <x-guest-layout>
-    <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">
-        {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
+    <x-slot name="title">Forgot Password</x-slot>
+    <x-slot name="headerIcon">fa-key</x-slot>
+    <x-slot name="headerTitle">Forgot Password?</x-slot>
+    <x-slot name="headerSubtitle">No worries! We'll send you reset instructions</x-slot>
+
+    <!-- Information Message -->
+    <div class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+        <div class="flex items-start">
+            <i class="fas fa-info-circle text-blue-500 mt-0.5 mr-3"></i>
+            <p class="text-sm text-blue-700">
+                Enter your email address and we'll send you a password reset link that will allow you to choose a new one.
+            </p>
+        </div>
     </div>
 
     <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+    @if (session('status'))
+        <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl">
+            <div class="flex items-center">
+                <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                <p class="text-sm text-green-700">{{ session('status') }}</p>
+            </div>
+        </div>
+    @endif
 
-    <form method="POST" action="{{ route('password.email') }}">
+    <form method="POST" action="{{ route('password.email') }}" class="space-y-6">
         @csrf
 
         <!-- Email Address -->

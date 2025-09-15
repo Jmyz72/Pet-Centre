@@ -17,11 +17,10 @@ class ServiceResource extends Resource
 {
     protected static ?string $model = Service::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-cog';
-
+    protected static ?string $navigationIcon = 'heroicon-o-heart';
+    protected static ?string $navigationLabel = 'All Services';
     protected static ?string $navigationGroup = 'Service Management';
-    
-    protected static ?int $navigationSort = 30;
+    protected static ?int $navigationSort = 10;
 
     public static function form(Form $form): Form
     {

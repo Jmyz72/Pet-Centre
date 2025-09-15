@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Booking;
+use App\Models\Pet;
 use App\Models\User;
 use App\Models\WalletTransaction;
 use App\Notifications\BookingCompletedNotification;
@@ -50,8 +51,46 @@ class ReleaseCodeService
         // Update booking status to completed
         $booking->update(['status' => 'completed']);
 
+        // If this is an adoption booking, update pet status to adopted
+        $this->updatePetStatusIfAdoption($booking);
+
         // Send completion notifications to both customer and merchant
         $this->sendCompletionNotifications($booking, $transaction);
+    }
+
+    /**
+     * Update pet status to adopted if this is an adoption booking
+     */
+    private function updatePetStatusIfAdoption(Booking $booking): void
+    {
+        if ($booking->booking_type === 'adoption' && $booking->pet_id) {
+            try {
+                $pet = Pet::find($booking->pet_id);
+                if ($pet) {
+                    $pet->update([
+                        'status' => Pet::STATUS_ADOPTED,
+                        'adopted_at' => now()
+                    ]);
+
+                    \Log::info('Pet status updated to adopted', [
+                        'pet_id' => $pet->id,
+                        'booking_id' => $booking->id,
+                        'adopted_at' => now()
+                    ]);
+                } else {
+                    \Log::warning('Pet not found for adoption booking', [
+                        'pet_id' => $booking->pet_id,
+                        'booking_id' => $booking->id
+                    ]);
+                }
+            } catch (\Exception $e) {
+                \Log::error('Failed to update pet status to adopted', [
+                    'pet_id' => $booking->pet_id,
+                    'booking_id' => $booking->id,
+                    'error' => $e->getMessage()
+                ]);
+            }
+        }
     }
 
     /**

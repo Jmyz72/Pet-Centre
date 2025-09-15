@@ -16,15 +16,32 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Domain\Staff\StaffFactory;
 use Illuminate\Validation\ValidationException;
-use App\Filament\Traits\MerchantScopedResource;
 
 class StaffResource extends Resource
 {
-    use MerchantScopedResource;
 
     protected static ?string $model = Staff::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-users';
+    protected static ?string $navigationLabel = 'Staff Members';
+    protected static ?string $navigationGroup = 'Staff Management';
+    protected static ?int $navigationSort = 10;
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        $user = auth()->user();
+        $merchantProfile = $user?->merchantProfile;
+        
+        // Only show for clinic and groomer merchants
+        return $merchantProfile && in_array($merchantProfile->role, ['clinic', 'groomer']);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        // Only show staff that belong to the current merchant
+        return parent::getEloquentQuery()
+            ->where('merchant_id', auth()->user()->merchantProfile->id ?? 0);
+    }
 
     public static function form(Form $form): Form
     {

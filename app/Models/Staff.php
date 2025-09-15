@@ -57,4 +57,10 @@ class Staff extends Model
     {
         return $this->hasMany(Schedule::class);
     }
+
+    // One-to-many: staff can have many bookings
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class);
+    }
 }
