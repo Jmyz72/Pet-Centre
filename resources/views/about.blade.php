@@ -351,11 +351,8 @@
                 Whether you're looking to adopt, need veterinary services, or want to keep your pet looking their best, we're here to help every step of the way.
             </p>
             <div class="flex flex-col sm:flex-row justify-center gap-4">
-                <a href="/pets" class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition">
+                <a href="../#pets" class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition">
                     Browse Pets
-                </a>
-                <a href="/services" class="px-6 py-3 bg-white border border-gray-300 text-gray-800 font-semibold rounded-lg hover:bg-gray-50 transition">
-                    Our Services
                 </a>
                 <a href="/contact" class="px-6 py-3 bg-gray-100 text-gray-800 font-semibold rounded-lg hover:bg-gray-200 transition">
                     Contact Us
