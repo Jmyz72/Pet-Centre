@@ -6,6 +6,7 @@ use App\Filament\Merchant\Widgets\BusinessMetricsWidget;
 use App\Filament\Merchant\Widgets\BookingsOverviewWidget;
 use App\Filament\Merchant\Widgets\StaffPerformanceWidget;
 use App\Filament\Merchant\Widgets\WalletSummaryWidget;
+use App\Filament\Merchant\Widgets\SetupProgressWidget;
 use Filament\Pages\Dashboard as BaseDashboard;
 
 class Dashboard extends BaseDashboard
@@ -17,12 +18,17 @@ class Dashboard extends BaseDashboard
     public function getWidgetData(): array
     {
         return [
+            'SetupProgressWidget' => [
+                'columnSpan' => 'full',
+                'sort' => -10, // Highest priority
+            ],
             'BusinessMetricsWidget' => [
                 'columnSpan' => [
                     'default' => 1,
                     'md' => 2,
                     'xl' => 3,
                 ],
+                'sort' => 1,
             ],
             'WalletSummaryWidget' => [
                 'columnSpan' => [
@@ -30,6 +36,7 @@ class Dashboard extends BaseDashboard
                     'md' => 1,
                     'xl' => 1,
                 ],
+                'sort' => 2,
             ],
             'BookingsOverviewWidget' => [
                 'columnSpan' => [
@@ -37,6 +44,7 @@ class Dashboard extends BaseDashboard
                     'md' => 1,
                     'xl' => 2,
                 ],
+                'sort' => 3,
             ],
             'StaffPerformanceWidget' => [
                 'columnSpan' => [
@@ -44,6 +52,7 @@ class Dashboard extends BaseDashboard
                     'md' => 2,
                     'xl' => 3,
                 ],
+                'sort' => 4,
             ],
         ];
     }
@@ -51,6 +60,9 @@ class Dashboard extends BaseDashboard
     public function getWidgets(): array
     {
         return [
+            // Setup progress - priority widget at top
+            SetupProgressWidget::class,
+            
             // Key business metrics - full width
             BusinessMetricsWidget::class,
 

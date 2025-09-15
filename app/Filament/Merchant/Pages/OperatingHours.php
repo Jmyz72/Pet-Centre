@@ -33,7 +33,7 @@ class OperatingHours extends Page implements HasForms
     public static function shouldRegisterNavigation(): bool
     {
         $role = auth()->user()?->merchantProfile?->role;
-        return in_array($role, ['clinic', 'groomer']);
+        return in_array($role, ['clinic', 'groomer', 'shelter']);
     }
 
     protected static ?string $title = 'Shop Operating Hours';
