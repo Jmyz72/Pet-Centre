@@ -3,9 +3,28 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;   
 
 class Booking extends Model
 {
+    use LogsActivity;
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            // Log changes to these specific, important attributes
+            ->logOnly(['status', 'start_at', 'end_at', 'price_amount', 'customer_id', 'merchant_id'])
+            
+            // Use a friendly, dynamic description for the log message
+            ->setDescriptionForEvent(fn(string $eventName) => "A booking has been {$eventName}")
+            
+            // Log only the attributes that have actually changed
+            ->logOnlyDirty()
+            
+            // Don't create a log entry if nothing was changed
+            ->dontSubmitEmptyLogs();
+    }
 
     protected $fillable = [
         'merchant_id','customer_id','booking_type',
