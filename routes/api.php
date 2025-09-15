@@ -22,6 +22,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/chat/messages', [ChatController::class, 'store'])->name('api.chat.store')->middleware('throttle:chat');
     Route::put('/chat/messages/{message}', [ChatController::class, 'update'])->name('api.chat.update');
     Route::delete('/chat/messages/{message}', [ChatController::class, 'destroy'])->name('api.chat.destroy');
+    Route::get('/chat/unread-count', [App\Http\Controllers\Api\ChatController::class, 'getUnreadCount'])->name('api.chat.unread-count');
 
 });
 

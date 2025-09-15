@@ -29,5 +29,15 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->statefulApi();
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        
+        $exceptions->reportable(function (AuthorizationException $e, $request) {
+            $user = $request->user();
+            $userId = $user ? $user->id : 'Guest';
+            $ip = $request->ip();
+            $url = $request->fullUrl();
+
+            // Log the access control failure with critical details.
+            Log::warning("Access Control Violation: User [{$userId}] from IP [{$ip}] attempted to access unauthorized URL [{$url}]");
+        });
+        
     })->create();

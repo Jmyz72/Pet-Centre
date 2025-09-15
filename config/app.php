@@ -124,6 +124,9 @@ return [
     ],
 
     
+    'provider' => [
+         App\Providers\ViewServiceProvider::class,
+    ],
 
     'timezone' => 'Asia/Kuala_Lumpur',
 

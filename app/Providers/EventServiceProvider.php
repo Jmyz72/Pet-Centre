@@ -25,6 +25,14 @@ class EventServiceProvider extends ServiceProvider
         MessageSent::class => [
             SendNewMessageNotification::class,
         ],
+
+        Login::class => [
+            LogAuthenticationAttempt::class,
+        ],
+
+        Failed::class => [
+            LogAuthenticationAttempt::class,
+        ],
     ];
 
     public $bindings = [ 

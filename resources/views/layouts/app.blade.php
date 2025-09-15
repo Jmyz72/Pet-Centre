@@ -36,5 +36,51 @@
     {{-- Footer --}}
     @include('layouts.footer')
 
+
+    @auth {{-- Only run this script if the user is logged in --}}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        // Find the chat link and create a placeholder for the badge
+        const chatLink = $('a[href="{{ route('chat.index') }}"]');
+        // We give the badge a specific ID to make it easy to find
+        const badgeId = 'chat-notification-badge';
+
+        function updateUnreadBadge(count) {
+            // Remove the old badge first
+            $('#' + badgeId).remove();
+
+            if (count > 0) {
+                // If there are unread messages, create and append the new badge
+                const badgeHtml = `
+                    <span id="${badgeId}" class="absolute top-0 right-0 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white bg-red-600 rounded-full transform translate-x-1/2 -translate-y-1/2">
+                        ${count}
+                    </span>
+                `;
+                chatLink.append(badgeHtml);
+            }
+        }
+
+        function checkUnreadMessages() {
+            $.ajax({
+                url: "{{ route('api.chat.unread-count') }}",
+                type: "GET",
+                headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+                success: function(response) {
+                    if (response.unread_count !== undefined) {
+                        updateUnreadBadge(response.unread_count);
+                    }
+                },
+                error: function(xhr) {
+                    console.error("Could not check for unread messages.");
+                }
+            });
+        }
+
+        // Check for messages every 20 seconds (20000 milliseconds)
+        setInterval(checkUnreadMessages, 20000);
+    });
+    </script>
+    @endauth
 </body>
 </html>

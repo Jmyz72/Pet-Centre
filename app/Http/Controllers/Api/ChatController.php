@@ -16,6 +16,14 @@ class ChatController extends Controller
 
     const DEFAULT_PAGINATION_SIZE = 50; // Increased for chat history
 
+    public function getUnreadCount()
+    {
+        $count = Message::where('receiver_id', Auth::id())
+                        ->where('is_read', false)
+                        ->count();
+        
+        return response()->json(['unread_count' => $count]);
+    }
     /**
      * THIS IS THE MISSING METHOD
      * Fetch messages for a conversation.
