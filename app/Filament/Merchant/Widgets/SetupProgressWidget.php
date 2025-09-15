@@ -119,7 +119,7 @@ class SetupProgressWidget extends Widget
                     'icon' => 'heroicon-o-calendar-days',
                 ]);
 
-                // Step 6: Grooming Packages
+                // Step 5: Grooming Packages
                 $steps->push([
                     'id' => 'packages',
                     'title' => 'Create Service Packages',
@@ -193,5 +193,13 @@ class SetupProgressWidget extends Widget
     private function hasPackages(MerchantProfile $profile): bool
     {
         return Package::where('merchant_id', $profile->id)->where('is_active', true)->exists();
+    }
+
+    public function getMerchantType(): string
+    {
+        $user = auth()->user();
+        $merchantProfile = $user->merchantProfile;
+        
+        return $merchantProfile ? $merchantProfile->role : 'business';
     }
 }

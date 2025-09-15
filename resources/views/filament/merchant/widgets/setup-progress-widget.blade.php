@@ -1,16 +1,16 @@
 <x-filament-widgets::widget>
-    <x-filament::section style="{{ $this->getCompletionPercentage() === 100 ? 'background-color: #f0fdf4; border-color: #bbf7d0; border-width: 1px;' : '' }}">
+    <x-filament::section>
         <x-slot name="heading">
             <div class="flex items-center gap-2">
                 @if($this->getCompletionPercentage() === 100)
-                    <x-heroicon-o-check-circle class="h-5 w-5" style="color: #16a34a;" />
+                    <x-heroicon-o-check-circle class="h-5 w-5 text-gray-600" />
                 @else
                     <x-heroicon-o-clipboard-document-check class="h-5 w-5 text-primary-600" />
                 @endif
-                <span style="{{ $this->getCompletionPercentage() === 100 ? 'color: #15803d;' : '' }}">
+                <span>
                     Business Setup Progress
                     @if($this->getCompletionPercentage() === 100)
-                        <span class="ml-2 text-xs font-normal">✓ Complete</span>
+                        <span class="ml-2 text-xs font-normal text-gray-600">✓ Complete</span>
                     @endif
                 </span>
             </div>
@@ -18,32 +18,29 @@
 
         <div class="space-y-6">
             {{-- Progress Bar --}}
-            <div style="{{ $this->getCompletionPercentage() === 100 ? 'background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 16px;' : '' }}">
+            <div>
                 <div class="flex items-center justify-between mb-2">
-                    <span class="text-sm font-medium" style="{{ $this->getCompletionPercentage() === 100 ? 'color: #15803d;' : 'color: #374151;' }}">
+                    <span class="text-sm font-medium {{ $this->getCompletionPercentage() === 100 ? 'text-green-600' : 'text-gray-700' }}">
                         Setup Completion
                     </span>
-                    <span class="text-sm font-medium" style="{{ $this->getCompletionPercentage() === 100 ? 'color: #15803d;' : 'color: #374151;' }}">
+                    <span class="text-sm font-medium {{ $this->getCompletionPercentage() === 100 ? 'text-green-600' : 'text-gray-700' }}">
                         {{ $this->getCompletionPercentage() }}%
-                        @if($this->getCompletionPercentage() === 100)
-                            🎉
-                        @endif
                     </span>
                 </div>
                 <div class="w-full bg-gray-200 rounded-full h-3 dark:bg-gray-700">
                     <div class="h-3 rounded-full transition-all duration-500 ease-in-out" 
-                         style="width: {{ $this->getCompletionPercentage() }}%; background: linear-gradient(to right, #10b981, #059669); background-color: #10b981;">
+                         style="width: {{ $this->getCompletionPercentage() }}%; background-color: #22c55e;">
                     </div>
                 </div>
             </div>
 
             {{-- Completion Message --}}
             @if($this->getCompletionPercentage() === 100)
-                <div class="bg-success-50 border border-success-200 rounded-lg p-4 dark:bg-success-900/20 dark:border-success-700">
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 dark:bg-gray-800 dark:border-gray-700">
                     <div class="flex items-center">
-                        <x-heroicon-o-check-circle class="h-5 w-5 text-success-600 dark:text-success-400 mr-2" />
-                        <p class="text-sm font-medium text-success-800 dark:text-success-200">
-                            🎉 Congratulations! Your business setup is complete and ready to accept bookings.
+                        <x-heroicon-o-check-circle class="h-5 w-5 text-gray-600 dark:text-gray-400 mr-2" />
+                        <p class="text-sm font-medium text-gray-800 dark:text-gray-200">
+                            Congratulations! Your business setup is complete and ready to accept bookings.
                         </p>
                     </div>
                 </div>
@@ -61,11 +58,11 @@
             {{-- Setup Steps --}}
             <div class="space-y-3">
                 @foreach($this->getSetupSteps() as $index => $step)
-                    <div class="flex items-center p-4 border rounded-lg transition-colors {{ $step['completed'] ? 'bg-success-50 border-success-200 dark:bg-success-900/10 dark:border-success-700' : 'bg-gray-50 border-gray-200 hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700' }}">
+                    <div class="flex items-center p-4 border rounded-lg transition-colors {{ $step['completed'] ? 'bg-gray-50 border-gray-300 dark:bg-gray-800 dark:border-gray-600' : 'bg-gray-50 border-gray-200 hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700' }}">
                         {{-- Step Number/Check --}}
                         <div class="flex-shrink-0 mr-4">
                             @if($step['completed'])
-                                <div class="w-8 h-8 bg-success-500 rounded-full flex items-center justify-center">
+                                <div class="w-8 h-8 bg-gray-500 rounded-full flex items-center justify-center">
                                     <x-heroicon-o-check class="h-4 w-4 text-white" />
                                 </div>
                             @else
@@ -82,10 +79,10 @@
 
                         {{-- Step Content --}}
                         <div class="flex-1 min-w-0">
-                            <h4 class="text-sm font-medium {{ $step['completed'] ? 'text-success-800 dark:text-success-200' : 'text-gray-900 dark:text-gray-100' }}">
+                            <h4 class="text-sm font-medium {{ $step['completed'] ? 'text-gray-800 dark:text-gray-200' : 'text-gray-900 dark:text-gray-100' }}">
                                 {{ $step['title'] }}
                             </h4>
-                            <p class="text-sm {{ $step['completed'] ? 'text-success-600 dark:text-success-300' : 'text-gray-500 dark:text-gray-400' }}">
+                            <p class="text-sm {{ $step['completed'] ? 'text-gray-600 dark:text-gray-400' : 'text-gray-500 dark:text-gray-400' }}">
                                 {{ $step['description'] }}
                             </p>
                         </div>
@@ -93,7 +90,7 @@
                         {{-- Action Button --}}
                         <div class="flex-shrink-0 ml-4">
                             <a href="{{ $step['url'] }}" 
-                               class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md {{ $step['completed'] ? 'text-success-700 bg-success-100 hover:bg-success-200 dark:text-success-200 dark:bg-success-900/20 dark:hover:bg-success-900/30' : 'text-primary-700 bg-primary-100 hover:bg-primary-200 dark:text-primary-200 dark:bg-primary-900/20 dark:hover:bg-primary-900/30' }} transition-colors">
+                               class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md {{ $step['completed'] ? 'text-gray-700 bg-gray-100 hover:bg-gray-200 dark:text-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600' : 'text-primary-700 bg-primary-100 hover:bg-primary-200 dark:text-primary-200 dark:bg-primary-900/20 dark:hover:bg-primary-900/30' }} transition-colors">
                                 @if($step['completed'])
                                     View
                                 @else
