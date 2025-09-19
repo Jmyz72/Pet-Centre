@@ -124,7 +124,7 @@ class MerchantApplicationController extends Controller
         $application = \App\Models\MerchantApplication::where('user_id', auth()->id())
             ->latest()
             ->first();
-        $totalMerchants = \App\Models\MerchantProfile::where('user_id', $user->id)->count();
+        $totalMerchants = \App\Models\MerchantProfile::where('user_id', auth()->id())->count();
 
         if (!$application) {
             return redirect()->route('merchant.apply')->withErrors('No application found.');
@@ -146,5 +146,12 @@ class MerchantApplicationController extends Controller
 
         // If no application, go to apply page
         return redirect()->route('merchant.apply');
+    }
+
+    public function groomerCount()
+    {
+        $groomerCount = MerchantProfile::where('role', 'groomer')->count();
+
+        return view('merchant.groomer-count', compact('groomerCount'));
     }
 }
