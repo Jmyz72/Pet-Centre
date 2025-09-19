@@ -52,6 +52,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/apply-merchant/form', [MerchantApplicationController::class, 'showForm'])->name('merchant.apply.form');
     Route::post('/apply-merchant/store', [MerchantApplicationController::class, 'submit'])->name('merchant.apply.submit');
     Route::get('/apply-merchant/submitted', [MerchantApplicationController::class, 'showSubmitted'])->name('merchant.application.submitted');
+    Route::get('/groomer-count', [MerchantApplicationController::class, 'groomerCount'])->name('merchant.groomer.count');
 
     /* Chat routes */
     Route::get('/chat/{receiverId?}', [ChatController::class, 'index'])->name('chat.index');
