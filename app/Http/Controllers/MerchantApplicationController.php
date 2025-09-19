@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use App\Models\MerchantApplication;
+use App\Models\MerchantProfile;
 
 class MerchantApplicationController extends Controller
 {
@@ -13,6 +14,7 @@ class MerchantApplicationController extends Controller
     {
         $user = Auth::user();
         $application = \App\Models\MerchantApplication::where('user_id', $user->id)->latest()->first();
+        $totalMerchants = \App\Models\MerchantProfile::where('user_id', $user->id)->count();
 
         if ($application) {
             if ($application->status === 'pending') {
@@ -26,7 +28,8 @@ class MerchantApplicationController extends Controller
             }
         }
         return view('merchant.apply', [
-            'selectedType' => $application ? $application->role : null
+            'selectedType' => $application ? $application->role : null,
+            'totalMerchant' => $totalMerchants,
         ]); // step 1
     }
 
@@ -121,6 +124,7 @@ class MerchantApplicationController extends Controller
         $application = \App\Models\MerchantApplication::where('user_id', auth()->id())
             ->latest()
             ->first();
+        $totalMerchants = \App\Models\MerchantProfile::where('user_id', $user->id)->count();
 
         if (!$application) {
             return redirect()->route('merchant.apply')->withErrors('No application found.');
@@ -133,6 +137,7 @@ class MerchantApplicationController extends Controller
     {
         $user = Auth::user();
         $application = MerchantApplication::where('user_id', $user->id)->latest()->first();
+        $totalMerchants = \App\Models\MerchantProfile::where('user_id', $user->id)->count();        
 
         if ($application) {
             // Always go to submitted page if there's a record

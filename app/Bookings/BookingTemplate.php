@@ -16,16 +16,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\ValidationException;
 
-/**
- * Template Method for all booking flows (adoption, service, package).
- *
- * Controllers should collect/validate request data and then call:
- *
- *   $booking = $concreteBooking->process($payloadArray);
- *
- * The skeleton of the algorithm is fixed here. Concrete subclasses only
- * customise the variable steps by overriding abstract methods / hooks.
- */
+
 abstract class BookingTemplate
 {
     /**

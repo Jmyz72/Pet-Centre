@@ -40,7 +40,9 @@
 <section class="py-12 bg-white">
     <div class="max-w-3xl mx-auto bg-gray-50 rounded shadow px-6 py-8">
 
-        <h2 class="text-2xl font-bold text-blue-600 mb-6 text-center">Your Application Summary</h2>
+        
+
+        <h2 class="text-2xl font-bold text-blue-600 mb-6 text-center">Total Merchant Applied: {{$totalMerchants}}</h2>
 
         <div class="space-y-4 text-gray-700 text-base">
             <p><strong>Role:</strong> {{ ucfirst($application->role) }}</p>

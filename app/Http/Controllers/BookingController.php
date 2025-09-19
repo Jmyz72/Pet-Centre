@@ -19,7 +19,7 @@ class BookingController extends Controller
      */
     private function apiBase(): string
     {
-        return rtrim((string) config('services.internal_api.base', env('API_BASE_URL', 'http://127.0.0.1:8001/api')), '/');
+        return rtrim((string) env('API_BASE_URL', 'http://127.0.0.1:8001/api'), '/');
     }
 
     public function selectPet(Request $request)
